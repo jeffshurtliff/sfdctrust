@@ -59,6 +59,7 @@ packages = [{ include = "sfdctrust", from = "src" }]
 include = [
     { path = "poetry.lock", format = "sdist" },
     { path = "docs/CHANGELOG.md", format = "sdist" },
+    { path = "src/sfdctrust/py.typed", format = "sdist" },
 ]
 exclude = [
     "dev", "local", ".env", ".env.*", "*.key", "**/*.key", "scratch.txt", "**/scratch.txt",
@@ -108,4 +109,3 @@ docs = [
     "pydata-sphinx-theme (>=0.16,<0.23)",
     "sphinx-favicon (>=1.1,<2)"
 ]
-    
