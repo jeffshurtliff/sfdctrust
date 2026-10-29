@@ -108,3 +108,4 @@ docs = [
     "pydata-sphinx-theme (>=0.16,<0.23)",
     "sphinx-favicon (>=1.1,<2)"
 ]
+    
