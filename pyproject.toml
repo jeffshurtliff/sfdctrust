@@ -1,0 +1,110 @@
+# --------------------------------------------------------------------
+# Core Project Configuration
+# --------------------------------------------------------------------
+[project]
+name = "sfdctrust"
+version = "1.0.0.dev0"
+description = "Python SDK for accessing the Salesforce Trust API (aka Status API)"
+readme = "README.md"
+authors = [
+    { name = "Jeff Shurtliff", email = "jeff@shurt.us" }
+]
+maintainers = [
+    { name = "Jeff Shurtliff", email = "jeff@shurt.us" }
+]
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+keywords = ["salesforce", "sfdc", "trust", "uptime", "api", "rest", "tooling", "python"]
+
+classifiers = [
+    # Project Maturity
+    "Development Status :: 2 - Pre-Alpha",
+
+    # Intended audience and environment
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Developers",
+    "Environment :: Web Environment",
+    "Operating System :: OS Independent",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: Site Management",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: System :: Systems Administration",
+
+    # Supported Python versions
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+]
+
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/jeffshurtliff/sfdctrust"
+Issues = "https://github.com/jeffshurtliff/sfdctrust/issues"
+
+[build-system]
+requires = ["poetry-core>=2.2.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+# --------------------------------------------------------------------
+# Poetry-specific Configuration
+# --------------------------------------------------------------------
+[tool.poetry]
+requires-poetry = ">=2.2,<3.0"
+packages = [{ include = "sfdctrust", from = "src" }]
+include = [
+    { path = "poetry.lock", format = "sdist" },
+    { path = "docs/CHANGELOG.md", format = "sdist" },
+]
+exclude = [
+    "dev", "local", ".env", ".env.*", "*.key", "**/*.key", "scratch.txt", "**/scratch.txt",
+    "tempCodeRunnerFile.py", "**/tempCodeRunnerFile.py", "**/__pycache__", "**/*.pyc",
+    "**/.DS_Store", "**/._*", ".venv", "dist", "build", "docs/_build",
+]
+
+[tool.poetry.group.docs]
+optional = true
+
+[tool.ruff]
+line-length = 130
+target-version = "py312"
+# Historical concept scripts are reference material, outside application/test lint scope
+extend-exclude = ["dev"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+# Preserve the UTF-8 declaration in module headers
+ignore = ["UP009"]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+line-ending = "lf"
+
+[tool.pytest.ini_options]
+testpaths = ["tests/unit", "tests/integration"]
+addopts = "--import-mode=importlib"
+
+[tool.coverage.run]
+source = ["sfdctrust"]
+branch = true
+
+[dependency-groups]
+dev = [
+    "pytest (>=8.4,<10)",
+    "coverage (>=7.10,<8)",
+    "ruff (>=0.13,<1)",
+    "bandit (>=1.8,<2)",
+    "twine (>=6.2,<7)",
+    "poetry-core (>=2.2,<3) ; python_version >= \"3.12\" and python_version < \"4.0\""
+]
+docs = [
+    "sphinx (>=8,<10)",
+    "myst-parser (>=4,<6)",
+    "pydata-sphinx-theme (>=0.16,<0.23)",
+    "sphinx-favicon (>=1.1,<2)"
+]
