@@ -5,6 +5,8 @@
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
 :Modified Date:     31 Oct 2026
+
+This file contains code from https://github.com/openai/openai-python/
 """
 
 from __future__ import annotations

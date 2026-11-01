@@ -5,6 +5,8 @@
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
 :Modified Date:     31 Oct 2026
+
+This file contains code from https://github.com/openai/openai-python/
 """
 
 from __future__ import annotations
@@ -60,37 +62,37 @@ from ._types import (
     AnyMapping,
     HttpxRequestFiles,
 )
-# from ._utils import (
-#     PropertyInfo,
-#     is_dict,
-#     is_list,
-#     is_given,
-#     json_safe,
-#     lru_cache,
-#     is_mapping,
-#     parse_date,
-#     coerce_boolean,
-#     parse_datetime,
-#     strip_not_given,
-#     extract_type_arg,
-#     is_annotated_type,
-#     is_type_alias_type,
-#     strip_annotated_type,
-# )
-# from ._compat import (
-#     PYDANTIC_V1,
-#     ConfigDict,
-#     GenericModel as BaseGenericModel,
-#     get_args,
-#     is_union,
-#     parse_obj,
-#     get_origin,
-#     is_literal_type,
-#     get_model_config,
-#     get_model_fields,
-#     field_get_default,
-# )
-# from ._constants import RAW_RESPONSE_HEADER
+from ._utils import (
+    PropertyInfo,
+    is_dict,
+    is_list,
+    is_given,
+    json_safe,
+    lru_cache,
+    is_mapping,
+    parse_date,
+    coerce_boolean,
+    parse_datetime,
+    strip_not_given,
+    extract_type_arg,
+    is_annotated_type,
+    is_type_alias_type,
+    strip_annotated_type,
+)
+from ._compat import (
+    PYDANTIC_V1,
+    ConfigDict,
+    GenericModel as BaseGenericModel,
+    get_args,
+    is_union,
+    parse_obj,
+    get_origin,
+    is_literal_type,
+    get_model_config,
+    get_model_fields,
+    field_get_default,
+)
+from ._constants import RAW_RESPONSE_HEADER
 
 if TYPE_CHECKING:
     from pydantic import GetCoreSchemaHandler, ValidatorFunctionWrapHandler
