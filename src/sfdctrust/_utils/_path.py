@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust._utils._path
-:Synopsis:
+:Synopsis:          Utilities for working with paths
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
-:Modified Date:     31 Oct 2026
+:Modified Date:     01 Nov 2026
 
 This file contains code from https://github.com/openai/openai-python/
 """
@@ -12,11 +12,7 @@ This file contains code from https://github.com/openai/openai-python/
 from __future__ import annotations
 
 import re
-from typing import (
-    Any,
-    Mapping,
-    Callable,
-)
+from typing import Any, Mapping, Callable
 from urllib.parse import quote
 
 # Matches '.' or '..' where each dot is either literal or percent-encoded (%2e / %2E).
@@ -26,7 +22,7 @@ _PLACEHOLDER_RE = re.compile(r"\{(\w+)\}")
 
 
 def _quote_path_segment_part(value: str) -> str:
-    """Percent-encode `value` for use in a URI path segment.
+    """Percent-encodes `value` for use in a URI path segment.
 
     Considers characters not in `pchar` set from RFC 3986 §3.3 to be unsafe.
     https://datatracker.ietf.org/doc/html/rfc3986#section-3.3
@@ -38,7 +34,7 @@ def _quote_path_segment_part(value: str) -> str:
 
 
 def _quote_query_part(value: str) -> str:
-    """Percent-encode `value` for use in a URI query string.
+    """Percent-encodes `value` for use in a URI query string.
 
     Considers &, = and characters not in `query` set from RFC 3986 §3.4 to be unsafe.
     https://datatracker.ietf.org/doc/html/rfc3986#section-3.4
@@ -47,7 +43,7 @@ def _quote_query_part(value: str) -> str:
 
 
 def _quote_fragment_part(value: str) -> str:
-    """Percent-encode `value` for use in a URI fragment.
+    """Percent-encodes `value` for use in a URI fragment.
 
     Considers characters not in `fragment` set from RFC 3986 §3.5 to be unsafe.
     https://datatracker.ietf.org/doc/html/rfc3986#section-3.5
@@ -60,12 +56,11 @@ def _interpolate(
     values: Mapping[str, Any],
     quoter: Callable[[str], str],
 ) -> str:
-    """Replace {name} placeholders in `template`, quoting each value with `quoter`.
+    """Replaces {name} placeholders in `template`, quoting each value with `quoter`.
 
     Placeholder names are looked up in `values`.
 
-    Raises:
-        KeyError: If a placeholder is not found in `values`.
+    :raises KeyError: If a placeholder is not found in `values`
     """
     # re.split with a capturing group returns alternating
     # [text, name, text, name, ..., text] elements.
@@ -87,7 +82,7 @@ def _interpolate(
 
 
 def path_template(template: str, /, **kwargs: Any) -> str:
-    """Interpolate {name} placeholders in `template` from keyword arguments.
+    """Interpolates {name} placeholders in `template` from keyword arguments.
 
     Args:
         template: The template string containing {name} placeholders.

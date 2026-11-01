@@ -4,7 +4,7 @@
 :Synopsis:          Utilities that are utilized throughout the package
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
-:Modified Date:     31 Oct 2026
+:Modified Date:     01 Nov 2026
 
 This file contains code from https://github.com/openai/openai-python/
 """
@@ -27,9 +27,6 @@ from ._utils import (
     is_sequence as is_sequence,
     coerce_float as coerce_float,
     is_mapping_t as is_mapping_t,
-    removeprefix as removeprefix,
-    removesuffix as removesuffix,
-    extract_files as extract_files,
     is_sequence_t as is_sequence_t,
     required_args as required_args,
     coerce_boolean as coerce_boolean,

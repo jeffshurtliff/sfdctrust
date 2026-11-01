@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust._utils._sync
-:Synopsis:
+:Synopsis:          Utilities for sync/async operations
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
-:Modified Date:     31 Oct 2026
+:Modified Date:     01 Nov 2026
 
 This file contains code from https://github.com/openai/openai-python/
 """
@@ -43,7 +43,6 @@ def asyncify(function: Callable[T_ParamSpec, T_Retval]) -> Callable[T_ParamSpec,
     :returns: An async function that takes the same positional and keyword arguments as the original that,
               when called, runs the same original function in a thread worker and returns the results
     """
-
     async def wrapper(*args: T_ParamSpec.args, **kwargs: T_ParamSpec.kwargs) -> T_Retval:
         return await to_thread(function, *args, **kwargs)
 

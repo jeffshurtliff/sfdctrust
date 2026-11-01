@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust._utils._proxy
-:Synopsis:
+:Synopsis:          Utilities for working with proxy objects and methods
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
-:Modified Date:     31 Oct 2026
+:Modified Date:     01 Nov 2026
 
 This file contains code from https://github.com/openai/openai-python/
 """
@@ -23,7 +23,6 @@ class LazyProxy(Generic[T], ABC):
 
     This includes forwarding attribute access and other methods.
     """
-
     # Note: we have to special case proxies that themselves return proxies
     # to support using a proxy as a catch-all for any random access, e.g. `proxy.foo.bar.baz`
 
@@ -69,7 +68,7 @@ class LazyProxy(Generic[T], ABC):
         return self.__load__()
 
     def __as_proxied__(self) -> T:
-        """Helper method that returns the current proxy, typed as the loaded object"""
+        """Helper method that returns the current proxy, typed as the loaded object."""
         return cast(T, self)
 
     @abstractmethod

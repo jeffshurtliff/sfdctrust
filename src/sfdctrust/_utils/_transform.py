@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust._utils._transform
-:Synopsis:
+:Synopsis:          Utilities for transforming data and type hints
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
-:Modified Date:     31 Oct 2026
+:Modified Date:     01 Nov 2026
 
 This file contains code from https://github.com/openai/openai-python/
 """
@@ -52,8 +52,10 @@ class PropertyInfo:
 
     For example:
 
+    ```python
     class MyParams(TypedDict):
         account_holder_name: Annotated[str, PropertyInfo(alias='accountHolderName')]
+    ```
 
     This means that {'account_holder_name': 'Robert'} will be transformed to {'accountHolderName': 'Robert'} before being sent to the API.
     """
@@ -85,7 +87,7 @@ def maybe_transform(
     data: object,
     expected_type: object,
 ) -> Any | None:
-    """Wrapper over `transform()` that allows `None` to be passed.
+    """Acts as a wrapper over `transform()` that allows `None` to be passed.
 
     See `transform()` for more details.
     """
@@ -99,12 +101,11 @@ def transform(
     data: _T,
     expected_type: object,
 ) -> _T:
-    """Transform dictionaries based off of type information from the given type, for example:
+    """Transforms dictionaries based off of type information from the given type, for example:
 
-    ```py
+    ```python
     class Params(TypedDict, total=False):
         card_id: Required[Annotated[str, PropertyInfo(alias="cardID")]]
-
 
     transformed = transform({"card_id": "<my card ID>"}, Params)
     # {'cardID': '<my card ID>'}
@@ -112,7 +113,7 @@ def transform(
 
     Any keys / data that does not have type information given will be included as is.
 
-    It should be noted that the transformations that this function does are not represented in the type system.
+    NOTE: The transformations that this function performs are not represented in the type system.
     """
     transformed = _transform_recursive(data, annotation=cast(type, expected_type))
     return cast(_T, transformed)
@@ -120,7 +121,7 @@ def transform(
 
 @lru_cache(maxsize=8096)
 def _get_annotated_type(type_: type) -> type | None:
-    """If the given type is an `Annotated` type then it is returned, if not `None` is returned.
+    """Returns then given type if `Annotated` or returns `None` otherwise.
 
     This also unwraps the type when applicable, e.g. `Required[Annotated[T, ...]]`
     """
@@ -135,9 +136,9 @@ def _get_annotated_type(type_: type) -> type | None:
 
 
 def _maybe_transform_key(key: str, type_: type) -> str:
-    """Transform the given `data` based on the annotations provided in `type_`.
+    """Transforms the given `data` based on the annotations provided in `type_`.
 
-    Note: this function only looks at `Annotated` types that contain `PropertyInfo` metadata.
+    NOTE: This function only looks at `Annotated` types that contain `PropertyInfo` metadata.
     """
     annotated_type = _get_annotated_type(type_)
     if annotated_type is None:
@@ -163,7 +164,7 @@ def _transform_recursive(
     annotation: type,
     inner_type: type | None = None,
 ) -> object:
-    """Transform the given data against the expected type.
+    """Transforms the given data against the expected type.
 
     Args:
         annotation: The direct type annotation given to the particular piece of data.
@@ -290,7 +291,7 @@ async def async_maybe_transform(
     data: object,
     expected_type: object,
 ) -> Any | None:
-    """Wrapper over `async_transform()` that allows `None` to be passed.
+    """Acts as a wrapper over `async_transform()` that allows `None` to be passed.
 
     See `async_transform()` for more details.
     """
@@ -303,12 +304,11 @@ async def async_transform(
     data: _T,
     expected_type: object,
 ) -> _T:
-    """Transform dictionaries based off of type information from the given type, for example:
+    """Transforms dictionaries based off of type information from the given type, for example:
 
-    ```py
+    ```python
     class Params(TypedDict, total=False):
         card_id: Required[Annotated[str, PropertyInfo(alias="cardID")]]
-
 
     transformed = transform({"card_id": "<my card ID>"}, Params)
     # {'cardID': '<my card ID>'}
@@ -316,7 +316,7 @@ async def async_transform(
 
     Any keys / data that does not have type information given will be included as is.
 
-    It should be noted that the transformations that this function does are not represented in the type system.
+    NOTE: The transformations that this function performs are not represented in the type system.
     """
     transformed = await _async_transform_recursive(data, annotation=cast(type, expected_type))
     return cast(_T, transformed)
@@ -328,7 +328,7 @@ async def _async_transform_recursive(
     annotation: type,
     inner_type: type | None = None,
 ) -> object:
-    """Transform the given data against the expected type.
+    """Transforms the given data against the expected type.
 
     Args:
         annotation: The direct type annotation given to the particular piece of data.

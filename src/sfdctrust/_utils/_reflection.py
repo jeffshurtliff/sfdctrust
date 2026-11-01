@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust._utils._reflection
-:Synopsis:
+:Synopsis:          Utilities for performing function assertions
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
-:Modified Date:     31 Oct 2026
+:Modified Date:     01 Nov 2026
 
 This file contains code from https://github.com/openai/openai-python/
 """
@@ -16,7 +16,7 @@ from typing import Any, Callable
 
 
 def function_has_argument(func: Callable[..., Any], arg_name: str) -> bool:
-    """Returns whether the given function has a specific parameter"""
+    """Returns whether the given function has a specific parameter."""
     sig = inspect.signature(func)
     return arg_name in sig.parameters
 
@@ -29,7 +29,6 @@ def assert_signatures_in_sync(
     description: str = "",
 ) -> None:
     """Ensures that the signature of the second function matches the first."""
-
     check_sig = inspect.signature(check_func)
     source_sig = inspect.signature(source_func)
 
@@ -46,9 +45,9 @@ def assert_signatures_in_sync(
 
         if custom_param.annotation != source_param.annotation:
             errors.append(
-                f"types for the `{name}` param are do not match; source={repr(source_param.annotation)} checking={repr(custom_param.annotation)}"
+                f"types for the `{name}` param are do not match; "
+                f"source={repr(source_param.annotation)} checking={repr(custom_param.annotation)}"
             )
-            continue
 
     if errors:
         raise AssertionError(

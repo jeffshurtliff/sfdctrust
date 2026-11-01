@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust._utils._utils
-:Synopsis:
+:Synopsis:          General utilities that can be utilized across the package.
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
-:Modified Date:     31 Oct 2026
+:Modified Date:     01 Nov 2026
 
 This file contains code from https://github.com/openai/openai-python/
 """
@@ -16,7 +16,6 @@ import re
 import inspect
 import functools
 from typing import (
-    TYPE_CHECKING,
     Any,
     Tuple,
     Mapping,
@@ -36,6 +35,8 @@ import sniffio
 from .._types import Omit, NotGiven, FileTypes, ArrayFormat, HeadersLike
 
 _T = TypeVar("_T")
+_K = TypeVar("_K")
+_V = TypeVar("_V")
 _TupleT = TypeVar("_TupleT", bound=Tuple[object, ...])
 _MappingT = TypeVar("_MappingT", bound=Mapping[str, object])
 _SequenceT = TypeVar("_SequenceT", bound=Sequence[object])
@@ -46,38 +47,13 @@ def flatten(t: Iterable[Iterable[_T]]) -> list[_T]:
     return [item for sublist in t for item in sublist]
 
 
-def extract_files(
-    # TODO: This needs to take Dict but there are variance issues (See corresponding module in openai-python)
-    # create protocol type ?
-    query: Mapping[str, object],
-    *,
-    paths: Sequence[Sequence[str]],
-    array_format: ArrayFormat = "brackets",
-) -> list[tuple[str, FileTypes]]:
-    """Recursively extract files from the given dictionary based on specified paths.
-
-    A path may look like this ['foo', 'files', '<array>', 'data'].
-
-    ``array_format`` controls how ``<array>`` segments contribute to the emitted
-    field name. Supported values: ``"brackets"`` (``foo[]``), ``"repeat"`` and
-    ``"comma"`` (``foo``), ``"indices"`` (``foo[0]``, ``foo[1]``).
-
-    Note: this mutates the given dictionary.
-    """
-    files: list[tuple[str, FileTypes]] = []
-    for path in paths:
-        files.extend(_extract_items(query, path, index=0, flattened_key=None, array_format=array_format))
-    return files
-
-
 def _array_suffix(array_format: ArrayFormat, array_index: int) -> str:
     if array_format == "brackets":
         return "[]"
     if array_format == "indices":
         return f"[{array_index}]"
     if array_format == "repeat" or array_format == "comma":
-        # Both repeat the bare field name for each file part; there is no
-        # meaningful way to comma-join binary parts.
+        # Both repeat the bare field name for each file part; there is no meaningful way to comma-join binary parts.
         return ""
     raise NotImplementedError(
         f"Unknown array_format value: {array_format}, choose from {', '.join(get_args(ArrayFormat))}"
@@ -161,7 +137,7 @@ def _extract_items(
             ]
         )
 
-    # Something unexpected was passed, just ignore it.
+    # Something unexpected was passed and will just be ignored
     return []
 
 
@@ -169,7 +145,7 @@ def is_given(obj: _T | NotGiven | Omit) -> TypeGuard[_T]:
     return not isinstance(obj, NotGiven) and not isinstance(obj, Omit)
 
 
-# Type safe methods for narrowing types with TypeVars.
+# Below are type-safe methods for narrowing types with TypeVars.
 # The default narrowing for isinstance(obj, dict) is dict[unknown, unknown],
 # however this cause Pyright to rightfully report errors. As we know we don't
 # care about the contained types we can safely use `object` in its place.
@@ -231,7 +207,7 @@ def human_join(seq: Sequence[str], *, delim: str = ", ", final: str = "or") -> s
 
 
 def quote(string: str) -> str:
-    """Add single quotation marks around the given string. Does *not* do any escaping."""
+    """Adds single quotation marks around the given string. Does *not* do any escaping."""
     return f"'{string}'"
 
 
@@ -241,14 +217,12 @@ def required_args(*variants: Sequence[str]) -> Callable[[CallableT], CallableT]:
     Useful for enforcing runtime validation of overloaded functions.
 
     Example usage:
-    ```py
+    ```python
     @overload
     def foo(*, a: str) -> str: ...
 
-
     @overload
     def foo(*, b: bool) -> str: ...
-
 
     # This enforces the same constraints that a static type checker would
     # i.e. that either a or b must be passed to the function
@@ -256,7 +230,6 @@ def required_args(*variants: Sequence[str]) -> Callable[[CallableT], CallableT]:
     def foo(*, a: str | None = None, b: bool | None = None) -> str: ...
     ```
     """
-
     def inner(func: CallableT) -> CallableT:
         params = inspect.signature(func).parameters
         positional = [
@@ -280,6 +253,7 @@ def required_args(*variants: Sequence[str]) -> Callable[[CallableT], CallableT]:
                         f"{func.__name__}() takes {len(positional)} argument(s) but {len(args)} were given"  # ty: ignore[unresolved-attribute]
                     ) from None
 
+            # TODO: Consider replacing the for-loop with add() with set.update()
             for key in kwargs.keys():
                 given_params.add(key)
 
@@ -311,10 +285,6 @@ def required_args(*variants: Sequence[str]) -> Callable[[CallableT], CallableT]:
     return inner
 
 
-_K = TypeVar("_K")
-_V = TypeVar("_V")
-
-
 @overload
 def strip_not_given(obj: None) -> None: ...
 
@@ -328,7 +298,7 @@ def strip_not_given(obj: object) -> object: ...
 
 
 def strip_not_given(obj: object | None) -> object:
-    """Remove all top-level keys where their values are instances of `NotGiven`"""
+    """Removes all top-level keys where their values are instances of `NotGiven`"""
     if obj is None:
         return None
 
@@ -368,32 +338,10 @@ def maybe_coerce_boolean(val: str | None) -> bool | None:
     return coerce_boolean(val)
 
 
-# TODO: Remove this function after removing or updating dependencies as this project supports only Python 3.12+
-def removeprefix(string: str, prefix: str) -> str:
-    """Remove a prefix from a string.
-
-    Backport of `str.removeprefix` for Python < 3.9
-    """
-    if string.startswith(prefix):
-        return string[len(prefix) :]
-    return string
-
-
-# TODO: Remove this function after removing or updating dependencies as this project supports only Python 3.12+
-def removesuffix(string: str, suffix: str) -> str:
-    """Remove a suffix from a string.
-
-    Backport of `str.removesuffix` for Python < 3.9
-    """
-    if string.endswith(suffix):
-        return string[: -len(suffix)]
-    return string
-
-
 def file_from_path(path: str) -> FileTypes:
     contents = Path(path).read_bytes()
     file_name = os.path.basename(path)
-    return (file_name, contents)
+    return file_name, contents
 
 
 def get_required_header(headers: HeadersLike, header: str) -> str:
@@ -422,8 +370,7 @@ def get_async_library() -> str:
 
 
 def lru_cache(*, maxsize: int | None = 128) -> Callable[[CallableT], CallableT]:
-    """A version of functools.lru_cache that retains the type signature
-    for the wrapped function arguments.
+    """A version of functools.lru_cache that retains the type signature for the wrapped function arguments.
     """
     wrapper = functools.lru_cache(  # noqa: TID251
         maxsize=maxsize,
@@ -432,8 +379,7 @@ def lru_cache(*, maxsize: int | None = 128) -> Callable[[CallableT], CallableT]:
 
 
 def json_safe(data: object) -> object:
-    """Translates a mapping / sequence recursively in the same fashion
-    as `pydantic` v2's `model_dump(mode="json")`.
+    """Translates a mapping/sequence recursively in the same fashion as Pydantic v2's `model_dump(mode="json")`.
     """
     if is_mapping(data):
         return {json_safe(key): json_safe(value) for key, value in data.items()}

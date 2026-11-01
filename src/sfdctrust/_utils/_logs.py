@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust._utils._logs
-:Synopsis:
+:Synopsis:          Utilities that assist with logging operations
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
-:Modified Date:     31 Oct 2026
+:Modified Date:     01 Nov 2026
 
 This file contains code from https://github.com/openai/openai-python/
 """
@@ -46,8 +46,11 @@ def get_http_method_for_logging(method: str) -> str:
 
 
 def setup_logging() -> None:
-    # Transport loggers may include complete URLs. Leave their configuration to
-    # the application instead of enabling them with the SDK's logging switch.
+    """Sets up logging for the package.
+
+    Transport loggers may include complete URLs. Leave their configuration to the application
+    rather than enabling them with the SDK's logging switch.
+    """
     env = os.environ.get("SFDCTRUST_LOG")
     if env is None:
         return

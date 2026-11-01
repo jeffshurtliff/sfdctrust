@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust._utils._typing
-:Synopsis:
+:Synopsis:          Utilities for type annotations
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
-:Modified Date:     31 Oct 2026
+:Modified Date:     01 Nov 2026
 
 This file contains code from https://github.com/openai/openai-python/
 """
 
 from __future__ import annotations
 
-import sys
 import typing
 import typing_extensions
 from typing import Any, TypeVar, Iterable, cast
@@ -28,6 +27,9 @@ from typing_extensions import (
 from ._utils import lru_cache
 from ._compat import is_union as _is_union
 
+_TYPE_ALIAS_TYPES: tuple[type[typing_extensions.TypeAliasType], ...] = (typing_extensions.TypeAliasType,)
+_TYPE_ALIAS_TYPES = (*_TYPE_ALIAS_TYPES, typing.TypeAliasType)
+
 
 def is_annotated_type(typ: type) -> bool:
     return get_origin(typ) == Annotated
@@ -43,7 +45,7 @@ def is_sequence_type(typ: type) -> bool:
 
 
 def is_iterable_type(typ: type) -> bool:
-    """If the given type is `typing.Iterable[T]`"""
+    """Determines if the given type is `typing.Iterable[T]`"""
     origin = get_origin(typ) or typ
     return origin == Iterable or origin == _c_abc.Iterable
 
@@ -61,18 +63,11 @@ def is_not_required_type(typ: type) -> bool:
 
 
 def is_typevar(typ: type) -> bool:
-    # type ignore is required because type checkers
-    # think this expression will always return False
-    return type(typ) == TypeVar
-
-
-_TYPE_ALIAS_TYPES: tuple[type[typing_extensions.TypeAliasType], ...] = (typing_extensions.TypeAliasType,)
-if sys.version_info >= (3, 12):
-    _TYPE_ALIAS_TYPES = (*_TYPE_ALIAS_TYPES, typing.TypeAliasType)
+    return isinstance(typ, TypeVar)
 
 
 def is_type_alias_type(tp: Any, /) -> TypeIs[typing_extensions.TypeAliasType]:
-    """Return whether the provided argument is an instance of `TypeAliasType`.
+    """Returns whether the provided argument is an instance of `TypeAliasType`.
 
     ```python
     type Int = int
@@ -86,9 +81,9 @@ def is_type_alias_type(tp: Any, /) -> TypeIs[typing_extensions.TypeAliasType]:
     return isinstance(tp, _TYPE_ALIAS_TYPES)
 
 
-# Extracts T from Annotated[T, ...], including Required and NotRequired wrappers
 @lru_cache(maxsize=8096)
 def strip_annotated_type(typ: type) -> type:
+    """Extracts T from Annotated[T, ...], including Required and NotRequired wrappers."""
     if is_required_type(typ) or is_not_required_type(typ) or is_annotated_type(typ):
         return strip_annotated_type(cast(type, get_args(typ)[0]))
 
@@ -110,10 +105,10 @@ def extract_type_var_from_base(
     index: int,
     failure_message: str | None = None,
 ) -> type:
-    """Given a type like `Foo[T]`, returns the generic type variable `T`.
+    """Returns the generic type variable `T` when given a type like `Foo[T]`.
 
     This also handles the case where a concrete subclass is given, e.g.
-    ```py
+    ```python
     class MyResponse(Foo[bytes]):
         ...
 
@@ -121,7 +116,7 @@ def extract_type_var_from_base(
     ```
 
     And where a generic subclass is given:
-    ```py
+    ```python
     _T = TypeVar('_T')
     class MyResponse(Foo[_T]):
         ...

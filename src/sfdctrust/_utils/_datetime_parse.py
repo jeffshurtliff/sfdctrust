@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust._utils._datetime_parse
-:Synopsis:
+:Synopsis:          Utilities for parsing datetime strings
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
-:Modified Date:     31 Oct 2026
+:Modified Date:     01 Nov 2026
 
 This file contains code from https://github.com/openai/openai-python/ and also
 from https://github.com/pydantic/pydantic/blob/main/pydantic/v1/datetime_parse.py
@@ -74,7 +74,7 @@ def _parse_timezone(value: str | None) -> int | timezone | None:
 
 
 def parse_datetime(value: datetime | StrBytesIntFloat) -> datetime:
-    """Parse a datetime/int/float/string and return a datetime.datetime.
+    """Parses a datetime/int/float/string and returns a datetime.datetime.
 
     This function supports time zone offsets. When the input contains one,
     the output uses a timezone with a fixed offset from UTC.
@@ -111,10 +111,9 @@ def parse_datetime(value: datetime | StrBytesIntFloat) -> datetime:
 
 
 def parse_date(value: date | StrBytesIntFloat) -> date:
-    """Parse a date/int/float/string and return a datetime.date.
+    """Parses a date/int/float/string and returns a datetime.date.
 
-    Raise ValueError if the input is well formatted but not a valid date.
-    Raise ValueError if the input isn't well formatted.
+    :raises ValueError: if the input is well formatted but not a valid date or if input is not well formatted
     """
     if isinstance(value, date):
         if isinstance(value, datetime):
