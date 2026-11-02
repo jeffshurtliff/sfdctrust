@@ -1,0 +1,79 @@
+/*!
+ * sfdctrust Documentation
+ * Description: Stylesheet for main layout and components
+ * Author: Jeff Shurtliff
+ * Last Modified: Jeff Shurtliff (via Claude Opus 5.5)
+ * Modified Date: 02 Nov 2026
+ */
+
+/* Provisional blue/teal accents until project branding exists; align these with the logo
+   when it is added. Keep PyData's semantic warning/error colors and accessible syntax palette. */
+html[data-theme="dark"] {
+  --pst-color-primary: #8cc8ff;
+  --pst-color-secondary: #5eead4;
+  --pst-color-link: #8cc8ff;
+  --pst-color-link-hover: #5eead4;
+  --pst-color-background: #10151d;
+  --pst-color-on-background: #18202b;
+  --pst-color-surface: #222c39;
+  --pst-color-text-base: #e9eef5;
+  --pst-color-text-muted: #b5c0cf;
+  --pst-color-inline-code: #5eead4;
+}
+
+html[data-theme="light"] {
+  --pst-color-primary: #0b5cad;
+  --pst-color-secondary: #0b6b63;
+  --pst-color-link: #0b5cad;
+  --pst-color-link-hover: #0b6b63;
+  --pst-color-background: #ffffff;
+  --pst-color-on-background: #f5f8fb;
+  --pst-color-surface: #eaf0f6;
+  --pst-color-text-base: #1d2733;
+  --pst-color-text-muted: #4f5d6d;
+  --pst-color-inline-code: #0b6b63;
+}
+
+/* Logo sizing for when docs/_static/sfdctrust-logo-*.png is added */
+.navbar-brand {
+  padding: 0.25rem 0;
+}
+
+.navbar-brand img {
+  width: auto;
+  max-width: 55vw;
+  height: 2.5rem;
+  object-fit: contain;
+}
+
+@media (max-width: 576px) {
+  .navbar-brand img { height: 2rem; }
+}
+
+/* Vertically align the copyright section of footer */
+.bd-footer .footer-items__start {
+  justify-content: start;
+}
+
+.bd-article-container {
+  max-width: 52rem;
+}
+
+.bd-article a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 3px solid var(--pst-color-secondary);
+  outline-offset: 3px;
+}
+
+.bd-article h1 {
+  border-bottom: 1px solid var(--pst-color-primary);
+  padding-bottom: 0.5rem;
+}
+
+@media print {
+  .bd-article a { color: #1d2733; }
+}

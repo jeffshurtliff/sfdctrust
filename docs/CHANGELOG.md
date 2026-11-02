@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documented the My Trust Center operation, parameter, schema, authentication, and pagination contract,
   including verification limits and proposed implementation decisions.
 - Exposed the package version as `sfdctrust.__version__` and added version regression tests.
+- Added Sphinx documentation using the PyData theme (dark mode by default), MyST Markdown pages,
+  autodoc reference pages, sphinx-favicon, and a Read the Docs configuration that installs from
+  `poetry.lock`. Logos and favicons are enabled automatically once their files are added.
 
 (unreleased-changed)=
 ### Changed

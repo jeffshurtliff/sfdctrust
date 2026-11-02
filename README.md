@@ -29,4 +29,11 @@ The runtime foundation uses HTTPX and Pydantic v2. Tests are offline and require
 Authentication configuration is still a proposed contract; no credential setup is needed
 for this foundation. Do not place real tokens in source, examples, or test fixtures.
 
-The documentation dependency group is optional. A Sphinx build is not configured yet.
+The documentation uses Sphinx with the optional `docs` dependency group:
+
+```sh
+poetry install --with docs
+poetry run sphinx-build -W --keep-going -E -a -b html docs docs/_build/html
+```
+
+See [Maintain the documentation](docs/maintainers/documentation.md) for details.
