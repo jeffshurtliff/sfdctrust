@@ -195,7 +195,8 @@ transformers, proxies, multipart/streaming-related types, and dangling helper im
 No code outside that cluster imported it. Removed unrelated org-ID/YAML validation constants,
 Stainless response flags, audio queue sizing, and oversized HTTP defaults. Retained the
 package identity, verified base URL/default locale, empty resource/model/integration namespaces,
-`py.typed`, existing base exception, and public `version.VERSION` compatibility alias.
+`py.typed`, and existing base exception. Removed the redundant public `version.py` module;
+use `sfdctrust.__version__` for the package version.
 Fixed the checkout version fallback (it previously looked one directory above the repository)
 and exposed package `__version__`. The PEP 621 version remains authoritative and unchanged.
 
@@ -248,7 +249,7 @@ tests, and excludes local vendor/private files and virtual environments. All 68 
 OpenAPI references resolve and all 27 schema names are covered in this inventory; this
 is a structural check, not full OpenAPI semantic validation or live-response verification.
 
-Repository-wide `ruff format --check .` still flags five unchanged files: `AGENTS.md`,
-`src/sfdctrust/version.py`, and the `models`, `resources`, and `integrations` namespace
+Repository-wide `ruff format --check .` still flags four unchanged files: `AGENTS.md`
+and the `models`, `resources`, and `integrations` namespace
 `__init__.py` files. Their existing formatting was left intact. No hosted CI, Python-version
 matrix, live Salesforce, or Sphinx build was run; Sphinx has no configuration in this checkout.

@@ -3,7 +3,7 @@
 :Module:            tests.unit.test_version
 :Synopsis:          Regression coverage for installed and source-checkout versions
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6)
+:Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
 :Modified Date:     01 Nov 2026
 """
 
@@ -14,7 +14,6 @@ from pathlib import Path
 import pytest
 
 from sfdctrust import __version__, _version
-from sfdctrust.version import VERSION
 
 
 def test_installed_metadata_takes_precedence(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -50,9 +49,9 @@ def test_explicit_version_file(tmp_path: Path, configuration: str, expected: str
     assert _version.get_version_from_pyproject(str(project_file)) == expected
 
 
-def test_public_version_aliases() -> None:
-    """Expose the existing version helpers through consistent public aliases."""
-    assert __version__ == VERSION == _version.get_full_version()
+def test_public_version_export() -> None:
+    """Expose the package version through the public __version__ attribute."""
+    assert __version__ == _version.__version__ == _version.get_full_version()
 
 
 @pytest.mark.parametrize(('full_version', 'expected'), [('1.0.0.dev0', '1.0'), ('2', '2')])

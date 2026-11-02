@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-changed)=
 ### Changed
 
+- Removed the redundant `sfdctrust.version` module; use `sfdctrust.__version__` instead.
 - Corrected package metadata and README to target the My Trust Center API.
 - Reduced direct runtime dependencies to HTTPX and Pydantic v2.
 - Removed unused copied compatibility, model-construction, transformation, proxy, and async utilities,
