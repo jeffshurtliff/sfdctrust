@@ -3,7 +3,9 @@
 An unofficial, community-maintained Python SDK project for the **Salesforce My Trust Center
 API**. It is not affiliated with or supported by Salesforce.
 
-The project is in development. API clients and resource operations are not implemented yet.
+> [!WARNING]
+> The project is in development. API clients and resource operations are not implemented yet.
+
 The API exposes only tenants authorized by the caller's personal access token (PAT);
 empty results do not establish Salesforce-wide health.
 
