@@ -316,8 +316,8 @@ report that fact; do not install or reconfigure substantial tooling as part of a
   and the fact that status visibility is tenant-scoped.
 - Keep examples copyable and low-friction. Do not document planned methods as available. Update README, API docs, 
   and changelog when public behavior changes.
-- If the repository uses Sphinx, maintain Sphinx-compatible docstrings and existing documentation structure; 
-  do not add a second documentation stack without a reason.
+- Maintain Sphinx-compatible docstrings and existing documentation structure; do not add a second documentation 
+  stack without a reason.
 - Document AI/MCP installation and launch separately from ordinary SDK setup. Never require agent tooling to use 
   the base Python library.
 - Check licenses and attribution before copying code from other SDKs. Architectural inspiration is fine; 
@@ -339,6 +339,15 @@ When reviewing code in this repository, flag issues with a concrete risk and sug
   unimplemented functionality.
 
 Prioritize correctness and security over minor style issues already enforced by formatting/CI.
+
+## Issue tracking
+
+When creating or updating GitHub issues for this repository, use the appropriate approved template and labels, 
+including the corresponding label for the AI agent when available. For example:
+
+- ChatGPT Codex should use the `codex` label.
+- Anthropic Claude should use the `claude` label.
+- Google Gemini and Antigravity should use the `gemini` label.
 
 ## Completion handoff
 
