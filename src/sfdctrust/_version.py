@@ -3,8 +3,8 @@
 :Module:            sfdctrust._version
 :Synopsis:          Utilities for working with the package version
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff
-:Modified Date:     29 Oct 2026
+:Last Modified:     Jeff Shurtliff (via GPT-6)
+:Modified Date:     01 Nov 2026
 """
 
 from __future__ import annotations
@@ -59,7 +59,7 @@ def get_version_from_pyproject(pyproject_path: str | None = None) -> str:
     :returns: The current package version as a string
     :rtype: str
     """
-    path = Path(pyproject_path) if pyproject_path else Path(__file__).resolve().parents[3] / 'pyproject.toml'
+    path = Path(pyproject_path) if pyproject_path else Path(__file__).resolve().parents[2] / 'pyproject.toml'
 
     # tomllib.loads() expects a string, while Path.read_bytes() returns bytes
     # Prefer tomllib.load() with a binary file handle to avoid encoding pitfalls

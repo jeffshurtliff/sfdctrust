@@ -13,12 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
-No unreleased additions at this time.
+- Documented the My Trust Center operation, parameter, schema, authentication, and pagination contract,
+  including verification limits and proposed implementation decisions.
+- Exposed the package version as `sfdctrust.__version__` and added version regression tests.
 
 (unreleased-changed)=
 ### Changed
 
-No unreleased changes at this time.
+- Corrected package metadata and README to target the My Trust Center API.
+- Reduced direct runtime dependencies to HTTPX and Pydantic v2.
+- Removed unused copied compatibility, model-construction, transformation, proxy, and async utilities,
+  and unrelated constants; retained only package identity and API defaults.
+- Fixed source-checkout version lookup to use the repository's `pyproject.toml`.
 
 (unreleased-security)=
 ### Security
