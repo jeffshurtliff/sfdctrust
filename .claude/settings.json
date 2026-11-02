@@ -1,4 +1,34 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(poetry run pytest:*)",
+      "Bash(poetry run ruff check:*)",
+      "Bash(poetry run ruff format --check:*)",
+      "Bash(poetry run bandit:*)",
+      "Bash(poetry check:*)",
+      "Bash(poetry build:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(git tag:*)",
+      "Bash(gh repo edit:*)",
+      "Bash(gh release:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(poetry publish:*)",
+      "Bash(twine upload:*)",
+      "Bash(poetry run twine upload:*)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.envrc)",
+      "Read(./.pypirc)",
+      "Read(./**/*.key)",
+      "Read(./.entire/settings.local.json)"
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {
