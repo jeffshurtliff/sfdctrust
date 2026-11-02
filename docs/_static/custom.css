@@ -6,48 +6,79 @@
  * Modified Date: 02 Nov 2026
  */
 
-/* Provisional blue/teal accents until project branding exists; align these with the logo
-   when it is added. Keep PyData's semantic warning/error colors and accessible syntax palette. */
+/* Accents derived from the logo's bright blue (#0a84ff) and navy (#002a66), adjusted so all
+   text meets WCAG AA contrast. Keep PyData's semantic warning/error colors and syntax palette. */
 html[data-theme="dark"] {
-  --pst-color-primary: #8cc8ff;
-  --pst-color-secondary: #5eead4;
-  --pst-color-link: #8cc8ff;
-  --pst-color-link-hover: #5eead4;
-  --pst-color-background: #10151d;
-  --pst-color-on-background: #18202b;
-  --pst-color-surface: #222c39;
-  --pst-color-text-base: #e9eef5;
-  --pst-color-text-muted: #b5c0cf;
-  --pst-color-inline-code: #5eead4;
+  --pst-color-primary: #5aaeff;
+  --pst-color-secondary: #9fd0ff;
+  --pst-color-link: #5aaeff;
+  --pst-color-link-hover: #9fd0ff;
+  --pst-color-background: #0d1422;
+  --pst-color-on-background: #141d2e;
+  --pst-color-surface: #1d2a40;
+  --pst-color-text-base: #e8eef7;
+  --pst-color-text-muted: #b3bfd1;
+  --pst-color-inline-code: #7cc0ff;
 }
 
 html[data-theme="light"] {
-  --pst-color-primary: #0b5cad;
-  --pst-color-secondary: #0b6b63;
-  --pst-color-link: #0b5cad;
-  --pst-color-link-hover: #0b6b63;
+  --pst-color-primary: #002a66;
+  --pst-color-secondary: #0062c4;
+  --pst-color-link: #0062c4;
+  --pst-color-link-hover: #002a66;
   --pst-color-background: #ffffff;
-  --pst-color-on-background: #f5f8fb;
-  --pst-color-surface: #eaf0f6;
+  --pst-color-on-background: #f4f7fb;
+  --pst-color-surface: #e8eef6;
   --pst-color-text-base: #1d2733;
   --pst-color-text-muted: #4f5d6d;
-  --pst-color-inline-code: #0b6b63;
+  --pst-color-inline-code: #0a4fa3;
 }
 
-/* Logo sizing for when docs/_static/sfdctrust-logo-*.png is added */
+/* Navbar: cloud icon followed by the project name as text */
 .navbar-brand {
   padding: 0.25rem 0;
+  gap: 0.5rem;
 }
 
 .navbar-brand img {
   width: auto;
-  max-width: 55vw;
-  height: 2.5rem;
+  height: 2.25rem;
   object-fit: contain;
 }
 
+.navbar-brand .title {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* No underline on the navbar title; the theme underlines the parent link, so clear it there too.
+   Keyboard focus still shows the outline from the focus-visible rule below. */
+.navbar-brand:hover,
+.navbar-brand:visited:hover,
+.navbar-brand:focus,
+.navbar-brand:active,
+.navbar-brand p.logo__title:hover,
+.navbar-brand p.logo__title:focus,
+.navbar-brand p.logo__title:active {
+  text-decoration: none;
+}
+
 @media (max-width: 576px) {
-  .navbar-brand img { height: 2rem; }
+  .navbar-brand img { height: 1.85rem; }
+}
+
+/* Landing page logo */
+.bd-article img.sfdctrust-hero {
+  display: block;
+  margin: 0.5rem auto 1.5rem;
+  max-width: 60%;
+  height: auto;
+}
+
+/* The logo's navy pulse line nearly disappears on dark backgrounds, so add a soft glow */
+html[data-theme="dark"] .navbar-brand img,
+html[data-theme="dark"] .bd-article img.sfdctrust-hero {
+  filter: drop-shadow(0 0 1px rgba(232, 238, 247, 0.55)) drop-shadow(0 0 6px rgba(90, 174, 255, 0.35));
 }
 
 /* Vertically align the copyright section of footer */

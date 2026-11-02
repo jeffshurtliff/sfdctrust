@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/_static/logos-dark/sfdctrust-logo-dark-320.png">
+    <img src="docs/_static/logos/sfdctrust-logo-320.png" alt="sfdctrust logo" width="200">
+  </picture>
+</p>
+
 # sfdctrust
 
 An unofficial, community-maintained Python SDK project for the **Salesforce My Trust Center

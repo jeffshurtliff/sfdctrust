@@ -1,6 +1,18 @@
 sfdctrust Documentation
 =======================
 
+.. image:: _static/logos/sfdctrust-logo-640.png
+   :alt: sfdctrust logo
+   :width: 240px
+   :align: center
+   :class: only-light sfdctrust-hero no-scaled-link
+
+.. image:: _static/logos-dark/sfdctrust-logo-dark-640.png
+   :alt: sfdctrust logo
+   :width: 240px
+   :align: center
+   :class: only-dark sfdctrust-hero no-scaled-link
+
 ``sfdctrust`` is an unofficial, community-maintained Python SDK for the
 **Salesforce My Trust Center API**. It is not affiliated with or supported by
 Salesforce.

@@ -11,7 +11,6 @@ import tomllib
 from pathlib import Path
 
 DOCS_DIR = Path(__file__).resolve().parent
-STATIC_DIR = DOCS_DIR / '_static'
 
 # Read the version from pyproject.toml so the build never depends on stale installed metadata
 with (DOCS_DIR.parent / 'pyproject.toml').open('rb') as metadata:
@@ -39,7 +38,15 @@ source_suffix = {'.rst': 'restructuredtext', '.md': 'markdown'}
 root_doc = 'index'
 language = 'en'
 templates_path = ['_templates']
-exclude_patterns = ['_build', '.DS_Store', 'Thumbs.db', 'desktop.ini']
+# Source artwork and the GitHub social preview are kept in _static/ but not published with the site
+exclude_patterns = [
+    '_build',
+    '**/.DS_Store',
+    '**/Thumbs.db',
+    '**/desktop.ini',
+    '**/*-master.png',
+    '**/social-previews',
+]
 nitpicky = True
 
 # -- MyST configuration ------------------------------------------------------
@@ -77,7 +84,13 @@ pygments_dark_style = 'a11y-high-contrast-dark'
 htmlhelp_basename = 'sfdctrust'
 
 html_theme_options = {
-    'logo': {'text': project, 'alt_text': f'{project} Documentation - Home'},
+    # The stacked logo is too small to read at navbar height, so pair the cloud icon with text
+    'logo': {
+        'text': project,
+        'image_light': '_static/icons/sfdctrust-icon-128.png',
+        'image_dark': '_static/icons/sfdctrust-icon-128.png',
+        'alt_text': f'{project} Documentation - Home',
+    },
     'navbar_end': ['theme-switcher', 'navbar-icon-links'],
     'icon_links': [
         {
@@ -93,25 +106,17 @@ html_theme_options = {
     'footer_end': ['sphinx-version', 'theme-version'],
 }
 
-# -- Branding assets ---------------------------------------------------------
+# -- Options for sphinx-favicon ----------------------------------------------
 
-# Logos and favicons are not created yet. Each one is enabled automatically once a file with
-# the expected name is added to docs/_static/, so builds stay warning-free until then.
-LOGO_LIGHT = 'sfdctrust-logo-light.png'
-LOGO_DARK = 'sfdctrust-logo-dark.png'
-FAVICONS = [
-    {'rel': 'icon', 'sizes': '16x16', 'href': 'sfdctrust-favicon-16x16.png'},
-    {'rel': 'icon', 'sizes': '32x32', 'href': 'sfdctrust-favicon-32x32.png'},
-    {'rel': 'apple-touch-icon', 'sizes': '180x180', 'href': 'sfdctrust-apple-touch-icon-180x180.png'},
+# Paths are relative to docs/_static/
+favicons = [
+    {'rel': 'icon', 'sizes': '16x16 32x32 48x48 64x64 128x128 256x256', 'href': 'favicons/favicon.ico'},
+    {'rel': 'icon', 'sizes': '16x16', 'href': 'favicons/sfdctrust-favicon-16.png'},
+    {'rel': 'icon', 'sizes': '32x32', 'href': 'favicons/sfdctrust-favicon-32.png'},
+    {'rel': 'icon', 'sizes': '256x256', 'href': 'favicons/sfdctrust-favicon-256.png'},
+    # Opaque on purpose: iOS fills transparent touch icons with black
+    {'rel': 'apple-touch-icon', 'sizes': '180x180', 'href': 'favicons/sfdctrust-apple-touch-icon-180.png'},
 ]
-
-if (STATIC_DIR / LOGO_LIGHT).is_file():
-    # Fall back to the light logo in dark mode until a dedicated dark variant exists
-    dark_logo = LOGO_DARK if (STATIC_DIR / LOGO_DARK).is_file() else LOGO_LIGHT
-    html_theme_options['logo'].update({'image_light': LOGO_LIGHT, 'image_dark': dark_logo})
-    html_theme_options['logo'].pop('text')
-
-favicons = [icon for icon in FAVICONS if (STATIC_DIR / icon['href']).is_file()]
 
 # -- Link checking -----------------------------------------------------------
 

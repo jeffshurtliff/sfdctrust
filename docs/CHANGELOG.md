@@ -18,7 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Exposed the package version as `sfdctrust.__version__` and added version regression tests.
 - Added Sphinx documentation using the PyData theme (dark mode by default), MyST Markdown pages,
   autodoc reference pages, sphinx-favicon, and a Read the Docs configuration that installs from
-  `poetry.lock`. Logos and favicons are enabled automatically once their files are added.
+  `poetry.lock`.
+- Added project branding to the documentation and README: a navbar icon, light and dark landing-page
+  logos, favicons, and a theme palette derived from the logo colors.
 
 (unreleased-changed)=
 ### Changed
