@@ -198,6 +198,7 @@ local/
 # Local agent instructions
 AGENTS.local.md
 CLAUDE.local.md
+.claude/settings.local.json
 GEMINI.local.md
 
 # Scratch files
