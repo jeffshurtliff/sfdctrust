@@ -32,7 +32,7 @@ from typing_extensions import TypeGuard, get_args
 
 import sniffio
 
-from .._types import Omit, NotGiven, FileTypes, ArrayFormat, HeadersLike
+from .._types import NotGiven, ArrayFormat, HeadersLike
 
 _T = TypeVar("_T")
 _K = TypeVar("_K")
@@ -67,31 +67,11 @@ def _extract_items(
     index: int,
     flattened_key: str | None,
     array_format: ArrayFormat,
-) -> list[tuple[str, FileTypes]]:
+) -> list[tuple[str]]:
     try:
         key = path[index]
     except IndexError:
-        if not is_given(obj):
-            # no value was provided - we can safely ignore
-            return []
-
-        # cyclical import
-        from .._files import assert_is_file_content
-
-        # We have exhausted the path, return the entry we found.
-        assert flattened_key is not None
-
-        if is_list(obj):
-            files: list[tuple[str, FileTypes]] = []
-            for array_index, entry in enumerate(obj):
-                suffix = _array_suffix(array_format, array_index)
-                emitted_key = (flattened_key + suffix) if flattened_key else suffix
-                assert_is_file_content(entry, key=emitted_key)
-                files.append((emitted_key, cast(FileTypes, entry)))
-            return files
-
-        assert_is_file_content(obj, key=flattened_key)
-        return [(flattened_key, cast(FileTypes, obj))]
+        return []
 
     index += 1
     if is_dict(obj):
@@ -141,8 +121,8 @@ def _extract_items(
     return []
 
 
-def is_given(obj: _T | NotGiven | Omit) -> TypeGuard[_T]:
-    return not isinstance(obj, NotGiven) and not isinstance(obj, Omit)
+def is_given(obj: _T | NotGiven) -> TypeGuard[_T]:
+    return not isinstance(obj, NotGiven)
 
 
 # Below are type-safe methods for narrowing types with TypeVars.
@@ -336,12 +316,6 @@ def maybe_coerce_boolean(val: str | None) -> bool | None:
     if val is None:
         return None
     return coerce_boolean(val)
-
-
-def file_from_path(path: str) -> FileTypes:
-    contents = Path(path).read_bytes()
-    file_name = os.path.basename(path)
-    return file_name, contents
 
 
 def get_required_header(headers: HeadersLike, header: str) -> str:

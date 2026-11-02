@@ -4,14 +4,14 @@
 :Synopsis:
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
-:Modified Date:     31 Oct 2026
+:Modified Date:     01 Nov 2026
 
 This file contains code from https://github.com/openai/openai-python/
 """
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, Callable, cast, overload
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, Callable, overload
 from datetime import date, datetime
 from typing_extensions import Self, Literal, TypedDict
 
@@ -22,12 +22,6 @@ from ._types import IncEx, StrBytesIntFloat
 
 _T = TypeVar("_T")
 _ModelT = TypeVar("_ModelT", bound=pydantic.BaseModel)
-
-# TODO: Remove Pydantic v1 support as this project requires Python 3.12+
-
-# --------------- Pydantic v2, v3 compatibility ---------------
-
-PYDANTIC_V1 = pydantic.VERSION.startswith("1.")
 
 if TYPE_CHECKING:
 
@@ -53,57 +47,28 @@ if TYPE_CHECKING:
         ...
 
 else:
-    # v1 re-exports
-    if PYDANTIC_V1:
-        from pydantic.typing import (
-            get_args as get_args,
-            is_union as is_union,
-            get_origin as get_origin,
-            is_typeddict as is_typeddict,
-            is_literal_type as is_literal_type,
-        )
-        from pydantic.datetime_parse import parse_date as parse_date, parse_datetime as parse_datetime
-    else:
-        from ._utils import (
-            get_args as get_args,
-            is_union as is_union,
-            get_origin as get_origin,
-            parse_date as parse_date,
-            is_typeddict as is_typeddict,
-            parse_datetime as parse_datetime,
-            is_literal_type as is_literal_type,
-        )
-
-
-# refactored config
-if TYPE_CHECKING:
-    from pydantic import ConfigDict as ConfigDict
-else:
-    if PYDANTIC_V1:
-        # TODO: Potentially provide an error message here
-        ConfigDict = None
-    else:
-        from pydantic import ConfigDict as ConfigDict
+    from ._utils import (
+        get_args as get_args,
+        is_union as is_union,
+        get_origin as get_origin,
+        parse_date as parse_date,
+        is_typeddict as is_typeddict,
+        parse_datetime as parse_datetime,
+        is_literal_type as is_literal_type,
+    )
 
 
 # renamed methods / properties
 def parse_obj(model: type[_ModelT], value: object) -> _ModelT:
-    if PYDANTIC_V1:
-        return model.parse_obj(value)
-    else:
-        return model.model_validate(value)
+    return model.model_validate(value)
 
 
 def field_is_required(field: FieldInfo) -> bool:
-    if PYDANTIC_V1:
-        return field.required
     return field.is_required()
 
 
 def field_get_default(field: FieldInfo) -> Any:
     value = field.get_default()
-    if PYDANTIC_V1:
-        return value
     from pydantic_core import PydanticUndefined
 
     if value == PydanticUndefined:
@@ -112,32 +77,22 @@ def field_get_default(field: FieldInfo) -> Any:
 
 
 def field_outer_type(field: FieldInfo) -> Any:
-    if PYDANTIC_V1:
-        return field.outer_type_
     return field.annotation
 
 
 def get_model_config(model: type[pydantic.BaseModel]) -> Any:
-    if PYDANTIC_V1:
-        return model.__config__
     return model.model_config
 
 
 def get_model_fields(model: type[pydantic.BaseModel]) -> dict[str, FieldInfo]:
-    if PYDANTIC_V1:
-        return model.__fields__
     return model.model_fields
 
 
 def model_copy(model: _ModelT, *, deep: bool = False) -> _ModelT:
-    if PYDANTIC_V1:
-        return model.copy(deep=deep)
     return model.model_copy(deep=deep)
 
 
 def model_json(model: pydantic.BaseModel, *, indent: int | None = None) -> str:
-    if PYDANTIC_V1:
-        return model.json(indent=indent)
     return model.model_dump_json(indent=indent)
 
 
@@ -155,7 +110,7 @@ def model_dump(
     mode: Literal["json", "python"] = "python",
     by_alias: bool | None = None,
 ) -> dict[str, Any]:
-    if (not PYDANTIC_V1) or hasattr(model, "model_dump"):
+    if hasattr(model, "model_dump"):
         kwargs: _ModelDumpKwargs = {}
         if by_alias is not None:
             kwargs["by_alias"] = by_alias
@@ -164,54 +119,25 @@ def model_dump(
             exclude=exclude,
             exclude_unset=exclude_unset,
             exclude_defaults=exclude_defaults,
-            # warnings are not supported in Pydantic v1
-            warnings=True if PYDANTIC_V1 else warnings,
+            warnings=warnings,
             **kwargs,
         )
-    return cast(
-        "dict[str, Any]",
-        model.dict(
-            exclude=exclude, exclude_unset=exclude_unset, exclude_defaults=exclude_defaults, by_alias=bool(by_alias)
-        ),
-    )
 
 
 def model_parse(model: type[_ModelT], data: Any) -> _ModelT:
-    if PYDANTIC_V1:
-        return model.parse_obj(data)
     return model.model_validate(data)
 
 
 def model_parse_json(model: type[_ModelT], data: str | bytes) -> _ModelT:
-    if PYDANTIC_V1:
-        return model.parse_raw(data)
     return model.model_validate_json(data)
 
 
 def model_json_schema(model: type[_ModelT]) -> dict[str, Any]:
-    if PYDANTIC_V1:
-        return model.schema()
     return model.model_json_schema()
 
 
-# generic models
-if TYPE_CHECKING:
-
-    class GenericModel(pydantic.BaseModel):
-        ...
-
-else:
-    if PYDANTIC_V1:
-        import pydantic.generics
-
-        class GenericModel(pydantic.generics.GenericModel, pydantic.BaseModel):
-            ...
-    else:
-        # there no longer needs to be a distinction in v2 but
-        # we still have to create our own subclass to avoid
-        # inconsistent MRO ordering errors
-        class GenericModel(pydantic.BaseModel):
-            ...
+class GenericModel(pydantic.BaseModel):
+    ...
 
 
 # cached properties
@@ -226,7 +152,7 @@ if TYPE_CHECKING:
     # `@property` and we don't want to cause issues just to have
     # more helpful internal types.
 
-    # TODO: Change naming convention of class below to use PascalCase
+    # TODO: Consider changing the naming convention of class below to use PascalCase
     class typed_cached_property(Generic[_T]):
         func: Callable[[Any], _T]
         attrname: str | None

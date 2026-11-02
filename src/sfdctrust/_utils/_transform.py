@@ -11,14 +11,10 @@ This file contains code from https://github.com/openai/openai-python/
 
 from __future__ import annotations
 
-import io
-import base64
-import pathlib
 from typing import Any, Mapping, TypeVar, cast
 from datetime import date, datetime
 from typing_extensions import Literal, get_args, override, get_type_hints as _get_type_hints
 
-import anyio
 import pydantic
 
 from ._utils import (
@@ -29,7 +25,6 @@ from ._utils import (
     is_iterable,
     is_sequence,
 )
-from .._files import is_base64_file_input
 from ._compat import get_origin, is_typeddict
 from ._typing import (
     is_list_type,
@@ -44,7 +39,7 @@ from ._typing import (
 
 _T = TypeVar("_T")
 
-PropertyFormat = Literal["iso8601", "base64", "custom"]
+PropertyFormat = Literal["iso8601", "custom"]
 
 
 class PropertyInfo:
@@ -247,22 +242,6 @@ def _format_data(data: object, format_: PropertyFormat, format_template: str | N
         if format_ == "custom" and format_template is not None:
             return data.strftime(format_template)
 
-    if format_ == "base64" and is_base64_file_input(data):
-        binary: str | bytes | None = None
-
-        if isinstance(data, pathlib.Path):
-            binary = data.read_bytes()
-        elif isinstance(data, io.IOBase):
-            binary = data.read()
-
-            if isinstance(binary, str):
-                binary = binary.encode()
-
-        if not isinstance(binary, bytes):
-            raise RuntimeError(f"Could not read bytes from {data}; Received {type(binary)}")
-
-        return base64.b64encode(binary).decode("ascii")
-
     return data
 
 
@@ -411,22 +390,6 @@ async def _async_format_data(data: object, format_: PropertyFormat, format_templ
 
         if format_ == "custom" and format_template is not None:
             return data.strftime(format_template)
-
-    if format_ == "base64" and is_base64_file_input(data):
-        binary: str | bytes | None = None
-
-        if isinstance(data, pathlib.Path):
-            binary = await anyio.Path(data).read_bytes()
-        elif isinstance(data, io.IOBase):
-            binary = data.read()
-
-            if isinstance(binary, str):
-                binary = binary.encode()
-
-        if not isinstance(binary, bytes):
-            raise RuntimeError(f"Could not read bytes from {data}; Received {type(binary)}")
-
-        return base64.b64encode(binary).decode("ascii")
 
     return data
 

@@ -6,9 +6,7 @@
 :Last Modified:     Jeff Shurtliff
 :Modified Date:     01 Nov 2026
 
-This file contains code from https://github.com/openai/openai-python/ and also
-from https://github.com/pydantic/pydantic/blob/main/pydantic/v1/datetime_parse.py
-without the Pydantic v1 specific errors.
+This file contains code from https://github.com/openai/openai-python/
 """
 
 from __future__ import annotations

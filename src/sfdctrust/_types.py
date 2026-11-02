@@ -4,7 +4,7 @@
 :Synopsis:
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff
-:Modified Date:     31 Oct 2026
+:Modified Date:     01 Nov 2026
 
 This file contains code from https://github.com/openai/openai-python/
 """
@@ -48,8 +48,6 @@ from httpx2 import URL, Proxy, Timeout, Response, BaseTransport, AsyncBaseTransp
 
 if TYPE_CHECKING:
     from ._models import BaseModel, SecurityOptions
-    from ._response import APIResponse, AsyncAPIResponse
-    from ._legacy_response import HttpxBinaryResponseContent
 
 Transport = BaseTransport
 AsyncTransport = AsyncBaseTransport
@@ -67,44 +65,7 @@ NestedFormat = Literal["dots", "brackets"]
 # while adding support for `PathLike` instances
 ProxiesDict = Dict["str | URL", Union[None, str, URL, Proxy]]
 ProxiesTypes = Union[str, Proxy, ProxiesDict]
-if TYPE_CHECKING:
-    Base64FileInput = Union[IO[bytes], PathLike[str]]
-    FileContent = Union[IO[bytes], bytes, PathLike[str]]
-else:
-    Base64FileInput = Union[IO[bytes], PathLike]
-    FileContent = Union[IO[bytes], bytes, PathLike]  # PathLike is not subscriptable in Python 3.8.
 
-
-# Used for sending raw binary data / streaming data in request bodies
-# e.g. for file uploads without multipart encoding
-BinaryTypes = Union[bytes, bytearray, IO[bytes], Iterable[bytes]]
-AsyncBinaryTypes = Union[bytes, bytearray, IO[bytes], AsyncIterable[bytes]]
-
-FileTypes = Union[
-    # file (or bytes)
-    FileContent,
-    # (filename, file (or bytes))
-    Tuple[Optional[str], FileContent],
-    # (filename, file (or bytes), content_type)
-    Tuple[Optional[str], FileContent, Optional[str]],
-    # (filename, file (or bytes), content_type, headers)
-    Tuple[Optional[str], FileContent, Optional[str], Mapping[str, str]],
-]
-RequestFiles = Union[Mapping[str, FileTypes], Sequence[Tuple[str, FileTypes]]]
-
-# duplicate of the above but without our custom file support
-HttpxFileContent = Union[IO[bytes], bytes]
-HttpxFileTypes = Union[
-    # file (or bytes)
-    HttpxFileContent,
-    # (filename, file (or bytes))
-    Tuple[Optional[str], HttpxFileContent],
-    # (filename, file (or bytes), content_type)
-    Tuple[Optional[str], HttpxFileContent, Optional[str]],
-    # (filename, file (or bytes), content_type, headers)
-    Tuple[Optional[str], HttpxFileContent, Optional[str], Mapping[str, str]],
-]
-HttpxRequestFiles = Union[Mapping[str, HttpxFileTypes], Sequence[Tuple[str, HttpxFileTypes]]]
 
 # Workaround to support (cast_to: Type[ResponseT]) -> ResponseT
 # where ResponseT includes `None`. In order to support directly
@@ -151,9 +112,8 @@ class NotGiven:
 
     For example:
 
-    ```py
+    ```python
     def create(timeout: Timeout | None | NotGiven = not_given): ...
-
 
     create(timeout=1)  # 1s timeout
     create(timeout=None)  # No timeout
@@ -174,32 +134,6 @@ not_given = NotGiven()
 NOT_GIVEN = NotGiven()
 
 
-class Omit:
-    """
-    To explicitly omit something from being sent in a request, use `omit`.
-
-    ```py
-    # as the default `Content-Type` header is `application/json` that will be sent
-    client.post("/upload/files", files={"file": b"my raw file content"})
-
-    # you can't explicitly override the header as it has to be dynamically generated
-    # to look something like: 'multipart/form-data; boundary=0d8382fcf5f8c3be01ca2e11002d2983'
-    client.post(..., headers={"Content-Type": "multipart/form-data"})
-
-    # instead you can remove the default `application/json` header by passing omit
-    client.post(..., headers={"Content-Type": omit})
-    ```
-    """
-
-    def __bool__(self) -> Literal[False]:
-        return False
-
-
-omit = Omit()
-
-Omittable = Union[_T, Omit]
-
-
 @runtime_checkable
 class ModelBuilderProtocol(Protocol):
     @classmethod
@@ -211,7 +145,7 @@ class ModelBuilderProtocol(Protocol):
     ) -> _T: ...
 
 
-Headers = Mapping[str, Union[str, Omit]]
+Headers = Mapping[str, str]
 
 
 class HeadersLikeProtocol(Protocol):
@@ -231,9 +165,6 @@ ResponseT = TypeVar(
         Dict[str, Any],
         Response,
         ModelBuilderProtocol,
-        "APIResponse[Any]",
-        "AsyncAPIResponse[Any]",
-        "HttpxBinaryResponseContent",
     ],
 )
 
