@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability (private)
+    url: https://github.com/jeffshurtliff/sfdctrust/security/advisories/new
+    about: Report suspected vulnerabilities privately. Do not open a public issue or include PATs, tenant IDs, or incident data.
+  - name: My Trust Center API documentation
+    url: https://developer.salesforce.com/docs/mytrust-api/overview.html
+    about: Questions about the API itself (PATs, tenant access, endpoint behavior) belong to Salesforce, not this SDK. Check the official docs first.
