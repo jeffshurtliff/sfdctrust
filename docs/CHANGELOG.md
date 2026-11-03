@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
+- Added `TrustCenterClient` and `client.tenants.list()` for one typed page of PAT-authorized tenants,
+  with explicit continuation tokens and an optional caller-owned HTTPX client.
+
 - Added a private synchronous HTTP transport with production destination checks, redirect blocking,
   finite timeouts, bounded retries for documented reads, and sanitized errors. Offline tests exercise
   Bearer authentication through JSON decoding and error translation.

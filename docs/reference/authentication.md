@@ -1,14 +1,13 @@
 # Authentication foundation
 
-The internal `sfdctrust._auth.PATAuth` component implements HTTPX Bearer authentication.
-It is an implementation detail for the future SDK client, rather than a stable public
-credential interface. The private transport uses it for each request.
+The synchronous `TrustCenterClient` uses an internal HTTPX Bearer authentication
+component for each request.
 
 ## Credential selection
 
 - Construction requires an explicit `pat`; it never reads the environment.
-- Opt-in `PATAuth.from_env()` reads only `SFDCTRUST_PAT`.
-- `PATAuth.from_env(pat=...)` uses the override without reading the environment. An explicit
+- Opt-in `TrustCenterClient.from_env()` reads only `SFDCTRUST_PAT`.
+- `TrustCenterClient.from_env(pat=...)` uses the override without reading the environment. An explicit
   empty, blank, or `None` override raises `sfdctrust.ConfigurationError`, even when the
   environment contains a valid PAT.
 - No `.env`, credential files, or secret providers are read. The environment is never changed.
