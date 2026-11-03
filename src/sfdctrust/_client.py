@@ -4,7 +4,7 @@
 :Synopsis:          Synchronous My Trust Center client
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     02 Nov 2026
+:Modified Date:     03 Nov 2026
 """
 
 from __future__ import annotations
@@ -15,6 +15,8 @@ import httpx
 
 from ._auth import PATAuth, _Unset
 from ._transport import _Transport
+from .resources.events import EventsResource
+from .resources.status import StatusResource
 from .resources.tenants import TenantsResource
 
 
@@ -36,13 +38,15 @@ class TrustCenterClient:
     def _initialize(self, auth: PATAuth, http_client: httpx.Client | None) -> None:
         self._transport = _Transport(auth, client=http_client)
         self.tenants = TenantsResource(self._transport)
+        self.status = StatusResource(self._transport)
+        self.events = EventsResource(self._transport)
 
     @classmethod
     def from_env(cls, *, pat: str | None | _Unset = _Unset.PAT, http_client: httpx.Client | None = None) -> Self:
         """Create a client using ``SFDCTRUST_PAT`` or an explicit override.
 
         :param pat: An explicit override. Omitting it selects the environment.
-            Explicit ``None`` or any invalid override raises immediately.
+                    Explicit ``None`` or any invalid override raises immediately.
         :param http_client: Optional caller-owned, trusted HTTPX client.
         :returns: A configured client.
         :raises ConfigurationError: If the selected PAT is absent or invalid.

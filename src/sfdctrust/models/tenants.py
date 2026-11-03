@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust.models.tenants
-:Synopsis:          Typed tenant-list response models
+:Synopsis:          Typed tenant response models
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     02 Nov 2026
+:Modified Date:     03 Nov 2026
 """
+
 from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-__all__ = ['Tenant', 'TenantListResponse']
+from ._wire import _reject_null, _WireModel
+from .events import EventSummary
+
+__all__ = ['Tenant', 'TenantListResponse', 'TenantDetail', 'TenantLocation']
 
 
 class Tenant(BaseModel):
@@ -46,3 +50,25 @@ class TenantListResponse(BaseModel):
         if value is None:
             raise ValueError('The continuation token may be omitted but cannot be null.')
         return value
+
+
+class TenantLocation(_WireModel):
+    """Physical location of the primary instance, if available."""
+
+    city: str
+    state_name: str = Field(alias='stateName')
+    state_code: str = Field(alias='stateCode')
+    country_name: str = Field(alias='countryName')
+    country_code: str = Field(alias='countryCode')
+
+
+class TenantDetail(Tenant):
+    """An authorized tenant with optional instance fields and embedded event history."""
+
+    region: str | None = None
+    version: str | None = None
+    maintenance_window: str | None = Field(default=None, alias='maintenanceWindow')
+    location: TenantLocation | None = None
+    events: list[EventSummary]
+
+    _nonnull = field_validator('location', mode='before')(_reject_null)

@@ -1,4 +1,4 @@
-# Tenant listing
+# Tenants
 
 Call `client.tenants.list()` to retrieve one page of tenants visible to your
 PAT. Empty results provide no information about Salesforce-wide health.
@@ -38,3 +38,31 @@ data = page.model_dump(mode="json", by_alias=True, exclude_unset=True)
 ```
 
 The aliases are `myDomain` and `nextPageToken`.
+
+## Tenant detail
+
+```python
+client.tenants.get(tenant_id: str, *, locale: str | None = None) -> TenantDetail
+```
+
+Import `TenantDetail` and `TenantLocation` from `sfdctrust.models.tenants`.
+`TenantDetail` extends `Tenant` with required `events`, a list of
+`EventSummary` objects scoped to the requested tenant. Salesforce includes
+events whose lifecycle overlaps the 365 days before or after the request
+time. Informational messages cover the preceding 365 days. A patch can
+appear once per lifecycle, so the SDK preserves repeated IDs and order.
+
+Optional `region`, `version`, and `maintenance_window` (`maintenanceWindow`)
+are nullable strings. Optional `location` is a non-null `TenantLocation`
+when present. It requires the string fields `city`, `state_name`
+(`stateName`), `state_code` (`stateCode`), `country_name` (`countryName`),
+and `country_code` (`countryCode`). Salesforce uses empty strings when
+location components are unavailable. Use `model_fields_set` and
+`model_dump(mode="json", by_alias=True, exclude_unset=True)` to retain
+the distinction between omitted fields and explicit null.
+
+Supply the opaque `tenant_id` from a tenant response. The SDK rejects
+empty, unsafe, or unrepresentable path segments with `ConfigurationError`
+before I/O. A detail HTTP 404 raises `NotFoundError` for a nonexistent or
+unauthorized tenant. Locale works as in listing. See
+{doc}`events-and-status` for the event fields and timeline.

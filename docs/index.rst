@@ -19,9 +19,8 @@ Salesforce.
 
 .. warning::
 
-   The project is in development. API clients and resource operations are not
-   implemented yet, so this documentation describes the project scope, the
-   verified API contract, and the development workflow.
+   The project is in development. The synchronous client provides tenant
+   listing, status snapshots, event search, and detail reads for events and tenants.
 
 The API exposes only the tenants authorized by the caller's personal access
 token (PAT). An empty or partial result does not establish Salesforce-wide health.

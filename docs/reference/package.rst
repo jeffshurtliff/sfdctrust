@@ -26,7 +26,7 @@ Both credential entry points accept a trusted, caller-owned HTTPX client through
 ``http_client=``. Context exit and ``close()`` leave an injected client open. The
 SDK still applies its fixed destination, per-attempt timeouts, redirect policy,
 and error translation. The injected client controls TLS, proxies, hooks, and
-the underlying transport. See :doc:`tenants` for the resource operation.
+the underlying transport. See :doc:`tenants` and :doc:`events-and-status` for the resource operations.
 
 .. autodata:: __version__
    :no-value:
