@@ -200,8 +200,9 @@ use `sfdctrust.__version__` for the package version.
 Fixed the checkout version fallback (it previously looked one directory above the repository)
 and exposed package `__version__`. The PEP 621 version remains authoritative and unchanged.
 
-Before implementing the next slice, adopt or resolve these **proposed SDK policies**, distinct
-from Salesforce requirements:
+The following SDK policies are distinct from Salesforce requirements. The credential and
+exception decisions are now implemented as described below; the remaining policies are
+proposals to resolve when implementing their respective slices:
 
 | Area | Recommended initial decision |
 | --- | --- |
@@ -217,10 +218,38 @@ from Salesforce requirements:
 | Errors | Retain `TrustCenterError`; add a small hierarchy for configuration, network/timeout, API status, authentication, rate limiting, not found, and malformed responses. Preserve status and a verified safe request ID when available; do not retain raw credential-bearing requests or unsanitized server messages. Header name for request IDs is not specified by this API. |
 | Freshness | No caching initially. Defer an SDK `retrieved_at` envelope until its return-shape implications are decided; do not add it to Salesforce's wire schema. |
 
+### Authentication and exceptions implemented (2026-11-02)
+
+`_auth.PATAuth` is an internal HTTPX auth component with required explicit `pat` construction
+and opt-in `from_env()` reading only `SFDCTRUST_PAT`. An explicit override wins without an
+environment read; empty, blank, non-string, and explicit `None` overrides fail rather than
+fall back. PAT values are opaque visible-ASCII strings: whitespace/control characters are
+rejected without trimming, and JWT parsing is not performed. Construction performs no I/O.
+Pydantic `SecretStr` protects ordinary representations; pickling is disabled. Only the fixed
+production HTTPS origin without URL user information may receive the Bearer header.
+The auth flow sends once and passes 401 responses through unchanged, without parsing,
+retrying, or refreshing. Redirects must be disabled by the future transport.
+
+The public exception hierarchy is exported from `sfdctrust`: `TrustCenterError`,
+`ConfigurationError`, `NetworkError` / `RequestTimeoutError`, `APIStatusError` /
+`AuthenticationError` (401), `RateLimitError` (429), `NotFoundError` (404), and
+`MalformedResponseError`. Status errors retain only a validated integer `status_code`
+and an SDK-authored message, with no raw request, response, or server message.
+Request-ID capture is deferred because no safe header source has been verified.
+Other exception messages must likewise be SDK-authored and secret-free.
+
+The current [Salesforce authentication guide](https://developer.salesforce.com/docs/mytrust-api/authentication.html)
+was rechecked for Bearer authentication and 401 semantics. HTTPX's custom auth protocol was
+checked against its official documentation. Tests use synthetic credentials and mock requests;
+no live API calls or real credential discovery occurred. See the
+[authentication boundaries](reference/authentication.md) and
+[exception reference](reference/exceptions.rst). No transport, client, or refresh is implemented.
+
 Recommended sequence:
 
-1. Implement `_auth.py` input/environment validation and safe secret handling, plus the small
-   `_exceptions.py` hierarchy. Test missing/blank inputs, precedence, redaction, and 401 behavior.
+1. **Complete:** `_auth.py` input/environment validation and safe secret handling, plus the small
+   `_exceptions.py` hierarchy and offline tests for missing/blank inputs, precedence, redaction,
+   destination restrictions, and unchanged 401 behavior.
 2. Implement `_transport.py` with ownership, HTTPS/redirect rules, finite timeouts, bounded
    retries, status translation before JSON parsing, and strict successful-response decoding.
    Use offline `httpx.MockTransport` tests for URLs, auth headers, JSON/plain-text errors,
@@ -232,13 +261,14 @@ Recommended sequence:
    invalid booleans/floats/page sizes, 4096-character tokens, extra fields, absent versus null,
    zero tenants, localization, and multiple pages before adding convenience iteration.
 
-There is no CONTRIBUTING file, CI workflow, Sphinx configuration, or pre-existing test suite
-in this checkout. Python `>=3.12` and the existing classifiers are preserved; a tested Python
+There is no CONTRIBUTING file or CI workflow. Sphinx configuration and documentation tooling
+have since been added, and offline version/authentication/exception tests are available.
+Python `>=3.12` and the existing classifiers are preserved; a tested Python
 matrix (including the existing 3.15 classifier) remains a release-readiness decision.
 No client, resource methods, async functionality, MCP, PAT refresh, version bump, or release
 is introduced by this foundation task.
 
-## Validation of this foundation
+## Validation of the original foundation
 
 On Python 3.12, the eight offline version tests, Ruff lint, formatting of changed Python
 files, Bandit, Poetry configuration checks, wheel/sdist builds, and Twine metadata checks

@@ -33,8 +33,14 @@ poetry build
 ```
 
 The runtime foundation uses HTTPX and Pydantic v2. Tests are offline and require no PAT.
-Authentication configuration is still a proposed contract; no credential setup is needed
-for this foundation. Do not place real tokens in source, examples, or test fixtures.
+Internal PAT authentication now validates explicit credentials and supports opt-in loading of
+`SFDCTRUST_PAT`. Explicit overrides take precedence; invalid overrides fail instead of falling
+back. No `.env` files are loaded. Credential setup is not needed to import or test the package;
+the public client remains unimplemented. Do not place real tokens in source, examples, or fixtures.
+
+The [exception hierarchy](docs/reference/exceptions.rst) is available from `sfdctrust`, including
+`ConfigurationError`, `AuthenticationError`, and the shared `TrustCenterError` base.
+See [authentication](docs/reference/authentication.md) for the implemented boundaries.
 
 The documentation uses Sphinx with the optional `docs` dependency group:
 
