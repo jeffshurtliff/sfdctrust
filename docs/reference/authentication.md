@@ -2,7 +2,7 @@
 
 The internal `sfdctrust._auth.PATAuth` component implements HTTPX Bearer authentication.
 It is an implementation detail for the future SDK client, rather than a stable public
-credential interface. No SDK transport or client exists yet.
+credential interface. The private transport uses it for each request.
 
 ## Credential selection
 
@@ -29,11 +29,10 @@ Authentication attaches the PAT only to `https://api.salesforce.com` on the defa
 port, without URL user information. It replaces any existing Authorization header and
 yields exactly one request. Construction and validation make no network requests.
 
-A 401 response passes through unchanged, regardless of its body. There is no retry, response
-parsing, status-to-exception translation, PAT refresh, or token persistence. The future
-transport will translate status errors to the public exceptions. It must also disable redirects:
-HTTPX processes redirects outside the auth flow. Do not use the auth helper as a redirect policy.
+The auth flow yields a 401 response unchanged. The private transport maps it to
+`AuthenticationError` and fails immediately. The transport also disables redirects per
+request because HTTPX handles redirects outside the auth flow. PAT refresh and token
+persistence remain deferred.
 
 Authenticated request objects necessarily contain the Authorization header. Do not log or
-serialize those objects or manually expose the secret. Future transport code must preserve
-that boundary when handling HTTPX errors and diagnostics.
+serialize those objects or manually expose the secret. The transport uses SDK-authored errors when translating HTTPX failures.

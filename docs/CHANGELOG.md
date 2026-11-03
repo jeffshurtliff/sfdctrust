@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
+- Added a private synchronous HTTP transport with production destination checks, redirect blocking,
+  finite timeouts, bounded retries for documented reads, and sanitized errors. Offline tests exercise
+  Bearer authentication through JSON decoding and error translation.
 - Added internal PAT validation, opt-in `SFDCTRUST_PAT` loading with explicit-override precedence,
   secret redaction, and production-origin Bearer authentication, with offline tests and no refresh.
 - Exposed a small exception hierarchy from `sfdctrust` for configuration, network/timeouts,

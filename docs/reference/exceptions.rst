@@ -32,8 +32,9 @@ construction behavior is preserved.
 A 401 does not distinguish invalid, missing, revoked or expired credentials.
 A 404 does not distinguish nonexistent from unauthorized resources. A 429
 does not imply a JSON body or a ``Retry-After`` header. The exceptions perform
-no I/O, retries or credential refresh. Automatic status translation belongs
-to the future transport and is not implemented yet.
+no I/O, retries or credential refresh. The private transport translates HTTP
+statuses before reading the response body and uses the base
+:class:`~sfdctrust.TrustCenterError` for unexpected statuses such as redirects.
 
 .. autoclass:: sfdctrust.TrustCenterError
 .. autoclass:: sfdctrust.ConfigurationError
