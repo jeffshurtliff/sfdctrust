@@ -1,7 +1,7 @@
 # My Trust Center API contract
 
-Reviewed on **2026-11-01**. This is an implementation inventory, not an SDK reference:
-no API client or resource operations are implemented yet.
+The synchronous SDK implements tenant listing. This inventory also covers operations
+planned for future milestones.
 
 ## Sources and verification boundary
 
@@ -17,7 +17,14 @@ reference was checked for all six operations, request constraints, pagination, e
 and the top-level tenant-list and event-detail response schemas; these agree with the local copy.
 The reference's linked YAML download returned HTTP 404, so a byte-for-byte comparison and
 independent verification of every nested schema were unavailable. No live API calls were made.
-The vendor file remains local and is not redistributed by this package.
+The vendor file remains local and is excluded from the package.
+
+On **2026-11-02**, the rendered reference did not expose its operation content.
+The current Salesforce getting-started guide confirmed Bearer authentication,
+PAT-scoped results, sorting by ID and cloud, continuation via `nextPageToken` and
+`pageToken`, and locale fallback. The local specification supplied the exact
+method and path, parameter defaults and limits, cursor error status, and detailed
+response schema for the implementation.
 
 ## Shared contract
 
@@ -185,7 +192,7 @@ and `MockTransport`; use Pydantic v2 validation/serialization directly. Let thos
 manage their own `pydantic-core`, `typing-extensions`, and concurrency dependencies.
 Existing pytest, coverage, Ruff, Bandit, Twine, and optional Sphinx tooling are retained.
 RESPX, pytest-asyncio, JWT, dotenv, retry frameworks, and AI dependencies are unnecessary now.
-Add a type checker with a defined configuration when the first typed operation is introduced.
+A type checker and its configuration are a separate tooling decision.
 See [HTTPX](https://www.python-httpx.org/) and
 [Pydantic models](https://docs.pydantic.dev/latest/concepts/models/).
 
@@ -201,7 +208,8 @@ Fixed the checkout version fallback (it previously looked one directory above th
 and exposed package `__version__`. The PEP 621 version remains authoritative and unchanged.
 
 The following SDK policies are distinct from Salesforce requirements. The credential, exception, and transport decisions are implemented as described below.
-The remaining policies are proposals for their respective milestones.
+Tenant listing applies the model and single-page policies below. Policies for other
+operations remain design proposals.
 
 | Area | SDK policy |
 | --- | --- |
@@ -248,9 +256,8 @@ no live API calls or real credential discovery occurred. See the
 
 The private transport builds requests under the production API base, applies PATAuth per
 request, translates HTTP errors before reading the response body, and decodes successful
-responses as strict UTF-8 JSON. It returns the decoded value for future resources to validate.
-Request IDs, a public client, resource operations, response models, pagination, async support,
-and PAT refresh remain deferred. See the [transport reference](reference/transport.md) for
+responses as strict UTF-8 JSON. It returns the decoded value for resource-level validation.
+Request IDs, automatic pagination, async support, and PAT refresh remain deferred. See the [transport reference](reference/transport.md) for
 ownership, timeout precedence, and retry details.
 
 The current Salesforce overview, getting-started guide, and authentication guide were
@@ -265,19 +272,16 @@ Recommended sequence:
    destination restrictions, and unchanged 401 behavior.
 2. **Complete:** `_transport.py` with ownership, HTTPS destination checks, redirect blocking,
    finite timeouts, bounded retries, status translation, strict JSON, and offline mock tests.
-3. Add `Tenant`/`TenantListResponse`, `resources/tenants.py`, and a minimal synchronous
-   `TrustCenterClient`. Proposed first method: `client.tenants.list(*, page_size=None,
-   page_token=None, locale=None) -> TenantListResponse`; translate names explicitly, omit
-   unspecified query values, and let Salesforce supply defaults. Test 1/200 boundaries,
-   invalid booleans/floats/page sizes, 4096-character tokens, extra fields, absent versus null,
-   zero tenants, localization, and multiple pages before adding convenience iteration.
+3. **Complete:** `TrustCenterClient` and `client.tenants.list(*, page_size=None,
+   page_token=None, locale=None) -> TenantListResponse`. The resource validates supplied
+   arguments, forwards opaque tokens and locale strings, and leaves unspecified values
+   to Salesforce. A cursor error surfaces as an HTTP 400 `APIStatusError`.
 
-There is no CONTRIBUTING file or CI workflow. Sphinx configuration and documentation tooling
-have since been added, and offline version/authentication/exception tests are available.
-Python `>=3.12` and the existing classifiers are preserved; a tested Python
-matrix (including the existing 3.15 classifier) remains a release-readiness decision.
-No client, resource methods, async functionality, MCP, PAT refresh, version bump, or release
-is introduced by this foundation task.
+The public client reuses PAT authentication and the private transport. One call returns
+one page scoped to the PAT's authorized tenants. Empty results establish no Salesforce-wide
+health claim. See the [quickstart](getting-started/quickstart.md) and
+[tenant reference](reference/tenants.md) for explicit pagination, model imports,
+wire serialization and validation behavior.
 
 ## Validation of the original foundation
 

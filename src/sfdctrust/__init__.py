@@ -7,6 +7,7 @@
 :Modified Date:     02 Nov 2026
 """
 
+from ._client import TrustCenterClient
 from ._exceptions import (
     APIStatusError,
     AuthenticationError,
@@ -22,6 +23,7 @@ from ._version import __version__
 
 __all__ = [
     '__version__',
+    'TrustCenterClient',
     'TrustCenterError',
     'ConfigurationError',
     'NetworkError',

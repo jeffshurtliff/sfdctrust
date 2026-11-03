@@ -10,14 +10,33 @@
 An unofficial, community-maintained Python SDK project for the **Salesforce My Trust Center
 API**. It is not affiliated with or supported by Salesforce.
 
-> [!WARNING]
-> The project is in development. API clients and resource operations are not implemented yet.
+The project is in development. The synchronous client supports listing one page of tenants.
 
 The API exposes only tenants authorized by the caller's personal access token (PAT);
 empty results do not establish Salesforce-wide health.
 
 See the [API contract and implementation decisions](docs/API_CONTRACT.md) for the verified
 operation inventory, schema notes, authentication rules, and next implementation steps.
+
+## Quickstart
+
+Install from this checkout with `python -m pip install .` on Python 3.12 or later.
+Set `SFDCTRUST_PAT` in the process environment using a PAT from My Trust Center.
+
+```python
+from sfdctrust import TrustCenterClient
+
+with TrustCenterClient.from_env() as client:
+    page = client.tenants.list()
+    for tenant in page.tenants:
+        print(tenant.id, tenant.name)
+```
+
+If `page.next_page_token is not None`, request the next page with
+`client.tenants.list(page_token=page.next_page_token)` inside the same context.
+If you supplied `page_size` or `locale` on the first call, repeat those values.
+See the [quickstart](docs/getting-started/quickstart.md) and
+[tenant reference](docs/reference/tenants.md) for details.
 
 ## Development
 
@@ -32,11 +51,7 @@ poetry run ruff format --check .
 poetry build
 ```
 
-The runtime foundation uses HTTPX and Pydantic v2. Tests are offline and require no PAT.
-Internal PAT authentication now validates explicit credentials and supports opt-in loading of
-`SFDCTRUST_PAT`. Explicit overrides take precedence; invalid overrides fail instead of falling
-back. No `.env` files are loaded. Credential setup is not needed to import or test the package;
-the public client remains unimplemented. Do not place real tokens in source, examples, or fixtures.
+The SDK uses HTTPX and Pydantic v2. Tests run offline with synthetic PATs.
 
 The [exception hierarchy](docs/reference/exceptions.rst) is available from `sfdctrust`, including
 `ConfigurationError`, `AuthenticationError`, and the shared `TrustCenterError` base.

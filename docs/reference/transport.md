@@ -26,8 +26,7 @@ The transport inspects the status before reading the response body. It maps 401,
 404, and 429 to their specialized exceptions and other 4xx and 5xx statuses to
 `APIStatusError`. Unexpected statuses such as redirects raise `TrustCenterError`.
 Successful responses must contain valid UTF-8 JSON. Empty or invalid JSON raises
-`MalformedResponseError`. Valid JSON values pass through for future resources to
-validate. Exceptions omit server messages, requests, responses, and URLs.
+`MalformedResponseError`. The tenant resource validates decoded JSON against its response models. Exceptions omit server messages, requests, responses, and URLs.
 Request-ID capture remains deferred.
 
 The retry allowlist covers `GET /tenants`, `GET /tenants/{tenantId}`, `GET /status`,
@@ -38,5 +37,5 @@ of jitter each, for at most 2 seconds of scheduled sleep. A plain-text 429 follo
 the same policy. The transport uses its own delays independently of `Retry-After`
 and surfaces the final translated error if attempts are exhausted.
 
-PAT refresh is rejected before authentication. The public client, resource methods,
-response models, pagination, and async support are outside this milestone.
+The public synchronous client uses this transport for :doc:`tenants`.
+The transport rejects PAT refresh before authentication.

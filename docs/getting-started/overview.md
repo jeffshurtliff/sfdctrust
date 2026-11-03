@@ -12,11 +12,8 @@ It is unofficial and is not affiliated with or supported by Salesforce.
 
 ## Project status
 
-The project is in development. The package currently exposes its version
-(`sfdctrust.__version__`) and its {doc}`exception hierarchy <../reference/exceptions>`.
-Internal {doc}`PAT authentication <../reference/authentication>` is implemented, with offline
-validation and no refresh. The API client and resource operations are not implemented yet.
-Pages for them will be added as they land.
+The project is in development. The synchronous client retrieves one page of authorized
+tenants. See the {doc}`quickstart` and {doc}`exception hierarchy <../reference/exceptions>`.
 
 ## Scope and visibility
 
