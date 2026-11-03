@@ -7,6 +7,7 @@ the Salesforce My Trust Center API it targets.
 * :doc:`package`: the public package interface, generated from the source code.
 * :doc:`exceptions`: public exception types and their safe context.
 * :doc:`authentication`: the internal authentication foundation and its boundaries.
+* :doc:`transport`: internal HTTP transport, connection ownership and retry behavior.
 * :doc:`../API_CONTRACT`: the verified API operations, schemas, authentication
   rules and implementation decisions.
 
@@ -20,4 +21,5 @@ those public interfaces are implemented.
    package
    exceptions
    authentication
+   transport
    ../API_CONTRACT

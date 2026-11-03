@@ -200,17 +200,16 @@ use `sfdctrust.__version__` for the package version.
 Fixed the checkout version fallback (it previously looked one directory above the repository)
 and exposed package `__version__`. The PEP 621 version remains authoritative and unchanged.
 
-The following SDK policies are distinct from Salesforce requirements. The credential and
-exception decisions are now implemented as described below; the remaining policies are
-proposals to resolve when implementing their respective slices:
+The following SDK policies are distinct from Salesforce requirements. The credential, exception, and transport decisions are implemented as described below.
+The remaining policies are proposals for their respective milestones.
 
-| Area | Recommended initial decision |
+| Area | SDK policy |
 | --- | --- |
 | Credentials | Explicit required `pat` for construction; opt-in `from_env()` reads only `SFDCTRUST_PAT`. An explicit override takes precedence; empty overrides fail rather than silently fall back. No `.env` loading, JWT parsing, provider framework, or refresh. Hide the PAT from repr/logs/errors. |
 | Ownership | Internally created `httpx.Client` is SDK-owned and closed by `close()`/context exit; caller-supplied client remains caller-owned. No network I/O at construction. |
-| Network defaults | Propose connect/pool 5 seconds, read/write 30 seconds, 20 total/10 idle connections, at most 2 retries after the initial attempt, capped exponential backoff with jitter and a total retry-wait budget. Set concrete backoff bounds with transport tests before implementation. |
-| Safe retry classification | Allowlist GET reads and read-only `POST /events/search`; never infer safety from all POSTs or retry refresh. Propose retrying connection/timeouts and 429/500/502/503/504 within limits. Fail immediately on 400/401/404 and malformed successful responses. |
-| Credential destination | Fixed production HTTPS origin initially; redirects off. Decide any custom-base-URL/proxy policy before exposing it publicly so the PAT cannot be redirected to an unintended host. |
+| Network defaults | Connect and pool timeouts default to 5 seconds, read and write to 30 seconds. The owned pool allows 20 total and 10 idle connections. At most two retries sleep for 0.5 and 1.0 seconds plus up to 0.25 seconds of jitter each (2 seconds total). |
+| Safe retry classification | Retry the five documented reads on connection establishment failures, timeouts, and HTTP 429/500/502/503/504. Other errors fail immediately. The transport rejects PAT refresh. |
+| Credential destination | Fixed production HTTPS origin and API base path with redirects disabled per request. The owned client verifies TLS and ignores environment proxy and CA settings. Injection requires a trusted client. |
 | Models | Python snake_case attributes with explicit camelCase aliases; deliberate JSON serialization with `by_alias=True`. Validate known field types/requiredness; preserve response extras with `extra='allow'` even where vendor schemas are closed. Strict request validation. |
 | Optionality/time | Preserve omitted versus explicit-null via Pydantic field-set information and `exclude_unset`. Reject null on optional non-nullable wire fields. Require aware input timestamps; preserve response offsets, with explicit UTC conversion when needed. Keep ISO durations lossless as strings initially. |
 | Event evolution | Validate outgoing enum filters; preserve unknown response enum strings/data. Dispatch known `data` shapes using `eventType`, rather than an untagged permissive union that could select the wrong shape. Design this before event models. |
@@ -228,7 +227,7 @@ rejected without trimming, and JWT parsing is not performed. Construction perfor
 Pydantic `SecretStr` protects ordinary representations; pickling is disabled. Only the fixed
 production HTTPS origin without URL user information may receive the Bearer header.
 The auth flow sends once and passes 401 responses through unchanged, without parsing,
-retrying, or refreshing. Redirects must be disabled by the future transport.
+retrying, or refreshing. The transport disables redirects on every request.
 
 The public exception hierarchy is exported from `sfdctrust`: `TrustCenterError`,
 `ConfigurationError`, `NetworkError` / `RequestTimeoutError`, `APIStatusError` /
@@ -243,17 +242,29 @@ was rechecked for Bearer authentication and 401 semantics. HTTPX's custom auth p
 checked against its official documentation. Tests use synthetic credentials and mock requests;
 no live API calls or real credential discovery occurred. See the
 [authentication boundaries](reference/authentication.md) and
-[exception reference](reference/exceptions.rst). No transport, client, or refresh is implemented.
+[exception reference](reference/exceptions.rst).
+
+### Minimal synchronous transport implemented (2026-11-02)
+
+The private transport builds requests under the production API base, applies PATAuth per
+request, translates HTTP errors before reading the response body, and decodes successful
+responses as strict UTF-8 JSON. It returns the decoded value for future resources to validate.
+Request IDs, a public client, resource operations, response models, pagination, async support,
+and PAT refresh remain deferred. See the [transport reference](reference/transport.md) for
+ownership, timeout precedence, and retry details.
+
+The current Salesforce overview, getting-started guide, and authentication guide were
+accessible for this milestone. The rendered endpoint reference did not expose its operation
+content to the fetch tools. The retry allowlist uses the operation inventory above and the
+local OpenAPI copy. Transport behavior is tested offline with synthetic PATs.
 
 Recommended sequence:
 
 1. **Complete:** `_auth.py` input/environment validation and safe secret handling, plus the small
    `_exceptions.py` hierarchy and offline tests for missing/blank inputs, precedence, redaction,
    destination restrictions, and unchanged 401 behavior.
-2. Implement `_transport.py` with ownership, HTTPS/redirect rules, finite timeouts, bounded
-   retries, status translation before JSON parsing, and strict successful-response decoding.
-   Use offline `httpx.MockTransport` tests for URLs, auth headers, JSON/plain-text errors,
-   timeout/retry exhaustion, and caller-owned client closing behavior.
+2. **Complete:** `_transport.py` with ownership, HTTPS destination checks, redirect blocking,
+   finite timeouts, bounded retries, status translation, strict JSON, and offline mock tests.
 3. Add `Tenant`/`TenantListResponse`, `resources/tenants.py`, and a minimal synchronous
    `TrustCenterClient`. Proposed first method: `client.tenants.list(*, page_size=None,
    page_token=None, locale=None) -> TenantListResponse`; translate names explicitly, omit
