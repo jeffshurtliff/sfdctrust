@@ -1,7 +1,7 @@
 # My Trust Center API contract
 
-The synchronous SDK implements tenant listing. This inventory also covers operations
-planned for future milestones.
+The synchronous SDK implements all five documented read operations. The inventory
+also includes PAT refresh for reference.
 
 ## Sources and verification boundary
 
@@ -25,6 +25,15 @@ PAT-scoped results, sorting by ID and cloud, continuation via `nextPageToken` an
 `pageToken`, and locale fallback. The local specification supplied the exact
 method and path, parameter defaults and limits, cursor error status, and detailed
 response schema for the implementation.
+
+On **2026-11-03**, the rendered reference again exposed no operation content.
+The official overview and getting-started guide confirmed the snapshot grouping,
+repeated patch IDs, PAT-scoped results, locale fallback, and the availability of
+event search, timelines, and tenant history. The authentication guide confirmed
+Bearer authentication and 401 behavior. The local YAML supplies the exact methods,
+paths, input limits, wire schemas, history window, and endpoint-specific errors.
+No conflict was found in the overlapping guide content. The current nested schemas
+and request details could not be independently compared with the rendered reference.
 
 ## Shared contract
 
@@ -84,7 +93,7 @@ Names and field casing below are Salesforce wire names. Required and nullable ar
 a required nullable field must still be present. Unless identified as nullable, an optional
 field may be omitted but is not declared to accept JSON null. Date-time fields are ISO 8601
 strings on the wire. Most response objects disallow additional properties in the vendor
-schema; `Tenant` leaves them unspecified. The SDK's proposed forward-compatible extra-field
+schema; `Tenant` leaves them unspecified. The SDK's forward-compatible extra-field
 policy is described separately below.
 
 ### Tenants and status (5 schemas)
@@ -208,8 +217,8 @@ Fixed the checkout version fallback (it previously looked one directory above th
 and exposed package `__version__`. The PEP 621 version remains authoritative and unchanged.
 
 The following SDK policies are distinct from Salesforce requirements. The credential, exception, and transport decisions are implemented as described below.
-Tenant listing applies the model and single-page policies below. Policies for other
-operations remain design proposals.
+All five read operations apply the model policies below. Tenant listing and event
+search each return a single page.
 
 | Area | SDK policy |
 | --- | --- |
@@ -282,6 +291,21 @@ one page scoped to the PAT's authorized tenants. Empty results establish no Sale
 health claim. See the [quickstart](getting-started/quickstart.md) and
 [tenant reference](reference/tenants.md) for explicit pagination, model imports,
 wire serialization and validation behavior.
+
+### Remaining synchronous reads implemented (2026-11-03)
+
+`client.status.snapshot()`, `client.events.search()`, `client.events.get()`,
+and `client.tenants.get()` share the existing transport. Detail IDs are quoted as one
+segment and checked by the transport against its existing decoded-path restrictions.
+The transport continues to retry POST only for `/events/search`. Search forwards duplicate
+scope entries within the 1–50 input limit, leaving deduplication to Salesforce.
+Timestamp inputs use minute-aligned ISO 8601 offsets and are compared as instants.
+The response models dispatch event data by `eventType` and known timeline shapes by
+`subEventType`, checking known subtype compatibility with a known parent.
+Unknown response enums and extra fields survive validation. The SDK uses a static
+`MalformedResponseError` for response schema failures. See the
+[status and event reference](reference/events-and-status.md) and
+[tenant reference](reference/tenants.md) for signatures and model imports.
 
 ## Validation of the original foundation
 

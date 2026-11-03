@@ -1,19 +1,17 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust.resources.tenants
-:Synopsis:          Synchronous tenant listing
+:Synopsis:          Synchronous tenant listing and detail
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     02 Nov 2026
+:Modified Date:     03 Nov 2026
 """
+
 from __future__ import annotations
 
-import httpx
-from pydantic import ValidationError
-
-from .._exceptions import ConfigurationError, MalformedResponseError
 from .._transport import _Transport
-from ..models.tenants import TenantListResponse
+from ..models.tenants import TenantDetail, TenantListResponse
+from ._requests import _id_segment, _locale_params, _page_params, _request_model
 
 
 class TenantsResource:
@@ -36,28 +34,31 @@ class TenantsResource:
         :raises APIStatusError: If Salesforce rejects the request, including a stale cursor.
         :raises MalformedResponseError: If the response is invalid JSON or violates the tenant schema.
         """
-        params: dict[str, str | int] = {}
-        if page_size is not None:
-            if not isinstance(page_size, int) or isinstance(page_size, bool) or not 1 <= page_size <= 200:
-                raise ConfigurationError('page_size must be an integer from 1 through 200.')
-            params['pageSize'] = page_size
-        if page_token is not None:
-            if not isinstance(page_token, str) or len(page_token) > 4096:
-                raise ConfigurationError('page_token must be a string of at most 4096 characters.')
-            params['pageToken'] = page_token
-        if locale is not None:
-            if not isinstance(locale, str):
-                raise ConfigurationError('locale must be a string.')
-            params['locale'] = locale
+        params = _page_params(page_size, page_token)
+        params.update(_locale_params(locale))
+        return _request_model(
+            self._transport,
+            'GET',
+            '/tenants',
+            TenantListResponse,
+            params=params,
+            response_error='My Trust Center returned an invalid tenant page.',
+            encoding_error='Tenant query arguments could not be encoded in a request URL.',
+        )
 
-        try:
-            payload = self._transport.request('GET', '/tenants', params=params)
-        except (UnicodeEncodeError, httpx.InvalidURL):
-            pass
-        else:
-            try:
-                return TenantListResponse.model_validate(payload)
-            except ValidationError:
-                pass
-            raise MalformedResponseError('My Trust Center returned an invalid tenant page.')
-        raise ConfigurationError('Tenant query arguments could not be encoded in a request URL.')
+    def get(self, tenant_id: str, *, locale: str | None = None) -> TenantDetail:
+        """Retrieve a tenant and its history in Salesforce's fixed window.
+
+        :param tenant_id: Opaque tenant identifier.
+        :param locale: BCP 47 locale forwarded to Salesforce for fallback.
+        :returns: Tenant detail with embedded events.
+        :raises NotFoundError: If the tenant is nonexistent or unauthorized.
+        """
+        return _request_model(
+            self._transport,
+            'GET',
+            f'/tenants/{_id_segment(tenant_id)}',
+            TenantDetail,
+            params=_locale_params(locale),
+            response_error='My Trust Center returned invalid tenant detail.',
+        )

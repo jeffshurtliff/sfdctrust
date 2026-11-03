@@ -12,8 +12,8 @@ It is unofficial and is not affiliated with or supported by Salesforce.
 
 ## Project status
 
-The project is in development. The synchronous client retrieves one page of authorized
-tenants. See the {doc}`quickstart` and {doc}`exception hierarchy <../reference/exceptions>`.
+The project is in development. The synchronous client supports tenant listing, status snapshots,
+event search, event details, and tenant details. See the {doc}`quickstart` and {doc}`exception hierarchy <../reference/exceptions>`.
 
 ## Scope and visibility
 

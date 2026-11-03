@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
+- Added typed status snapshots, single-page event search with explicit continuation,
+  event detail with timeline, and tenant detail with history. Response models preserve
+  repeated event IDs, tenant scopes, timestamp offsets, and unknown response fields.
+
 - Added `TrustCenterClient` and `client.tenants.list()` for one typed page of PAT-authorized tenants,
   with explicit continuation tokens and an optional caller-owned HTTPX client.
 
