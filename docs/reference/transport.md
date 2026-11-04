@@ -35,7 +35,7 @@ establishment errors and timeouts, along with HTTP 429, 500, 502, 503, and 504,
 are retryable. HTTP 400, 401, 404, redirects, and malformed successful responses
 fail immediately.
 
-Both client constructors accept keyword-only `max_retries: int = 2`. The count
+All credential entry points accept keyword-only `max_retries: int = 2`. The count
 is additional SDK attempts per request. It accepts integers from 0 through 5,
 excluding booleans. Zero disables SDK retries. An injected HTTPX client may
 implement its own transport retries.
@@ -53,4 +53,15 @@ responses without `Retry-After` for all five reads. The response closes before
 the wait, and retries preserve the request, including any cursor and search
 body. Exhaustion surfaces the final translated error without another wait.
 
-The transport rejects PAT refresh before authentication.
+The generic request path rejects PAT refresh before authentication. The dedicated
+store-backed refresh path sends one `POST /pats/refresh` to the same fixed
+production HTTPS destination with the same phase timeouts and redirect policy.
+It omits the body for the default lifetime or sends only `expiresInDays`.
+It decodes a response body only on success (documented as HTTP 200). A plain-text refresh 429 is a
+known rejection and is never retried by the SDK. After an ambiguous outcome,
+one status-only `GET /tenants` probes the old PAT without read retries.
+`max_retries` affects neither request.
+
+An injected client's transport, proxies, and hooks must avoid replaying the
+POST. Keep HTTP diagnostics and response hooks from disclosing credentials.
+See the {doc}`authentication` reference for persistence and recovery.

@@ -1,7 +1,7 @@
 # My Trust Center API contract
 
 The synchronous SDK implements all five documented read operations. The inventory
-also includes PAT refresh for reference.
+also covers explicit PAT refresh.
 
 ## Sources and verification boundary
 
@@ -62,7 +62,7 @@ All paths below are relative to the base URL. Every success is HTTP 200.
 
 Search is a read operation despite its HTTP method. There is no separate timeline or
 tenant-history endpoint: event detail supplies timelines, and tenant detail embeds history.
-Refresh is inventoried for completeness and remains outside the initial implementation.
+Refresh is available through the store-backed client and uses the dedicated transport path described below.
 
 ### Pagination and search inputs
 
@@ -266,7 +266,7 @@ no live API calls or real credential discovery occurred. See the
 The private transport builds requests under the production API base, applies PATAuth per
 request, translates HTTP errors before reading the response body, and decodes successful
 responses as strict UTF-8 JSON. It returns the decoded value for resource-level validation.
-Request IDs, async support, and PAT refresh remain deferred. See the [transport reference](reference/transport.md) for
+Request IDs and async support remain deferred. See the [transport reference](reference/transport.md) for
 ownership, timeout precedence, and retry details.
 
 The current Salesforce overview, getting-started guide, and authentication guide were
@@ -288,7 +288,7 @@ Recommended sequence:
 
 The public client reuses PAT authentication and the private transport. One call returns
 one page scoped to the PAT's authorized tenants. Empty results establish no Salesforce-wide
-health claim. See the [quickstart](getting-started/quickstart.md) and
+health claim. See the [Quickstart](getting-started/quickstart.md) and
 [tenant reference](reference/tenants.md) for explicit pagination, model imports,
 wire serialization and validation behavior.
 
@@ -332,6 +332,35 @@ Both constructors accept `max_retries: int = 2`, with a range of 0 through 5.
 Header-directed waits on HTTP 429 or 503 accept integer seconds or HTTP dates.
 Past dates yield zero delay. The SDK's 30-second cap can cause a retry sooner
 than the server requested. See the [transport reference](reference/transport.md).
+
+### Explicit PAT refresh and secure persistence (2026-11-04)
+
+The current Salesforce authentication guide confirms Bearer auth, the optional
+request body, the 1–30-day range, replacement in `secret`, immediate revocation
+of the old PAT, 401 semantics, plain-text 429 without retry headers, and the
+old-PAT check after 500 or timeout. The rendered API reference exposed no
+operation content. The local vendor YAML supplies the production base,
+HTTP 200 response and exact `PatRefreshRequest` and `PatCredential` schemas.
+The vendor file is excluded from distribution artifacts.
+
+`TrustCenterClient.from_store(store, *, http_client=None, max_retries=2)` loads
+a seeded lineage. A conditional durable pending write gates the single
+`POST /pats/refresh`. A conditional commit stores the replacement and removes
+the marker atomically before the client activates it. The SDK validates the
+opaque replacement against its PAT header rules and reports response metadata
+validation as a boolean. Metadata drift leaves a usable replacement eligible
+for commit. `refresh_pat(*, expires_in_days=None)` and
+`retry_pat_persistence()` return `PATRefreshResult` without server-supplied
+values. A previously loaded store-backed client must be recreated after a
+different client rotates the PAT.
+
+Known 401 and 429 responses allow conditional marker removal. An ambiguous
+outcome probes the old PAT once and leaves the marker for operator recovery.
+A failed or unacknowledged replacement write blocks the initiating client
+until it confirms persistence. Recovery of the held replacement uses the
+original attempt and candidate revision, with no additional POST. See the
+[authentication reference](reference/authentication.md) for the public
+adapter guarantees and recovery runbook.
 
 ## Validation of the original foundation
 

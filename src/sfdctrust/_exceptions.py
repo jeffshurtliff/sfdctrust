@@ -4,10 +4,12 @@
 :Synopsis:          Exception classes that are utilized throughout the package
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     03 Nov 2026
+:Modified Date:     04 Nov 2026
 """
 
 from __future__ import annotations
+
+from enum import StrEnum
 
 __all__ = [
     'TrustCenterError',
@@ -20,6 +22,10 @@ __all__ = [
     'NotFoundError',
     'MalformedResponseError',
     'PaginationError',
+    'PATRefreshPendingError',
+    'PATRefreshAmbiguousError',
+    'PATPersistenceError',
+    'PATProbeResult',
 ]
 
 
@@ -96,3 +102,30 @@ class MalformedResponseError(TrustCenterError):
 
 class PaginationError(TrustCenterError):
     """A traversal requires another page but reached its limit or repeated a cursor."""
+
+
+class PATProbeResult(StrEnum):
+    """Result of the single read-only check with the old PAT."""
+
+    OLD_PAT_ACCEPTED = 'old_pat_accepted'
+    OLD_PAT_REJECTED = 'old_pat_rejected'
+    INCONCLUSIVE = 'inconclusive'
+
+
+class PATRefreshPendingError(TrustCenterError):
+    """A pending or competing rotation prevents the requested operation."""
+
+
+class PATRefreshAmbiguousError(TrustCenterError):
+    """Salesforce may have rotated the PAT without returning a usable replacement.
+
+    :param probe: Sanitized result of the old PAT check.
+    """
+
+    def __init__(self, probe: PATProbeResult) -> None:
+        self.probe = PATProbeResult(probe)
+        super().__init__(f'PAT refresh outcome is ambiguous. Old PAT probe: {self.probe.value}.')
+
+
+class PATPersistenceError(TrustCenterError):
+    """A required durable PAT store transition could not be confirmed."""

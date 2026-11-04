@@ -24,6 +24,9 @@ operation inventory, schema notes, authentication rules, and next implementation
 
 Install from this checkout with `python -m pip install .` on Python 3.12 or later.
 Set `SFDCTRUST_PAT` in the process environment using a PAT from My Trust Center.
+For installation in a virtual environment, see [Installation](docs/getting-started/installation.md).
+For creating a PAT and entering it at a hidden prompt, see
+[Prepare to use sfdctrust](docs/getting-started/setup.md).
 
 ```python
 from sfdctrust import TrustCenterClient
@@ -87,7 +90,7 @@ or a required page beyond `max_pages` (default 1000) raises `PaginationError`
 from `sfdctrust`. Iterators can yield items before a failure. Stale cursors raise
 HTTP 400 `APIStatusError` without a restart.
 
-Both client constructors default to two additional attempts per eligible read.
+All credential entry points default to two additional attempts per eligible read.
 Set `max_retries=0` to disable SDK retries or choose an integer up to 5.
 
 The search includes the start instant and excludes the end instant. Each
@@ -99,6 +102,17 @@ are visible. An empty snapshot bucket, search page, or history establishes
 no Salesforce-wide health claim.
 
 See the [status and event reference](docs/reference/events-and-status.md) for signatures and models.
+
+## Rotate a PAT explicitly
+
+For rotation, use `TrustCenterClient.from_store(store)` with a seeded,
+caller-supplied adapter that provides durable atomic updates shared by all
+rotators of the PAT. Call `client.refresh_pat(expires_in_days=7)` to save and
+activate a replacement. It sends one POST and returns a secret-free
+`PATRefreshResult`. The constructor and `from_env()` remain static credential
+modes. See the [authentication reference](docs/reference/authentication.md)
+for the adapter contract and recovery runbook. To create and seed a working
+local test store, follow [Prepare to use sfdctrust](docs/getting-started/setup.md).
 
 ## Development
 

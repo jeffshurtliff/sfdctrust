@@ -1,36 +1,74 @@
 # Installation
 
-These steps install `sfdctrust` from a source checkout for development.
+You need Python 3.12 or later and access to the `sfdctrust` source checkout
+or a wheel supplied by the project. A wheel is a Python installation file
+whose name ends in `.whl`. You can use the package with `pip`.
 
-## Prerequisites
+If you have access to the project repository and need a source checkout, run
+`git clone https://github.com/jeffshurtliff/sfdctrust.git` and then
+`cd sfdctrust`.
 
-- Python 3.12 or later
-- [Poetry](https://python-poetry.org/docs/) 2.2 or later, below 3
+## Create a virtual environment
 
-## Install from source
+A virtual environment keeps the package and its dependencies separate from
+your other Python projects. Open a terminal. If you have a source checkout,
+change into its top-level directory, the one containing `pyproject.toml`.
+If you have a wheel, work in a directory where you can save your example files.
+
+**macOS or Linux**
 
 ```sh
-git clone https://github.com/jeffshurtliff/sfdctrust.git
-cd sfdctrust
+python3 --version
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+**Windows PowerShell**
+
+```powershell
+py -3 --version
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+If the version command reports an older version, install Python 3.12 or
+later and use that interpreter to create the environment. If PowerShell
+blocks activation, use the full path to your environment's Python, such as
+`& "C:\path\to\sfdctrust\.venv\Scripts\python.exe"`, in place of `python`
+in the remaining commands. When you open a new terminal, activate the same
+environment again or use the full interpreter path.
+
+## Install and verify
+
+From the top level of a source checkout, run:
+
+```sh
+python -m pip install .
+```
+
+For a wheel, run `python -m pip install "path/to/file.whl"`, substituting
+the path to the wheel you received. By default, `pip` downloads the
+dependencies from the configured Python package index.
+
+Confirm Python can import the installed package:
+
+```sh
+python -c "import sfdctrust; print(sfdctrust.__version__)"
+```
+
+If you see a version number, continue to {doc}`setup`. If Python reports
+`ModuleNotFoundError`, check that you ran the install and import commands
+using the same virtual environment.
+
+## For contributors
+
+To install development and test tools from the source checkout, use
+[Poetry](https://python-poetry.org/docs/) 2.2 or later, below 3.
+
+```sh
 poetry install
-```
-
-This creates a virtual environment with the package, its runtime dependencies and the
-development tools. To also install the documentation tools, add the optional `docs` group:
-
-```sh
-poetry install --with docs
-```
-
-## Check the installation
-
-```sh
-poetry run python -c "import sfdctrust; print(sfdctrust.__version__)"
 poetry run pytest -q
 ```
 
-The tests are offline and do not need a personal access token (PAT).
-
-```{caution}
-Never place real PATs in source files, examples or test fixtures.
-```
+The tests use synthetic tokens and run offline. To build the Sphinx
+documentation, see {doc}`../maintainers/documentation`.

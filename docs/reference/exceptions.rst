@@ -17,7 +17,10 @@ Malformed successful responses have their own branch.
    │   ├── RateLimitError        (429)
    │   └── NotFoundError         (404)
    ├── MalformedResponseError
-   └── PaginationError
+   ├── PaginationError
+   ├── PATRefreshPendingError
+   ├── PATRefreshAmbiguousError
+   └── PATPersistenceError
 
 ``APIStatusError(status_code)`` accepts integer statuses from 400 through 599.
 Its specialized subclasses take no arguments and set their fixed status.
@@ -51,3 +54,10 @@ A server rejection of a cursor with HTTP 400 raises ``APIStatusError``.
 .. autoclass:: sfdctrust.NotFoundError
 .. autoclass:: sfdctrust.MalformedResponseError
 .. autoclass:: sfdctrust.PaginationError
+
+See :doc:`authentication` for refresh outcomes and the recovery procedure.
+
+.. autoclass:: sfdctrust.PATRefreshPendingError
+.. autoclass:: sfdctrust.PATProbeResult
+.. autoclass:: sfdctrust.PATRefreshAmbiguousError
+.. autoclass:: sfdctrust.PATPersistenceError

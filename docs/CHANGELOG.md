@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
+- Added explicit one-shot PAT refresh for `TrustCenterClient.from_store()` with
+  an atomic versioned store contract, recovery probing, and persistence-only
+  retry after an unconfirmed write.
+
 - Added lazy and collecting tenant and event search traversal with cursor-cycle
   detection, a page limit, and public `PaginationError`.
 - Added configurable SDK retries for synchronous reads and bounded
@@ -29,7 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   finite timeouts, bounded retries for documented reads, and sanitized errors. Offline tests exercise
   Bearer authentication through JSON decoding and error translation.
 - Added internal PAT validation, opt-in `SFDCTRUST_PAT` loading with explicit-override precedence,
-  secret redaction, and production-origin Bearer authentication, with offline tests and no refresh.
+  secret redaction, and production-origin Bearer authentication, with offline tests.
 - Exposed a small exception hierarchy from `sfdctrust` for configuration, network/timeouts,
   API statuses, authentication, rate limits, not-found results, and malformed responses.
 - Documented the My Trust Center operation, parameter, schema, authentication, and pagination contract,

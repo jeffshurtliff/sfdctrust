@@ -4,7 +4,7 @@
 :Synopsis:          Internal PAT validation and single-request Bearer authentication
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     02 Nov 2026
+:Modified Date:     04 Nov 2026
 """
 
 from __future__ import annotations
@@ -25,6 +25,11 @@ class _Unset(Enum):
     PAT = 'unset'
 
 
+def _validate_pat(pat: object) -> None:
+    if not isinstance(pat, str) or not pat or any(not 0x21 <= ord(char) <= 0x7E for char in pat):
+        raise ConfigurationError('PAT must be a nonempty string of visible ASCII characters without whitespace.')
+
+
 class PATAuth(httpx.Auth):
     """Internal HTTPX authentication using an explicitly supplied PAT.
 
@@ -42,8 +47,7 @@ class PATAuth(httpx.Auth):
     """
 
     def __init__(self, pat: str) -> None:
-        if not isinstance(pat, str) or not pat or any(not 0x21 <= ord(char) <= 0x7E for char in pat):
-            raise ConfigurationError('PAT must be a nonempty string of visible ASCII characters without whitespace.')
+        _validate_pat(pat)
         self._pat = SecretStr(pat)
 
     @classmethod
