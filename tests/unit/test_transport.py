@@ -3,9 +3,11 @@
 :Module:            tests.unit.test_transport
 :Synopsis:          Offline tests of the synchronous transport boundary
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     03 Nov 2026
+:Last Modified:     Jeff Shurtliff
+:Modified Date:     04 Nov 2026
 """
+
+from __future__ import annotations
 
 import json
 import traceback
