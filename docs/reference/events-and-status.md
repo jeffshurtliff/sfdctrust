@@ -156,4 +156,4 @@ or unauthorized resources. Malformed responses raise a sanitized
 `MalformedResponseError`. See the {doc}`exception reference <exceptions>`.
 
 All results are tenant-scoped. Empty results establish no Salesforce-wide
-health claim. See the {doc}`quickstart <../getting-started/quickstart>` for examples.
+health claim. See the {doc}`../getting-started/quickstart` for examples.

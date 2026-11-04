@@ -3,9 +3,11 @@
 :Module:            tests.unit.test_exceptions
 :Synopsis:          Offline exception hierarchy and safe status-context coverage
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     02 Nov 2026
+:Last Modified:     Jeff Shurtliff
+:Modified Date:     04 Nov 2026
 """
+
+from __future__ import annotations
 
 import pytest
 

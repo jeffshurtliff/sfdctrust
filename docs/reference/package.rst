@@ -17,17 +17,32 @@ API. Underscore-prefixed modules are implementation details.
       validated directly, including an explicit ``None``, which raises
       ``ConfigurationError``. See :doc:`authentication`.
 
+   .. py:classmethod:: from_store(store, *, http_client=None, max_retries=2)
+
+      Load a caller-supplied PAT store. See :doc:`authentication` for the
+      adapter contract, operator recovery and public result types.
+
+   .. py:method:: refresh_pat(*, expires_in_days=None)
+
+      Rotate a store-backed PAT once and return a secret-free
+      ``PATRefreshResult`` after durable storage.
+
+   .. py:method:: retry_pat_persistence()
+
+      Reconcile or retry storing a replacement held by this client. Returns
+      ``PATRefreshResult`` after confirming durable storage.
+
    .. py:method:: close()
 
       Close SDK-owned HTTP connections.
 
 Use the client as a synchronous context manager to close SDK-owned connections.
-Both credential entry points accept a trusted, caller-owned HTTPX client through
+All credential entry points accept a trusted, caller-owned HTTPX client through
 ``http_client=``. Context exit and ``close()`` leave an injected client open. The
 SDK still applies its fixed destination, per-attempt timeouts, redirect policy,
 and error translation. The injected client controls TLS, proxies, hooks, and
 the underlying transport, which may implement its own retries.
-Both entry points accept ``max_retries: int = 2``, the number of additional
+All entry points accept ``max_retries: int = 2``, the number of additional
 SDK attempts per eligible request. Integers from 0 through 5 are valid.
 Booleans and other invalid values raise ``ConfigurationError``.
 See :doc:`transport` for retry timing. See :doc:`tenants` and :doc:`events-and-status` for the resource operations.

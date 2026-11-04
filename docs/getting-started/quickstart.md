@@ -1,95 +1,158 @@
-# Read tenant status and events
+# Quickstart
 
-Install the package from a [development checkout](installation.md) and configure
-`SFDCTRUST_PAT` in the process environment using a PAT from My Trust Center. See
-[Salesforce's PAT setup guide](https://developer.salesforce.com/docs/mytrust-api/get-started.html).
+Follow {doc}`setup` first and keep the interactive Python session open.
+The examples use the `client` you created there. The read steps work with
+either setup option. Refresh requires the store from Option B. When pasting
+a loop or an `if` block into a basic Python prompt, enter a blank line
+after the block to run it.
 
-```python
-from sfdctrust import TrustCenterClient
+## Verify access and list tenants
 
-with TrustCenterClient.from_env() as client:
-    for tenant in client.tenants.iter_all(page_size=50):
-        print(tenant.id, tenant.name)
-```
-
-The iterator fetches pages on demand, scoped to the PAT's authorized tenants. An empty page
-provides no information about Salesforce-wide health.
-
-For manual paging with `client.tenants.list()`, if `page.next_page_token` is present, pass it as `page_token` in the next call.
-Keep the page size and locale the same across both requests, including any omitted
-values. For example:
+A tenant is a separate Salesforce data space, such as a Salesforce org
+or Marketing Cloud Engagement business unit. The API returns only tenants
+you can access in My Trust Center.
 
 ```python
-with TrustCenterClient.from_env() as client:
-    page = client.tenants.list(page_size=50, locale="ja-JP")
-    if page.next_page_token is not None:
-        next_page = client.tenants.list(
-            page_size=50, page_token=page.next_page_token, locale="ja-JP"
-        )
+page = client.tenants.list()
+print("Tenants on this page:", len(page.tenants))
+for tenant in page.tenants:
+    print(tenant.id, tenant.name)
+
 ```
 
-Salesforce can reject a stale or mismatched cursor with HTTP 400. The SDK raises
-`APIStatusError` with `status_code == 400` so you can decide whether to start a
-new traversal. See the {doc}`../reference/tenants` for model fields and serialization.
+This call verifies that Salesforce accepts the PAT. If the list is empty,
+check that your account can see tenants in My Trust Center. To get all
+tenants, use `client.tenants.list_all()`. Salesforce can split the list into
+pages, and this method follows those pages for you. See {doc}`../reference/tenants`
+for manual paging.
 
-## Read status, search events, and inspect details
+## See current and upcoming events
 
-Use IDs from the tenant list, snapshot, or search results. Tenant detail
-includes Salesforce's event history window. Event detail includes the
-timeline when entries are available.
+A status snapshot groups events by timing and by kind. For example, print
+current incidents and upcoming maintenance affecting your tenants.
+
+```python
+snapshot = client.status.snapshot()
+print("Ongoing incidents:", len(snapshot.ongoing.incident))
+for incident in snapshot.ongoing.incident:
+    print(incident.event_id, incident.title)
+
+print("Upcoming maintenance:", len(snapshot.upcoming.maintenance))
+for maintenance in snapshot.upcoming.maintenance:
+    print(maintenance.event_id, maintenance.title)
+
+```
+
+An empty group means this request returned no matching events for your
+authorized tenants. It provides no information about Salesforce-wide health.
+
+## Search for events and read a timeline
+
+The example below searches the first tenant from your list for events
+in the last 30 days. `EventSearchScope` tells Salesforce which tenant to search.
+Leave the event type unspecified to search across event types.
 
 ```python
 from datetime import UTC, datetime, timedelta
 
-from sfdctrust import TrustCenterClient
 from sfdctrust.models.events import EventSearchScope
 
-with TrustCenterClient.from_env() as client:
-    snapshot = client.status.snapshot(locale="en-US")
-    for incident in snapshot.ongoing.incident:
-        print(incident.event_id, incident.title, list(incident.scope.tenants))
+if page.tenants:
+    tenant_id = page.tenants[0].id
+    end = datetime.now(UTC)
+    results = client.events.search_all(
+        scopes=[EventSearchScope(id=tenant_id)],
+        start_time=end - timedelta(days=30),
+        end_time=end,
+    )
+else:
+    results = []
 
-    tenants = client.tenants.list()
-    if tenants.tenants:
-        tenant_id = tenants.tenants[0].id
-        end = datetime.now(UTC)
-        results = client.events.search_all(
-            scopes=[EventSearchScope(id=tenant_id)],
-            start_time=end - timedelta(days=30),
-            end_time=end,
-            event_types=["incident"],
-            page_size=50,
-            locale="en-US",
-        )
+print("Matching events:", len(results))
+for event in results:
+    print(event.event_id, event.title, event.status)
 
-        if results:
-            event = client.events.get(results[0].event_id, locale="en-US")
-            for entry in event.timeline or []:
-                print(entry.created_at, entry.sub_event_type, entry.message)
-
-        tenant = client.tenants.get(tenant_id, locale="en-US")
-        for event in tenant.events:
-            print(event.event_id, event.status)
 ```
 
-Use `client.tenants.list_all(page_size=50)` to collect tenants, or use
-`client.events.iter_search(...)` with the same search arguments to consume
-events lazily. Both traversals preserve order and duplicates. An empty page
-continues when a cursor is present, including an empty string. A repeated cursor
-or a required page beyond `max_pages` (default 1000) raises `PaginationError`
-from `sfdctrust`. Iterators can yield items before a failure. Stale cursors raise
-HTTP 400 `APIStatusError` without a restart.
+If the search returned events, use the first event's ID to request its
+details and print any timeline entries.
 
-Both client constructors default to two additional attempts per eligible read.
-Set `max_retries=0` to disable SDK retries or choose an integer up to 5.
+```python
+if results:
+    event = client.events.get(results[0].event_id)
+    print(event.title)
+    for entry in event.timeline or []:
+        print(entry.created_at, entry.message)
 
-The search includes the start instant and excludes the end instant. Each
-continuation repeats the original parameters and uses the token from the
-preceding page. Salesforce's tenant history covers lifecycle overlap
-within 365 days before or after the request time. Informational messages
-cover the preceding 365 days. The PAT determines which tenants and events
-are visible. An empty snapshot bucket, search page, or history establishes
-no Salesforce-wide health claim.
+```
 
-See {doc}`../reference/events-and-status` and {doc}`../reference/tenants` for
-public signatures, model fields, and error handling.
+If there are no results, try a different authorized tenant or a different
+time window. You can also use an event ID from the status snapshot. To
+read a tenant's event history directly, call `client.tenants.get(tenant_id)`
+with an ID from your tenant list. For search filters, paging, and field
+descriptions, see {doc}`../reference/events-and-status` and
+{doc}`../reference/tenants`.
+
+## Rotate a PAT from a store
+
+Use the client from {doc}`setup`, Option B. Make sure the tenant listing
+above works before continuing. Refresh replaces the active PAT and
+immediately revokes the old one, so pause other users of the same PAT
+before testing.
+
+1. In the same Python session, call refresh once. Seven days is an example
+   lifetime. Use an integer from 1 to 30, or omit the argument for Salesforce's
+   default of 30 days.
+
+   ```python
+   result = client.refresh_pat(expires_in_days=7)
+   ```
+
+2. If the call returns, the replacement is already saved and this client is
+   using it. Verify with a read. `metadata_valid=False` means the replacement
+   was saved but some accompanying Salesforce fields did not match the
+   expected format.
+
+   ```python
+   print("Response details matched the expected format:", result.metadata_valid)
+   print("Tenants on this page:", len(client.tenants.list().tenants))
+   ```
+
+3. Verify the token survives reopening. Run `client.close()`, then `exit()`,
+   and start `python` again from the directory containing `local_pat_store.py`.
+   Run the following. If you selected a custom directory during setup,
+   use the same directory again.
+
+   ```python
+   from local_pat_store import LocalPATStore
+   from sfdctrust import TrustCenterClient
+
+   with TrustCenterClient.from_store(LocalPATStore()) as client:
+       print("Tenants on this page:", len(client.tenants.list().tenants))
+
+   ```
+
+   Recreate other store-backed clients using this store before resuming
+   their reads. An environment-based client keeps the token it was given.
+
+### If a step fails
+
+| What you see | What to check |
+| --- | --- |
+| `ConfigurationError` when creating the client | For Option A, check that you set `SFDCTRUST_PAT` in this Python session. For Option B, check that seeding succeeded and the client uses the same directory. |
+| `AuthenticationError` on a read | Salesforce rejected the PAT. Check for an expired or revoked token and verify that you used My Trust Center's PAT. |
+| `RateLimitError` during refresh | Salesforce rejected this attempt before replacing the PAT. Wait before making a later deliberate attempt. See the recovery runbook for backoff. |
+| `PATPersistenceError` reporting that durable storage of the replacement could not be confirmed | Keep this Python session and client open. Restore access to the store, then call `client.retry_pat_persistence()`. After it succeeds, verify with `client.tenants.list()`. |
+| `PATRefreshAmbiguousError`, `PATRefreshPendingError`, or a marker-write error | Stop and follow the recovery runbook before another refresh. The store can retain a marker to block another attempt while the outcome is uncertain. |
+
+If a replacement was lost and the runbook calls for a new PAT, close all
+clients using the test store. Revoke the active token in My Trust Center
+if present and create a new one. Seed a **new** private directory with
+`python local_pat_store.py seed --directory "path/to/new-private-folder"`.
+Use that directory when opening `LocalPATStore` in Python. After you
+confirm access with the new store, remove the old test store. For the full
+recovery procedure, see {doc}`../reference/authentication`.
+
+When you finish, call `client.close()` on any client you opened outside a
+`with` block and exit Python. If the PAT was created solely for testing,
+revoke it in My Trust Center before removing the test store.

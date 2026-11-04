@@ -3,9 +3,11 @@
 :Module:            tests.unit.test_read_resources
 :Synopsis:          Offline public-client tests for status, events, and tenant detail
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     03 Nov 2026
+:Last Modified:     Jeff Shurtliff
+:Modified Date:     04 Nov 2026
 """
+
+from __future__ import annotations
 
 import json
 import traceback

@@ -3,9 +3,11 @@
 :Module:            tests.unit.test_tenants
 :Synopsis:          Offline tests of the public tenant-list operation
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     02 Nov 2026
+:Last Modified:     Jeff Shurtliff
+:Modified Date:     04 Nov 2026
 """
+
+from __future__ import annotations
 
 import traceback
 from collections.abc import Iterator
