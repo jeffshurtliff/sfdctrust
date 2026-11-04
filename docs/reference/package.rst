@@ -111,4 +111,4 @@ their coroutines run.
 .. autodata:: __version__
    :no-value:
 
-   The installed package version as a string, such as ``1.0.0.dev0``.
+   The installed package version as a string.
