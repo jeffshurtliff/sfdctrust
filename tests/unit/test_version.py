@@ -3,9 +3,11 @@
 :Module:            tests.unit.test_version
 :Synopsis:          Regression coverage for installed and source-checkout versions
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     01 Nov 2026
+:Last Modified:     Jeff Shurtliff
+:Modified Date:     04 Nov 2026
 """
+
+from __future__ import annotations
 
 import tomllib
 from importlib.metadata import PackageNotFoundError
