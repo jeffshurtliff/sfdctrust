@@ -1,7 +1,7 @@
 # Authentication and PAT rotation
 
-The synchronous `TrustCenterClient` uses an internal HTTPX Bearer authentication
-component for each request.
+Both `TrustCenterClient` and `AsyncTrustCenterClient` use the same internal HTTPX
+Bearer authentication component.
 
 For step-by-step PAT creation and a downloadable local test store with a
 seeding command, start with {doc}`../getting-started/setup`.
@@ -9,11 +9,11 @@ seeding command, start with {doc}`../getting-started/setup`.
 ## Credential selection
 
 - Construction requires an explicit `pat`; it never reads the environment.
-- Opt-in `TrustCenterClient.from_env()` reads only `SFDCTRUST_PAT`.
-- `TrustCenterClient.from_env(pat=...)` uses the override without reading the environment. An explicit
+- Opt-in `from_env()` reads only `SFDCTRUST_PAT`.
+- `from_env(pat=...)` uses the override without reading the environment. An explicit
   empty, blank, or `None` override raises `sfdctrust.ConfigurationError`, even when the
   environment contains a valid PAT.
-- `TrustCenterClient.from_store(store, ...)` loads a seeded, caller-supplied store.
+- `from_store(store, ...)` loads a seeded, caller-supplied store. Await this call for the async client.
   That store is the sole credential source for the client.
 - The SDK changes no environment variables and opens no `.env`, shell profile,
   credential file, or service configuration on its own.
@@ -131,6 +131,62 @@ store telemetry, and error reporting so they do not record request or response
 content, URLs, credentials, or locals. Redaction does not protect against
 code deliberately inspecting process memory or private state. Call `client.close()`
 after use and any persistence recovery.
+
+(async-store-backed-clients)=
+### Async store-backed clients
+
+Implement `AsyncPATStore` with awaitable `load()` and `compare_and_swap()`
+using the same arguments, records, return values, and cross-process
+guarantees as `PATStore`. Use asynchronous backing I/O and propagate
+`asyncio.CancelledError` from the adapter. A cancelled or failed write can
+have committed before the caller receives confirmation. Subsequent loads
+must reflect the latest committed record, including any pending marker.
+Each CAS must still compare both the revision and attempt at the time of
+the atomic write.
+
+The integration below assumes `my_service.trust_store` exports your seeded,
+durable `AsyncPATStore` instance as `async_store`. Use `python -m asyncio`
+for an interactive session that keeps the client available for recovery.
+
+```python
+from my_service.trust_store import async_store
+from sfdctrust import AsyncTrustCenterClient
+
+client = await AsyncTrustCenterClient.from_store(async_store)
+result = await client.refresh_pat(expires_in_days=7)
+print("Response metadata validated", result.metadata_valid)
+print("Authorized tenants", len((await client.tenants.list()).tenants))
+```
+
+If the replacement commit was interrupted or unconfirmed, keep the same
+client and restore access to the store. Reconcile the write in a running task.
+
+```python
+result = await client.retry_pat_persistence()
+print("Response metadata validated", result.metadata_valid)
+```
+
+Call `await client.aclose()` after use and any persistence recovery. As with
+the sync API, store-backed reads check the current revision and pending
+marker before each HTTP attempt. Recreate clients whose loaded revision has
+changed. Explicit refresh loads the current credential before claiming it.
+
+#### Cancellation during rotation
+
+| Cancellation point | Durable state and recovery |
+| --- | --- |
+| Pending-marker write before acknowledgment | The SDK sends no POST. The marker may have committed. Inspect the store through its administrative path and reconcile the exact marker after establishing that the write has settled. |
+| Refresh POST or old-PAT probe | The marker remains unresolved. Cancellation can arrive before Salesforce's outcome is known. Quiesce rotators and follow the ambiguous-outcome runbook below. |
+| Replacement commit or response cleanup after decoding a usable replacement | The client retains the replacement privately before the next await. Use `await client.retry_pat_persistence()` to confirm a committed replacement or conditionally finish the matching attempt with store I/O alone. |
+| Marker clear after a known rejection | The clear may have committed. Inspect the exact revision and marker through the store's administrative path. |
+
+Cancellation propagates to the caller in each case. An unresolved marker
+blocks new store-backed clients and ordinary reads. If the original
+client or process is lost, a committed replacement can be loaded by a
+new client. If the marker remains and the replacement was lost, establish
+whether the old PAT is still usable after the original operation settles.
+If it is unusable, recover in My Trust Center and reseed through the
+administrative path described below.
 
 ### Recovery runbook
 

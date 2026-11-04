@@ -1,7 +1,8 @@
 # Internal HTTP transport
 
-The private synchronous transport reuses one HTTPX client and performs no network I/O
-during construction. Requests take an API-relative path with an optional leading slash.
+Each transport reuses one HTTPX client and performs no network I/O during construction.
+The synchronous transport uses `httpx.Client`, and the asyncio transport uses
+`httpx.AsyncClient` with awaitable backoff. Requests take an API-relative path with an optional leading slash.
 Pass query parameters and the optional JSON body separately. The transport validates the
 destination under the fixed production HTTPS API base before applying PAT authentication.
 It sends `Accept: application/json` and `sfdctrust/<version>` as the user agent, with
@@ -52,6 +53,10 @@ jitter each time. The local Salesforce specification documents plain-text 429
 responses without `Retry-After` for all five reads. The response closes before
 the wait, and retries preserve the request, including any cursor and search
 body. Exhaustion surfaces the final translated error without another wait.
+
+Cancelling an async request or retry wait propagates
+`asyncio.CancelledError`. The SDK closes any response it is handling and
+the cancelled traversal issues no further retries or page requests.
 
 The generic request path rejects PAT refresh before authentication. The dedicated
 store-backed refresh path sends one `POST /pats/refresh` to the same fixed

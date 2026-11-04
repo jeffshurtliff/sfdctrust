@@ -15,7 +15,7 @@ import httpx
 
 from ._auth import PATAuth, _Unset
 from ._exceptions import ConfigurationError
-from ._pat_refresh import PATRefreshResult, _StoredPAT
+from ._pat_refresh import PATRefreshResult, _StoredPAT, _validate_refresh_days
 from ._pat_store import PATStore
 from ._transport import _Transport
 from .resources.events import EventsResource
@@ -100,8 +100,7 @@ class TrustCenterClient:
         """
         if self._stored_pat is None:
             raise ConfigurationError('PAT refresh requires a store-backed client.')
-        if expires_in_days is not None and (type(expires_in_days) is not int or not 1 <= expires_in_days <= 30):
-            raise ConfigurationError('expires_in_days must be an integer from 1 through 30 or None.')
+        _validate_refresh_days(expires_in_days)
         return self._stored_pat.refresh(self._transport, expires_in_days)
 
     def retry_pat_persistence(self) -> PATRefreshResult:

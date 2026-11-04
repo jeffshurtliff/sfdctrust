@@ -57,6 +57,11 @@ page would exceed the limit or reuse a cursor, including the starting cursor,
 the SDK raises `PaginationError` before requesting that page. A lazy iterator
 may have yielded items by then.
 
+With `AsyncTrustCenterClient`, await `list()`, `list_all()`, and `get()`.
+`iter_all()` returns an async iterator for direct use with `async for`.
+The first fetch starts when iteration advances. Arguments, limits, and
+result types are shared with the synchronous client.
+
 ## Response models
 
 Import `Tenant` and `TenantListResponse` from `sfdctrust.models.tenants`.

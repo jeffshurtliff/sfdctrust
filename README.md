@@ -10,9 +10,9 @@
 An unofficial, community-maintained Python SDK project for the **Salesforce My Trust Center
 API**. It is not affiliated with or supported by Salesforce.
 
-The project is in development. The synchronous client lists authorized tenants, retrieves
-status snapshots, searches events, and returns event timelines and
-tenant history through their detail operations.
+The project is in development. The synchronous and asynchronous clients list authorized tenants, retrieve
+status snapshots, search events, and return event timelines and tenant history
+through their detail operations.
 
 The API exposes only tenants authorized by the caller's personal access token (PAT);
 empty results do not establish Salesforce-wide health.
@@ -41,6 +41,31 @@ If `page.next_page_token is not None`, request the next page with
 If you supplied `page_size` or `locale` on the first call, repeat those values.
 See the [quickstart](docs/getting-started/quickstart.md) and
 [tenant reference](docs/reference/tenants.md) for details.
+
+## Use the asynchronous client
+
+```python
+import asyncio
+
+from sfdctrust import AsyncTrustCenterClient
+
+
+async def main():
+    async with AsyncTrustCenterClient.from_env() as client:
+        snapshot = await client.status.snapshot()
+        print("Ongoing incidents", len(snapshot.ongoing.incident))
+        async for tenant in client.tenants.iter_all(page_size=50):
+            print(tenant.id, tenant.name)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+Await single-page methods and the `list_all()` and `search_all()` collectors.
+Consume `iter_all()` and `iter_search()` directly with `async for`.
+Both clients use the same arguments, response models, and retry rules.
+[Package reference](docs/reference/package.rst)
 
 ## Read status, search events, and inspect details
 
@@ -113,6 +138,10 @@ activate a replacement. It sends one POST and returns a secret-free
 modes. See the [authentication reference](docs/reference/authentication.md)
 for the adapter contract and recovery runbook. To create and seed a working
 local test store, follow [Prepare to use sfdctrust](docs/getting-started/setup.md).
+
+For asyncio, use `await AsyncTrustCenterClient.from_store(store)` with an
+`AsyncPATStore`, then await rotation and any persistence recovery.
+[Async adapter contract and cancellation recovery](docs/reference/authentication.md#async-store-backed-clients)
 
 ## Development
 

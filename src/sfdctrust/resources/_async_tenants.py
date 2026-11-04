@@ -1,0 +1,94 @@
+# -*- coding: utf-8 -*-
+"""
+:Module:            sfdctrust.resources._async_tenants
+:Synopsis:          Asynchronous tenant listing and detail
+:Created By:        Jeff Shurtliff
+:Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
+:Modified Date:     04 Nov 2026
+"""
+
+from __future__ import annotations
+
+from collections.abc import AsyncIterator
+
+from .._async_transport import _AsyncTransport
+from ..models.tenants import Tenant, TenantDetail, TenantListResponse
+from ._requests import _iterate_pages_async
+from .tenants import _tenant_detail_request, _tenant_list_request
+
+
+class AsyncTenantsResource:
+    """Access the tenants authorized for the client's PAT."""
+
+    def __init__(self, transport: _AsyncTransport) -> None:
+        self._transport = transport
+
+    async def list(
+        self, *, page_size: int | None = None, page_token: str | None = None, locale: str | None = None
+    ) -> TenantListResponse:
+        """Retrieve one page of authorized tenants.
+
+        :param page_size: Maximum tenants to return, from 1 to 200.
+        :param page_token: Opaque continuation token from the previous page.
+                           Keep the same page size and locale when continuing.
+        :param locale: BCP 47 locale passed through to Salesforce, which handles fallback.
+        :returns: A typed page, which may contain zero tenants.
+        :raises ConfigurationError: If a supplied query argument is invalid.
+        :raises APIStatusError: If Salesforce rejects the request, including a stale cursor.
+        :raises MalformedResponseError: If the response is invalid JSON or violates the tenant schema.
+        """
+        return await _tenant_list_request(page_size=page_size, page_token=page_token, locale=locale).send_async(self._transport)
+
+    def iter_all(
+        self,
+        *,
+        page_size: int | None = None,
+        page_token: str | None = None,
+        locale: str | None = None,
+        max_pages: int = 1000,
+    ) -> AsyncIterator[Tenant]:
+        """Yield authorized tenants in server order, fetching pages on demand.
+
+        :param page_size: Optional maximum tenants per page, from 1 through 200.
+        :param page_token: Optional opaque starting cursor.
+        :param locale: BCP 47 locale forwarded to Salesforce.
+        :param max_pages: Positive maximum number of fetched pages.
+        :raises PaginationError: If a cursor repeats or a further page exceeds the limit.
+                                 Earlier items may already have been yielded.
+        """
+
+        async def fetch(token: str | None) -> tuple[list[Tenant], str | None]:
+            page = await self.list(page_size=page_size, page_token=token, locale=locale)
+            return page.tenants, page.next_page_token
+
+        return _iterate_pages_async(fetch, page_token, max_pages)
+
+    async def list_all(
+        self,
+        *,
+        page_size: int | None = None,
+        page_token: str | None = None,
+        locale: str | None = None,
+        max_pages: int = 1000,
+    ) -> list[Tenant]:
+        """Collect :meth:`iter_all` results, propagating any traversal error.
+
+        :param page_size: Optional maximum tenants per page, from 1 through 200.
+        :param page_token: Optional opaque starting cursor.
+        :param locale: BCP 47 locale forwarded to Salesforce.
+        :param max_pages: Positive maximum number of fetched pages.
+        """
+        return [
+            tenant
+            async for tenant in self.iter_all(page_size=page_size, page_token=page_token, locale=locale, max_pages=max_pages)
+        ]
+
+    async def get(self, tenant_id: str, *, locale: str | None = None) -> TenantDetail:
+        """Retrieve a tenant and its history in Salesforce's fixed window.
+
+        :param tenant_id: Opaque tenant identifier.
+        :param locale: BCP 47 locale forwarded to Salesforce for fallback.
+        :returns: Tenant detail with embedded events.
+        :raises NotFoundError: If the tenant is nonexistent or unauthorized.
+        """
+        return await _tenant_detail_request(tenant_id, locale=locale).send_async(self._transport)
