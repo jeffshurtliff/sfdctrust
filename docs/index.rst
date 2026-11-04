@@ -17,10 +17,8 @@ sfdctrust Documentation
 **Salesforce My Trust Center API**. It is not affiliated with or supported by
 Salesforce.
 
-.. warning::
-
-   The project is in development. The synchronous client provides tenant
-   listing, status snapshots, event search, and detail reads for events and tenants.
+The synchronous and asynchronous clients provide tenant listing, status
+snapshots, event search, and detail reads for events and tenants.
 
 The API exposes only the tenants authorized by the caller's personal access
 token (PAT). An empty or partial result does not establish Salesforce-wide health.

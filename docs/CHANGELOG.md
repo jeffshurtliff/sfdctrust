@@ -13,54 +13,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
-- Added `AsyncTrustCenterClient` with native HTTPX asyncio support for all
-  five reads, lazy async pagination, and the synchronous client's retry rules.
-- Added `AsyncPATStore` and explicit async PAT refresh, with cancellation
-  handling and persistence-only recovery for a retained replacement.
-
-- Added explicit one-shot PAT refresh for `TrustCenterClient.from_store()` with
-  an atomic versioned store contract, recovery probing, and persistence-only
-  retry after an unconfirmed write.
-
-- Added lazy and collecting tenant and event search traversal with cursor-cycle
-  detection, a page limit, and public `PaginationError`.
-- Added configurable SDK retries for synchronous reads and bounded
-  `Retry-After` support for HTTP 429 and 503.
-
-- Added typed status snapshots, single-page event search with explicit continuation,
-  event detail with timeline, and tenant detail with history. Response models preserve
-  repeated event IDs, tenant scopes, timestamp offsets, and unknown response fields.
-
-- Added `TrustCenterClient` and `client.tenants.list()` for one typed page of PAT-authorized tenants,
-  with explicit continuation tokens and an optional caller-owned HTTPX client.
-
-- Added a private synchronous HTTP transport with production destination checks, redirect blocking,
-  finite timeouts, bounded retries for documented reads, and sanitized errors. Offline tests exercise
-  Bearer authentication through JSON decoding and error translation.
-- Added internal PAT validation, opt-in `SFDCTRUST_PAT` loading with explicit-override precedence,
-  secret redaction, and production-origin Bearer authentication, with offline tests.
-- Exposed a small exception hierarchy from `sfdctrust` for configuration, network/timeouts,
-  API statuses, authentication, rate limits, not-found results, and malformed responses.
-- Documented the My Trust Center operation, parameter, schema, authentication, and pagination contract,
-  including verification limits and proposed implementation decisions.
-- Exposed the package version as `sfdctrust.__version__` and added version regression tests.
-- Added Sphinx documentation using the PyData theme (dark mode by default), MyST Markdown pages,
-  autodoc reference pages, sphinx-favicon, and a Read the Docs configuration that installs from
-  `poetry.lock`.
-- Added project branding to the documentation and README: a navbar icon, light and dark landing-page
-  logos, favicons, and a theme palette derived from the logo colors.
+No unreleased additions at this time.
 
 (unreleased-changed)=
 ### Changed
 
-- Removed the redundant `sfdctrust.version` module; use `sfdctrust.__version__` instead.
-- Corrected package metadata and README to target the My Trust Center API.
-- Reduced direct runtime dependencies to HTTPX and Pydantic v2.
-- Removed unused copied compatibility, model-construction, transformation, proxy, and async utilities,
-  and unrelated constants; retained only package identity and API defaults.
-- Fixed source-checkout version lookup to use the repository's `pyproject.toml`.
+No unreleased changes at this time.
 
 (unreleased-security)=
 ### Security
 
 No unreleased security updates at this time.
+
+(relnotes-0-1-0)=
+## [0.1.0] - 2026-11-04
+
+First stable release of the unofficial Python SDK for the Salesforce My Trust
+Center API. Requires Python 3.12 or later.
+
+(release-0-1-0-added)=
+### Added
+
+- Synchronous `TrustCenterClient` and native asyncio `AsyncTrustCenterClient`
+  for listing authorized tenants, retrieving status snapshots, searching
+  events, and reading event timelines and tenant history.
+- Typed responses that preserve tenant scopes, repeated event IDs, timestamp
+  offsets, and unknown response fields.
+- Single-page, lazy, and collecting methods for tenant lists and event search,
+  with page limits and cursor-cycle detection.
+- Bounded timeouts and configurable retries for documented read operations,
+  with bounded `Retry-After` handling for HTTP 429 and 503.
+- Explicit PAT authentication or opt-in loading from `SFDCTRUST_PAT`, plus
+  explicit refresh for compatible sync and async stores. A successful refresh
+  immediately revokes the old PAT. The clients can retry persistence of a
+  retained replacement without making another refresh request.
+- Public exceptions for configuration, authentication, network, rate-limit,
+  pagination, and API response failures.
+- Installation, authentication, and usage guides, with a public API reference.
+
+(release-0-1-0-changed)=
+### Changed
+
+- For users of earlier development builds, use `sfdctrust.__version__` in place
+  of the removed `sfdctrust.version` module. The version is read from installed
+  metadata or from `pyproject.toml` in a source checkout.
+- The direct runtime dependencies are HTTPX and Pydantic v2.
+
+[Unreleased]: https://github.com/jeffshurtliff/sfdctrust/compare/0.1.0...main
+[0.1.0]: https://github.com/jeffshurtliff/sfdctrust/tree/0.1.0

@@ -14,10 +14,9 @@ you can access in My Trust Center.
 
 ```python
 page = client.tenants.list()
-print("Tenants on this page:", len(page.tenants))
+print('Tenants on this page:', len(page.tenants))
 for tenant in page.tenants:
     print(tenant.id, tenant.name)
-
 ```
 
 This call verifies that Salesforce accepts the PAT. If the list is empty,
@@ -33,14 +32,13 @@ current incidents and upcoming maintenance affecting your tenants.
 
 ```python
 snapshot = client.status.snapshot()
-print("Ongoing incidents:", len(snapshot.ongoing.incident))
+print('Ongoing incidents:', len(snapshot.ongoing.incident))
 for incident in snapshot.ongoing.incident:
     print(incident.event_id, incident.title)
 
-print("Upcoming maintenance:", len(snapshot.upcoming.maintenance))
+print('Upcoming maintenance:', len(snapshot.upcoming.maintenance))
 for maintenance in snapshot.upcoming.maintenance:
     print(maintenance.event_id, maintenance.title)
-
 ```
 
 An empty group means this request returned no matching events for your
@@ -68,10 +66,9 @@ if page.tenants:
 else:
     results = []
 
-print("Matching events:", len(results))
+print('Matching events:', len(results))
 for event in results:
     print(event.event_id, event.title, event.status)
-
 ```
 
 If the search returned events, use the first event's ID to request its
@@ -83,7 +80,6 @@ if results:
     print(event.title)
     for entry in event.timeline or []:
         print(entry.created_at, entry.message)
-
 ```
 
 If there are no results, try a different authorized tenant or a different
@@ -107,16 +103,16 @@ from sfdctrust import AsyncTrustCenterClient
 async def main():
     async with AsyncTrustCenterClient.from_env() as client:
         page = await client.tenants.list(page_size=5)
-        print("Tenants on this page", len(page.tenants))
+        print('Tenants on this page', len(page.tenants))
 
         snapshot = await client.status.snapshot()
-        print("Upcoming maintenance", len(snapshot.upcoming.maintenance))
+        print('Upcoming maintenance', len(snapshot.upcoming.maintenance))
 
         async for tenant in client.tenants.iter_all(page_size=50):
             print(tenant.id, tenant.name)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     asyncio.run(main())
 ```
 
@@ -148,8 +144,8 @@ before testing.
    expected format.
 
    ```python
-   print("Response details matched the expected format:", result.metadata_valid)
-   print("Tenants on this page:", len(client.tenants.list().tenants))
+   print('Response details matched the expected format:', result.metadata_valid)
+   print('Tenants on this page:', len(client.tenants.list().tenants))
    ```
 
 3. Verify the token survives reopening. Run `client.close()`, then `exit()`,
@@ -162,8 +158,7 @@ before testing.
    from sfdctrust import TrustCenterClient
 
    with TrustCenterClient.from_store(LocalPATStore()) as client:
-       print("Tenants on this page:", len(client.tenants.list().tenants))
-
+       print('Tenants on this page:', len(client.tenants.list().tenants))
    ```
 
    Recreate other store-backed clients using this store before resuming

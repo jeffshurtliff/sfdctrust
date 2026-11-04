@@ -148,9 +148,9 @@ Omitted optional fields read as `None`. Check `model_fields_set` to tell
 omission from explicit null on nullable fields. For example:
 
 ```python
-if "end_time" in event.model_fields_set and event.end_time is None:
-    print("Salesforce returned a null endTime")
-wire_data = event.model_dump(mode="json", by_alias=True, exclude_unset=True)
+if 'end_time' in event.model_fields_set and event.end_time is None:
+    print('Salesforce returned a null endTime')
+wire_data = event.model_dump(mode='json', by_alias=True, exclude_unset=True)
 ```
 
 Every method forwards a supplied string `locale` as a query parameter.

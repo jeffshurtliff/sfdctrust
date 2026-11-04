@@ -79,7 +79,7 @@ Use Pydantic's wire aliases and omit unset fields when serializing a page to a
 JSON-compatible dictionary:
 
 ```python
-data = page.model_dump(mode="json", by_alias=True, exclude_unset=True)
+data = page.model_dump(mode='json', by_alias=True, exclude_unset=True)
 ```
 
 The aliases are `myDomain` and `nextPageToken`.

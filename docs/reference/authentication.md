@@ -119,8 +119,8 @@ from sfdctrust import TrustCenterClient
 
 client = TrustCenterClient.from_store(store)
 result = client.refresh_pat(expires_in_days=7)
-print("Response metadata validated:", result.metadata_valid)
-print("Authorized tenants:", len(client.tenants.list().tenants))
+print('Response metadata validated:', result.metadata_valid)
+print('Authorized tenants:', len(client.tenants.list().tenants))
 ```
 
 The SDK keeps raw credentials, response bodies, headers, request URLs, and
@@ -154,8 +154,8 @@ from sfdctrust import AsyncTrustCenterClient
 
 client = await AsyncTrustCenterClient.from_store(async_store)
 result = await client.refresh_pat(expires_in_days=7)
-print("Response metadata validated", result.metadata_valid)
-print("Authorized tenants", len((await client.tenants.list()).tenants))
+print('Response metadata validated', result.metadata_valid)
+print('Authorized tenants', len((await client.tenants.list()).tenants))
 ```
 
 If the replacement commit was interrupted or unconfirmed, keep the same
@@ -163,7 +163,7 @@ client and restore access to the store. Reconcile the write in a running task.
 
 ```python
 result = await client.retry_pat_persistence()
-print("Response metadata validated", result.metadata_valid)
+print('Response metadata validated', result.metadata_valid)
 ```
 
 Call `await client.aclose()` after use and any persistence recovery. As with
