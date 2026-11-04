@@ -3,7 +3,7 @@
 # --------------------------------------------------------------------
 [project]
 name = "sfdctrust"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Unofficial Python SDK for the Salesforce My Trust Center API"
 readme = "README.md"
 authors = [
@@ -19,7 +19,7 @@ keywords = ["salesforce", "sfdc", "trust", "uptime", "api", "rest", "tooling", "
 
 classifiers = [
     # Project Maturity
-    "Development Status :: 2 - Pre-Alpha",
+    "Development Status :: 5 - Production/Stable",
 
     # Intended audience and environment
     "Intended Audience :: Information Technology",
@@ -35,6 +35,7 @@ classifiers = [
     # Supported Python versions
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Programming Language :: Python :: 3.15",

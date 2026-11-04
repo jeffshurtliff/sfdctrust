@@ -79,7 +79,7 @@ from sfdctrust import TrustCenterClient
 with TrustCenterClient.from_env() as client:
     tenants = client.tenants.list_all()
     status = client.status.snapshot()
-    events = client.events.search(event_type="incident")
+    events = client.events.search(event_type='incident')
 ```
 
 - Provide a clear synchronous `TrustCenterClient` as the primary entry point. It owns configuration, authentication 

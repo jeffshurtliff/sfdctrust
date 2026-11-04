@@ -51,8 +51,8 @@ import os
 import warnings
 from getpass import GetPassWarning, getpass
 
-warnings.filterwarnings("error", category=GetPassWarning)
-os.environ["SFDCTRUST_PAT"] = getpass("My Trust Center PAT: ")
+warnings.filterwarnings('error', category=GetPassWarning)
+os.environ['SFDCTRUST_PAT'] = getpass('My Trust Center PAT: ')
 ```
 
 If Python cannot hide your input, use a terminal window in place of an IDE

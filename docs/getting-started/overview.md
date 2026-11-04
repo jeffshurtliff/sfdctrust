@@ -12,9 +12,9 @@ use in scripts or applications.
 It is unofficial and is not affiliated with or supported by Salesforce.
 ```
 
-## Project status
+## What you can do
 
-The project is in development. You can list tenants, read current and upcoming
+You can list tenants, read current and upcoming
 events, search event history, and retrieve individual event timelines. You can
 also explicitly refresh a personal access token when using a compatible store.
 Begin with {doc}`installation`, then use {doc}`setup` to connect to My Trust Center.

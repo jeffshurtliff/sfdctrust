@@ -1,19 +1,12 @@
 # Installation
 
-You need Python 3.12 or later and access to the `sfdctrust` source checkout
-or a wheel supplied by the project. A wheel is a Python installation file
-whose name ends in `.whl`. You can use the package with `pip`.
-
-If you have access to the project repository and need a source checkout, run
-`git clone https://github.com/jeffshurtliff/sfdctrust.git` and then
-`cd sfdctrust`.
+You need Python 3.12 or later and `pip`. The package is available on PyPI.
 
 ## Create a virtual environment
 
 A virtual environment keeps the package and its dependencies separate from
-your other Python projects. Open a terminal. If you have a source checkout,
-change into its top-level directory, the one containing `pyproject.toml`.
-If you have a wheel, work in a directory where you can save your example files.
+your other Python projects. Open a terminal in the directory where you want
+to save your example files.
 
 **macOS or Linux**
 
@@ -40,10 +33,10 @@ environment again or use the full interpreter path.
 
 ## Install and verify
 
-From the top level of a source checkout, run:
+Install from PyPI:
 
 ```sh
-python -m pip install .
+python -m pip install sfdctrust
 ```
 
 For a wheel, run `python -m pip install "path/to/file.whl"`, substituting
@@ -61,6 +54,10 @@ If you see a version number, continue to {doc}`setup`. If Python reports
 using the same virtual environment.
 
 ## For contributors
+
+To get a source checkout, run `git clone https://github.com/jeffshurtliff/sfdctrust.git`
+and then `cd sfdctrust`. To install the package directly from this checkout,
+run `python -m pip install .`.
 
 To install development and test tools from the source checkout, use
 [Poetry](https://python-poetry.org/docs/) 2.2 or later, below 3.
