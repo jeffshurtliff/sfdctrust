@@ -4,7 +4,7 @@
 :Synopsis:          Internal synchronous HTTP transport for My Trust Center
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     02 Nov 2026
+:Modified Date:     03 Nov 2026
 """
 
 from __future__ import annotations
@@ -12,8 +12,11 @@ from __future__ import annotations
 import json
 import math
 import random
+import re
 import time
 from collections.abc import Mapping
+from datetime import UTC, datetime
+from email.utils import parsedate_to_datetime
 from typing import Any, NoReturn, Self
 from urllib.parse import unquote
 
@@ -35,8 +38,17 @@ from ._exceptions import (
 from ._version import __version__
 
 _BASE = httpx.URL(DEFAULT_BASE_URL)
-_RETRY_DELAYS = (0.5, 1.0)
-_MAX_JITTER = 0.25  # Both delays and their maximum jitter sum to 2 seconds.
+_MAX_JITTER = 0.25
+_MAX_RETRY_AFTER = 30
+# HTTP-date allows IMF-fixdate and the two obsolete HTTP date formats.
+_DAY = r'(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)'
+_LONG_DAY = r'(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)'
+_CLOCK = r'[0-9]{2}:[0-9]{2}:[0-9]{2}'
+_HTTP_DATE = re.compile(
+    rf'{_DAY}, [0-9]{{2}} [A-Z][a-z]{{2}} [0-9]{{4}} {_CLOCK} GMT'
+    rf'|{_LONG_DAY}, [0-9]{{2}}-[A-Z][a-z]{{2}}-(?P<short_year>[0-9]{{2}}) {_CLOCK} GMT'
+    rf'|{_DAY} [A-Z][a-z]{{2}} (?: [0-9]|[0-9]{{2}}) {_CLOCK} [0-9]{{4}}'
+)
 _RETRY_STATUSES = frozenset({429, 500, 502, 503, 504})
 _STATUS_ERRORS = {401: AuthenticationError, 404: NotFoundError, 429: RateLimitError}
 
@@ -84,6 +96,37 @@ def _can_retry(method: str, path: str) -> bool:
     return collection in {'tenants', 'events'} and bool(identifier) and '/' not in identifier
 
 
+def _retry_after(value: str | None) -> float | None:
+    if value is None:
+        return None
+    value = value.strip(' \t')
+    if value.isascii() and value.isdecimal():
+        digits = value.lstrip('0')
+        # Avoid converting an unbounded integer from an untrusted header.
+        return _MAX_RETRY_AFTER if len(digits) > 2 else min(_MAX_RETRY_AFTER, int(digits or '0'))
+    match = _HTTP_DATE.fullmatch(value)
+    if match is None:
+        return None
+    try:
+        now = time.time()
+        if match['short_year'] is not None:
+            # RFC 9110 interprets a two-digit year relative to the current date.
+            current = datetime.fromtimestamp(now, UTC)
+            upper_year = current.year + 50
+            year = upper_year - (upper_year - int(match['short_year'])) % 100
+            start, end = match.span('short_year')
+            date = parsedate_to_datetime(f'{value[:start]}{year:04d}{value[end:]}')
+            if year == upper_year and date.timetuple()[1:6] > current.timetuple()[1:6]:
+                date = date.replace(year=year - 100)
+        else:
+            date = parsedate_to_datetime(value)
+        if date.tzinfo is None:
+            date = date.replace(tzinfo=UTC)
+        return min(_MAX_RETRY_AFTER, max(0.0, date.timestamp() - now))
+    except (ValueError, OverflowError, OSError):
+        return None
+
+
 def _reject_json_constant(_: str) -> NoReturn:
     raise ValueError('Nonstandard JSON constant.')
 
@@ -97,7 +140,17 @@ class _Transport:
     client controls its own TLS, proxy, pool, hooks, and transport behavior.
     """
 
-    def __init__(self, auth: PATAuth, *, client: httpx.Client | None = None, timeout: httpx.Timeout | None = None) -> None:
+    def __init__(
+        self,
+        auth: PATAuth,
+        *,
+        client: httpx.Client | None = None,
+        timeout: httpx.Timeout | None = None,
+        max_retries: int = 2,
+    ) -> None:
+        if not isinstance(max_retries, int) or isinstance(max_retries, bool) or not 0 <= max_retries <= 5:
+            raise ConfigurationError('max_retries must be an integer from 0 through 5.')
+        self._max_retries = max_retries
         self._auth = auth
         self._timeout = httpx.Timeout(30.0, connect=5.0, pool=5.0) if timeout is None else httpx.Timeout(timeout)
         if any(value is None or not math.isfinite(value) or value <= 0 for value in self._timeout.as_dict().values()):
@@ -133,7 +186,8 @@ class _Transport:
         method = method.upper()
         retryable = _can_retry(method, url.path.removeprefix(_BASE.path))
 
-        for attempt in range(len(_RETRY_DELAYS) + 1):
+        for attempt in range(self._max_retries + 1):
+            retry_after = None
             request = httpx.Request(
                 method,
                 url,
@@ -155,6 +209,8 @@ class _Transport:
                     else:
                         error = TrustCenterError('My Trust Center API returned an unexpected HTTP status.')
                     transient = status in _RETRY_STATUSES
+                    if retryable and attempt < self._max_retries and status in {429, 503}:
+                        retry_after = response.headers.get('Retry-After')
                 finally:
                     response.close()
             except httpx.TimeoutException:
@@ -167,10 +223,12 @@ class _Transport:
                 error = NetworkError('My Trust Center request could not complete.')
                 transient = isinstance(exc, httpx.ConnectError)
 
-            if not retryable or not transient or attempt == len(_RETRY_DELAYS):
+            if not retryable or not transient or attempt == self._max_retries:
                 raise error
-            # Retry jitter does not require cryptographic randomness
-            jitter = random.uniform(0, _MAX_JITTER)  # nosec B311
-            time.sleep(_RETRY_DELAYS[attempt] + jitter)
+            delay = _retry_after(retry_after)
+            if delay is None:
+                jitter = random.uniform(0, _MAX_JITTER)  # nosec B311
+                delay = 0.5 * 2**attempt + jitter
+            time.sleep(delay)
 
         raise AssertionError('Unreachable retry state.')

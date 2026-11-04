@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
+- Added lazy and collecting tenant and event search traversal with cursor-cycle
+  detection, a page limit, and public `PaginationError`.
+- Added configurable SDK retries for synchronous reads and bounded
+  `Retry-After` support for HTTP 429 and 503.
+
 - Added typed status snapshots, single-page event search with explicit continuation,
   event detail with timeline, and tenant detail with history. Response models preserve
   repeated event IDs, tenant scopes, timestamp offsets, and unknown response fields.

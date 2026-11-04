@@ -4,7 +4,7 @@
 :Synopsis:          Primary module for the sfdctrust package
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     02 Nov 2026
+:Modified Date:     03 Nov 2026
 """
 
 from ._client import TrustCenterClient
@@ -15,6 +15,7 @@ from ._exceptions import (
     MalformedResponseError,
     NetworkError,
     NotFoundError,
+    PaginationError,
     RateLimitError,
     RequestTimeoutError,
     TrustCenterError,
@@ -33,4 +34,5 @@ __all__ = [
     'RateLimitError',
     'NotFoundError',
     'MalformedResponseError',
+    'PaginationError',
 ]

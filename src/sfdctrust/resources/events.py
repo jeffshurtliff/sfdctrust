@@ -4,20 +4,20 @@
 :Synopsis:          Synchronous event search and detail
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     03 Nov 2026
+:Modified Date:     04 Nov 2026
 """
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 from datetime import datetime
 from typing import get_args
 
 from .._exceptions import ConfigurationError
 from .._transport import _Transport
 from ..models._wire import _parse_timestamp
-from ..models.events import EventDetail, EventSearchResponse, EventSearchScope, EventType
-from ._requests import _id_segment, _locale_params, _page_params, _request_model
+from ..models.events import EventDetail, EventSearchResponse, EventSearchResult, EventSearchScope, EventType
+from ._requests import _id_segment, _iterate_pages, _locale_params, _page_params, _request_model
 
 _EVENT_TYPES = frozenset(get_args(EventType))
 
@@ -101,6 +101,90 @@ class EventsResource:
             params=_locale_params(locale),
             json_body=body,
             response_error='My Trust Center returned an invalid event search page.',
+        )
+
+    def iter_search(
+        self,
+        *,
+        scopes: Sequence[EventSearchScope],
+        start_time: datetime,
+        end_time: datetime,
+        event_types: Sequence[EventType] | None = None,
+        page_size: int | None = None,
+        page_token: str | None = None,
+        locale: str | None = None,
+        max_pages: int = 1000,
+    ) -> Iterator[EventSearchResult]:
+        """Yield search results in server order, fetching pages on demand.
+
+        Search arguments match :meth:`search`. The scope and event type
+        sequences are copied when the iterator is created.
+
+        :param scopes: One through 50 tenant scopes. Salesforce removes duplicates.
+        :param start_time: Inclusive start as an aware datetime.
+        :param end_time: Exclusive end as an aware datetime later than the start.
+        :param event_types: Optional nonempty sequence of distinct event types.
+        :param page_size: Optional maximum results per page, from 1 through 200.
+        :param page_token: Optional opaque cursor from which to start the traversal.
+        :param locale: BCP 47 locale forwarded to Salesforce for fallback.
+        :param max_pages: Positive maximum number of fetched pages.
+        :raises PaginationError: If a cursor repeats or a further page exceeds the limit.
+                                 Earlier items may already have been yielded.
+        """
+        # Keep invalid sequence types intact for the shared search validation.
+        if isinstance(scopes, Sequence) and not isinstance(scopes, str):
+            scopes = tuple(scopes)
+        if isinstance(event_types, Sequence) and not isinstance(event_types, str):
+            event_types = tuple(event_types)
+
+        def fetch(token: str | None) -> tuple[list[EventSearchResult], str | None]:
+            page = self.search(
+                scopes=scopes,
+                start_time=start_time,
+                end_time=end_time,
+                event_types=event_types,
+                page_size=page_size,
+                page_token=token,
+                locale=locale,
+            )
+            return page.events, page.next_page_token
+
+        return _iterate_pages(fetch, page_token, max_pages)
+
+    def search_all(
+        self,
+        *,
+        scopes: Sequence[EventSearchScope],
+        start_time: datetime,
+        end_time: datetime,
+        event_types: Sequence[EventType] | None = None,
+        page_size: int | None = None,
+        page_token: str | None = None,
+        locale: str | None = None,
+        max_pages: int = 1000,
+    ) -> list[EventSearchResult]:
+        """Collect :meth:`iter_search` results, propagating any traversal error.
+
+        :param scopes: One through 50 tenant scopes. Salesforce removes duplicates.
+        :param start_time: Inclusive start as an aware datetime.
+        :param end_time: Exclusive end as an aware datetime later than the start.
+        :param event_types: Optional nonempty sequence of distinct event types.
+        :param page_size: Optional maximum results per page, from 1 through 200.
+        :param page_token: Optional opaque cursor from which to start the traversal.
+        :param locale: BCP 47 locale forwarded to Salesforce for fallback.
+        :param max_pages: Positive maximum number of fetched pages.
+        """
+        return list(
+            self.iter_search(
+                scopes=scopes,
+                start_time=start_time,
+                end_time=end_time,
+                event_types=event_types,
+                page_size=page_size,
+                page_token=page_token,
+                locale=locale,
+                max_pages=max_pages,
+            )
         )
 
     def get(self, event_id: str, *, locale: str | None = None) -> EventDetail:

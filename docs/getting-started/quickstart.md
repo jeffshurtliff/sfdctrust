@@ -8,15 +8,14 @@ Install the package from a [development checkout](installation.md) and configure
 from sfdctrust import TrustCenterClient
 
 with TrustCenterClient.from_env() as client:
-    page = client.tenants.list()
-    for tenant in page.tenants:
+    for tenant in client.tenants.iter_all(page_size=50):
         print(tenant.id, tenant.name)
 ```
 
-Each call returns one page scoped to the PAT's authorized tenants. An empty page
+The iterator fetches pages on demand, scoped to the PAT's authorized tenants. An empty page
 provides no information about Salesforce-wide health.
 
-If `page.next_page_token` is present, pass it as `page_token` in the next call.
+For manual paging with `client.tenants.list()`, if `page.next_page_token` is present, pass it as `page_token` in the next call.
 Keep the page size and locale the same across both requests, including any omitted
 values. For example:
 
@@ -54,7 +53,7 @@ with TrustCenterClient.from_env() as client:
     if tenants.tenants:
         tenant_id = tenants.tenants[0].id
         end = datetime.now(UTC)
-        options = dict(
+        results = client.events.search_all(
             scopes=[EventSearchScope(id=tenant_id)],
             start_time=end - timedelta(days=30),
             end_time=end,
@@ -62,11 +61,6 @@ with TrustCenterClient.from_env() as client:
             page_size=50,
             locale="en-US",
         )
-        page = client.events.search(**options)
-        results = list(page.events)
-        if page.next_page_token is not None:
-            next_page = client.events.search(**options, page_token=page.next_page_token)
-            results.extend(next_page.events)
 
         if results:
             event = client.events.get(results[0].event_id, locale="en-US")
@@ -77,6 +71,17 @@ with TrustCenterClient.from_env() as client:
         for event in tenant.events:
             print(event.event_id, event.status)
 ```
+
+Use `client.tenants.list_all(page_size=50)` to collect tenants, or use
+`client.events.iter_search(...)` with the same search arguments to consume
+events lazily. Both traversals preserve order and duplicates. An empty page
+continues when a cursor is present, including an empty string. A repeated cursor
+or a required page beyond `max_pages` (default 1000) raises `PaginationError`
+from `sfdctrust`. Iterators can yield items before a failure. Stale cursors raise
+HTTP 400 `APIStatusError` without a restart.
+
+Both client constructors default to two additional attempts per eligible read.
+Set `max_retries=0` to disable SDK retries or choose an integer up to 5.
 
 The search includes the start instant and excludes the end instant. Each
 continuation repeats the original parameters and uses the token from the

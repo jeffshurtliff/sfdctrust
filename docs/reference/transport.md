@@ -26,16 +26,31 @@ The transport inspects the status before reading the response body. It maps 401,
 404, and 429 to their specialized exceptions and other 4xx and 5xx statuses to
 `APIStatusError`. Unexpected statuses such as redirects raise `TrustCenterError`.
 Successful responses must contain valid UTF-8 JSON. Empty or invalid JSON raises
-`MalformedResponseError`. The tenant resource validates decoded JSON against its response models. Exceptions omit server messages, requests, responses, and URLs.
+`MalformedResponseError`. Resources validate decoded JSON against their response models. Exceptions omit server messages, requests, responses, and URLs.
 Request-ID capture remains deferred.
 
 The retry allowlist covers `GET /tenants`, `GET /tenants/{tenantId}`, `GET /status`,
 `GET /events/{eventId}`, and read-only `POST /events/search`. HTTPX connection
 establishment errors and timeouts, along with HTTP 429, 500, 502, 503, and 504,
-allow up to two retries. The waits are 0.5 and 1.0 seconds plus up to 0.25 seconds
-of jitter each, for at most 2 seconds of scheduled sleep. A plain-text 429 follows
-the same policy. The transport uses its own delays independently of `Retry-After`
-and surfaces the final translated error if attempts are exhausted.
+are retryable. HTTP 400, 401, 404, redirects, and malformed successful responses
+fail immediately.
 
-The public synchronous client uses this transport for :doc:`tenants`.
+Both client constructors accept keyword-only `max_retries: int = 2`. The count
+is additional SDK attempts per request. It accepts integers from 0 through 5,
+excluding booleans. Zero disables SDK retries. An injected HTTPX client may
+implement its own transport retries.
+
+When another attempt is available, the SDK honors a valid `Retry-After` on
+HTTP 429 or 503. The header accepts nonnegative integer seconds or an HTTP date.
+Zero and past dates produce zero delay. The SDK caps the header-directed wait
+at 30 seconds and adds no jitter to it. This cap can cause a retry sooner than
+the server requested. See [RFC 9110, section 10.2.3](https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.3).
+
+Without a valid applicable header, the SDK waits 0.5 seconds before the first
+retry, doubling the base for each additional retry, plus up to 0.25 seconds of
+jitter each time. The local Salesforce specification documents plain-text 429
+responses without `Retry-After` for all five reads. The response closes before
+the wait, and retries preserve the request, including any cursor and search
+body. Exhaustion surfaces the final translated error without another wait.
+
 The transport rejects PAT refresh before authentication.

@@ -218,19 +218,19 @@ and exposed package `__version__`. The PEP 621 version remains authoritative and
 
 The following SDK policies are distinct from Salesforce requirements. The credential, exception, and transport decisions are implemented as described below.
 All five read operations apply the model policies below. Tenant listing and event
-search each return a single page.
+search each offer a single-page method and traversal helpers.
 
 | Area | SDK policy |
 | --- | --- |
 | Credentials | Explicit required `pat` for construction; opt-in `from_env()` reads only `SFDCTRUST_PAT`. An explicit override takes precedence; empty overrides fail rather than silently fall back. No `.env` loading, JWT parsing, provider framework, or refresh. Hide the PAT from repr/logs/errors. |
 | Ownership | Internally created `httpx.Client` is SDK-owned and closed by `close()`/context exit; caller-supplied client remains caller-owned. No network I/O at construction. |
-| Network defaults | Connect and pool timeouts default to 5 seconds, read and write to 30 seconds. The owned pool allows 20 total and 10 idle connections. At most two retries sleep for 0.5 and 1.0 seconds plus up to 0.25 seconds of jitter each (2 seconds total). |
+| Network defaults | Connect and pool timeouts default to 5 seconds, read and write to 30 seconds. The owned pool allows 20 total and 10 idle connections. Two retries by default, configurable from 0 to 5. Fallback waits start at 0.5 seconds and double, plus up to 0.25 seconds of jitter. Applicable `Retry-After` waits are capped at 30 seconds. |
 | Safe retry classification | Retry the five documented reads on connection establishment failures, timeouts, and HTTP 429/500/502/503/504. Other errors fail immediately. The transport rejects PAT refresh. |
 | Credential destination | Fixed production HTTPS origin and API base path with redirects disabled per request. The owned client verifies TLS and ignores environment proxy and CA settings. Injection requires a trusted client. |
 | Models | Python snake_case attributes with explicit camelCase aliases; deliberate JSON serialization with `by_alias=True`. Validate known field types/requiredness; preserve response extras with `extra='allow'` even where vendor schemas are closed. Strict request validation. |
 | Optionality/time | Preserve omitted versus explicit-null via Pydantic field-set information and `exclude_unset`. Reject null on optional non-nullable wire fields. Require aware input timestamps; preserve response offsets, with explicit UTC conversion when needed. Keep ISO durations lossless as strings initially. |
 | Event evolution | Validate outgoing enum filters; preserve unknown response enum strings/data. Dispatch known `data` shapes using `eventType`, rather than an untagged permissive union that could select the wrong shape. Design this before event models. |
-| Pagination | First expose one explicit page. Later add lazy iteration with repeated-token detection and a finite page bound; never silently restart stale cursors. Choose the bound and error before publishing iterator methods. |
+| Pagination | Single-page access and lazy or collecting traversal. Repeated cursors or a required page beyond the limit raise `PaginationError`. HTTP 400 cursor errors propagate without restart. |
 | Errors | Retain `TrustCenterError`; add a small hierarchy for configuration, network/timeout, API status, authentication, rate limiting, not found, and malformed responses. Preserve status and a verified safe request ID when available; do not retain raw credential-bearing requests or unsanitized server messages. Header name for request IDs is not specified by this API. |
 | Freshness | No caching initially. Defer an SDK `retrieved_at` envelope until its return-shape implications are decided; do not add it to Salesforce's wire schema. |
 
@@ -266,7 +266,7 @@ no live API calls or real credential discovery occurred. See the
 The private transport builds requests under the production API base, applies PATAuth per
 request, translates HTTP errors before reading the response body, and decodes successful
 responses as strict UTF-8 JSON. It returns the decoded value for resource-level validation.
-Request IDs, automatic pagination, async support, and PAT refresh remain deferred. See the [transport reference](reference/transport.md) for
+Request IDs, async support, and PAT refresh remain deferred. See the [transport reference](reference/transport.md) for
 ownership, timeout precedence, and retry details.
 
 The current Salesforce overview, getting-started guide, and authentication guide were
@@ -306,6 +306,32 @@ Unknown response enums and extra fields survive validation. The SDK uses a stati
 `MalformedResponseError` for response schema failures. See the
 [status and event reference](reference/events-and-status.md) and
 [tenant reference](reference/tenants.md) for signatures and model imports.
+
+### Synchronous pagination and resilience (2026-11-03)
+
+The Salesforce getting-started guide confirms that tenant pagination repeats
+the request with `pageToken` from `nextPageToken` and stops when the token is
+absent. The rendered reference supplied no operation content during this check.
+The local vendor YAML supplies event search cursor placement, argument matching,
+cursor invalidation, and the five reads' plain-text gateway 429 without
+`Retry-After`. The authentication guide separately confirms a plain-text,
+headerless 429 for refresh. The SDK supports optional `Retry-After` according to
+[RFC 9110, section 10.2.3](https://www.rfc-editor.org/rfc/rfc9110.html#section-10.2.3).
+
+The one-page `tenants.list()` and `events.search()` methods retain their contracts.
+`tenants.iter_all()`, `tenants.list_all()`, `events.iter_search()`, and
+`events.search_all()` accept the same arguments plus `max_pages: int = 1000`.
+They preserve omissions, server order, duplicate entries, and opaque cursors,
+including an empty string. An empty page counts and can have a continuation.
+Retries do not count as pages. `PaginationError` is an SDK guard against a
+repeated cursor or a required page beyond the limit. Server-rejected cursors
+raise HTTP 400 `APIStatusError` without restarting. See the
+[tenant reference](reference/tenants.md) and [event reference](reference/events-and-status.md).
+
+Both constructors accept `max_retries: int = 2`, with a range of 0 through 5.
+Header-directed waits on HTTP 429 or 503 accept integer seconds or HTTP dates.
+Past dates yield zero delay. The SDK's 30-second cap can cause a retry sooner
+than the server requested. See the [transport reference](reference/transport.md).
 
 ## Validation of the original foundation
 

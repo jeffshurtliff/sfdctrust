@@ -4,7 +4,7 @@
 :Synopsis:          Offline tests of the synchronous transport boundary
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     02 Nov 2026
+:Modified Date:     03 Nov 2026
 """
 
 import json
@@ -243,7 +243,7 @@ def test_retry_can_recover(mock_client: Callable[..., httpx.Client], delays: lis
 
     transport = _Transport(PATAuth(_PAT), client=mock_client(handler))
     assert transport.request('POST', '/events/search', params={'locale': 'en-US'}, json_body={'scopes': []}) == {'events': []}
-    assert delays == [0.75]
+    assert delays == [30 if status in {429, 503} else 0.75]
 
 
 @pytest.mark.parametrize(

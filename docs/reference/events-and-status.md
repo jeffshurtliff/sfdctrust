@@ -15,10 +15,32 @@ client.events.search(
     page_token: str | None = None,
     locale: str | None = None,
 ) -> EventSearchResponse
+client.events.iter_search(
+    *,
+    scopes: Sequence[EventSearchScope],
+    start_time: datetime,
+    end_time: datetime,
+    event_types: Sequence[EventType] | None = None,
+    page_size: int | None = None,
+    page_token: str | None = None,
+    locale: str | None = None,
+    max_pages: int = 1000,
+) -> Iterator[EventSearchResult]
+client.events.search_all(
+    *,
+    scopes: Sequence[EventSearchScope],
+    start_time: datetime,
+    end_time: datetime,
+    event_types: Sequence[EventType] | None = None,
+    page_size: int | None = None,
+    page_token: str | None = None,
+    locale: str | None = None,
+    max_pages: int = 1000,
+) -> list[EventSearchResult]
 client.events.get(event_id: str, *, locale: str | None = None) -> EventDetail
 ```
 
-`Sequence` is from `collections.abc` and `datetime` is from `datetime`.
+`Iterator` and `Sequence` are from `collections.abc` and `datetime` is from `datetime`.
 Import `StatusSnapshot` and `EventTypeBuckets` from `sfdctrust.models.status`.
 Import the other types on this page from `sfdctrust.models.events`.
 
@@ -55,6 +77,18 @@ If `next_page_token` (alias `nextPageToken`) is present, pass it as
 A stale or mismatched token surfaces as HTTP 400 `APIStatusError`. The caller
 decides whether to restart. Entries can share an ID and differ in tenant
 scope, status, start time, end time, or duration.
+
+## Traverse search results
+
+`iter_search()` copies the scope and event type sequences when created. It
+fetches the first page when advanced and fetches subsequent pages as needed.
+`search_all()` consumes the iterator and propagates any failure. Both preserve
+server order, repeated event IDs, tenant scopes, and lifecycle values.
+
+Search uses the same {ref}`cursor and page-limit rules as tenant traversal <tenant-traversal>`.
+It puts the cursor in the search body and preserves the original arguments
+and omissions. Import `PaginationError` from `sfdctrust`. An iterator may
+have yielded items before an error surfaces.
 
 ## Event detail and shared fields
 

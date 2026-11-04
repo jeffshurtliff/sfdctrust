@@ -17,6 +17,46 @@ restarting the traversal. Invalid JSON or response fields raise
 `MalformedResponseError`. See the {doc}`exception reference <exceptions>` for
 other request failures.
 
+(tenant-traversal)=
+## Traverse tenants
+
+```python
+from collections.abc import Iterator
+
+from sfdctrust import PaginationError
+from sfdctrust.models.tenants import Tenant
+
+client.tenants.iter_all(
+    *,
+    page_size: int | None = None,
+    page_token: str | None = None,
+    locale: str | None = None,
+    max_pages: int = 1000,
+) -> Iterator[Tenant]
+client.tenants.list_all(
+    *,
+    page_size: int | None = None,
+    page_token: str | None = None,
+    locale: str | None = None,
+    max_pages: int = 1000,
+) -> list[Tenant]
+```
+
+`iter_all()` fetches the first page when advanced and fetches the next page
+only after yielding the current page's items. `list_all()` consumes that
+iterator and propagates any failure. Both preserve server order and repeated
+entries. They start at the supplied cursor and forward each continuation
+unchanged, preserving all other arguments and omissions. Only an absent
+cursor ends traversal. An empty page with a cursor continues, and an
+empty-string cursor is a supplied value.
+
+`max_pages` must be a positive integer. Booleans raise `ConfigurationError`.
+Each successfully fetched page counts, including the initial page and empty
+pages. Retries do not count. A terminal page at the limit succeeds. If another
+page would exceed the limit or reuse a cursor, including the starting cursor,
+the SDK raises `PaginationError` before requesting that page. A lazy iterator
+may have yielded items by then.
+
 ## Response models
 
 Import `Tenant` and `TenantListResponse` from `sfdctrust.models.tenants`.
