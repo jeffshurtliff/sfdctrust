@@ -4,7 +4,7 @@
 :Synopsis:          Exception classes that are utilized throughout the package
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     02 Nov 2026
+:Modified Date:     03 Nov 2026
 """
 
 from __future__ import annotations
@@ -19,6 +19,7 @@ __all__ = [
     'RateLimitError',
     'NotFoundError',
     'MalformedResponseError',
+    'PaginationError',
 ]
 
 
@@ -91,3 +92,7 @@ class MalformedResponseError(TrustCenterError):
     Construct with a safe SDK-authored message, without response content or
     validation errors that might echo sensitive input.
     """
+
+
+class PaginationError(TrustCenterError):
+    """A traversal requires another page but reached its limit or repeated a cursor."""

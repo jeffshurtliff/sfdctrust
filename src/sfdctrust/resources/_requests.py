@@ -9,13 +9,13 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Iterator, Mapping
 from urllib.parse import quote
 
 import httpx
 from pydantic import BaseModel, ValidationError
 
-from .._exceptions import ConfigurationError, MalformedResponseError
+from .._exceptions import ConfigurationError, MalformedResponseError, PaginationError
 from .._transport import _Transport
 
 
@@ -73,3 +73,22 @@ def _request_model[Model: BaseModel](
             pass
         raise MalformedResponseError(response_error)
     raise ConfigurationError(encoding_error)
+
+
+def _iterate_pages[Item](
+    fetch: Callable[[str | None], tuple[list[Item], str | None]], page_token: str | None, max_pages: int
+) -> Iterator[Item]:
+    if not isinstance(max_pages, int) or isinstance(max_pages, bool) or max_pages < 1:
+        raise ConfigurationError('max_pages must be a positive integer.')
+    seen: set[str] = set()
+    for _ in range(max_pages):
+        items, next_token = fetch(page_token)
+        if page_token is not None:
+            seen.add(page_token)
+        yield from items
+        if next_token is None:
+            return
+        if next_token in seen:
+            raise PaginationError('My Trust Center pagination repeated a cursor.')
+        page_token = next_token
+    raise PaginationError('My Trust Center pagination exceeded max_pages.')

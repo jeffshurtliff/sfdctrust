@@ -16,7 +16,8 @@ Malformed successful responses have their own branch.
    │   ├── AuthenticationError   (401)
    │   ├── RateLimitError        (429)
    │   └── NotFoundError         (404)
-   └── MalformedResponseError
+   ├── MalformedResponseError
+   └── PaginationError
 
 ``APIStatusError(status_code)`` accepts integer statuses from 400 through 599.
 Its specialized subclasses take no arguments and set their fixed status.
@@ -36,6 +37,10 @@ no I/O, retries or credential refresh. The private transport translates HTTP
 statuses before reading the response body and uses the base
 :class:`~sfdctrust.TrustCenterError` for unexpected statuses such as redirects.
 
+A traversal raises ``PaginationError`` if a further page would reuse a cursor
+or exceed ``max_pages``. A lazy iterator may have already yielded items.
+A server rejection of a cursor with HTTP 400 raises ``APIStatusError``.
+
 .. autoclass:: sfdctrust.TrustCenterError
 .. autoclass:: sfdctrust.ConfigurationError
 .. autoclass:: sfdctrust.NetworkError
@@ -45,3 +50,4 @@ statuses before reading the response body and uses the base
 .. autoclass:: sfdctrust.RateLimitError
 .. autoclass:: sfdctrust.NotFoundError
 .. autoclass:: sfdctrust.MalformedResponseError
+.. autoclass:: sfdctrust.PaginationError

@@ -15,7 +15,14 @@ from datetime import UTC, datetime, timedelta, timezone, tzinfo
 import httpx
 import pytest
 
-from sfdctrust import APIStatusError, ConfigurationError, MalformedResponseError, NotFoundError, TrustCenterClient
+from sfdctrust import (
+    APIStatusError,
+    ConfigurationError,
+    MalformedResponseError,
+    NotFoundError,
+    PaginationError,
+    TrustCenterClient,
+)
 from sfdctrust.models.events import (
     EventDetail,
     EventSearchResponse,
@@ -428,3 +435,127 @@ def test_nested_response_validation_is_sanitized(api, operation: str, payload: d
         calls[operation]()
     assert len(requests) == 1
     _safe_error(exc.value)
+
+
+@pytest.mark.parametrize('resource', ['tenants', 'events'])
+def test_lazy_traversal_snapshots_inputs_and_preserves_order(api, resource: str, monkeypatch: pytest.MonkeyPatch) -> None:
+    client, requests, responses = api
+    monkeypatch.setattr('sfdctrust._transport.time.sleep', lambda _: None)
+    scopes = [EventSearchScope(id='original')]
+    types = ['incident']
+    if resource == 'events':
+        iterator = client.events.iter_search(
+            **{**_SEARCH, 'scopes': scopes}, event_types=types, page_size=2, page_token=_TOKEN, locale='ja-JP', max_pages=3
+        )
+        first = {**_EVENT, 'scope': _SCOPE}
+        second = {**first, 'status': 'resolved', 'scope': {'tenants': {'another': {}}}}
+    else:
+        iterator = client.tenants.iter_all(page_size=2, page_token=_TOKEN, locale='ja-JP', max_pages=3)
+        first, second = _TENANT, {**_TENANT, 'name': 'Second'}
+    scopes.clear()
+    types[:] = ['patch']
+    responses.extend(
+        [
+            httpx.Response(200, json={resource: [first, second], 'nextPageToken': ''}),
+            httpx.Response(503, headers={'Retry-After': '0'}),
+            httpx.Response(200, json={resource: [], 'nextPageToken': 'final'}),
+            httpx.Response(200, json={resource: [first]}),
+        ]
+    )
+
+    assert not requests
+    actual = [next(iterator), next(iterator)]
+    assert len(requests) == 1
+    actual.extend(iterator)
+    assert [item.model_dump(mode='json', by_alias=True, exclude_unset=True) for item in actual] == [first, second, first]
+    assert len(requests) == 4
+    assert requests[1].url == requests[2].url
+    assert requests[1].content == requests[2].content
+    for request, token in zip(requests, [_TOKEN, '', '', 'final'], strict=True):
+        if resource == 'events':
+            assert dict(request.url.params) == {'locale': 'ja-JP'}
+            assert json.loads(request.content) == {
+                'scopes': [{'type': 'tenant', 'id': 'original'}],
+                'eventTypes': ['incident'],
+                'startTime': _START.isoformat(),
+                'endTime': _END.isoformat(),
+                'pageToken': token,
+                'pageSize': 2,
+            }
+        else:
+            assert dict(request.url.params) == {'pageSize': '2', 'pageToken': token, 'locale': 'ja-JP'}
+
+
+@pytest.mark.parametrize('resource', ['tenants', 'events'])
+def test_early_exit_leaves_next_page_unrequested(api, resource: str) -> None:
+    client, requests, responses = api
+    if resource == 'events':
+        iterator = client.events.iter_search(**_SEARCH, page_token='')
+        item = {**_EVENT, 'scope': _SCOPE}
+    else:
+        iterator = client.tenants.iter_all(page_token='')
+        item = _TENANT
+    responses.append(httpx.Response(200, json={resource: [item], 'nextPageToken': _TOKEN}))
+    assert next(iterator)
+    (request,) = requests
+    params = json.loads(request.content) if resource == 'events' else dict(request.url.params)
+    assert params['pageToken'] == ''
+    assert 'pageSize' not in params
+    assert 'locale' not in request.url.params
+
+
+@pytest.mark.parametrize('resource', ['tenants', 'events'])
+@pytest.mark.parametrize(
+    ('start', 'tokens', 'limit', 'error', 'message'),
+    [
+        (None, [None], 1, None, None),
+        (None, [_TOKEN], 1, PaginationError, 'exceeded max_pages'),
+        (_TOKEN, [_TOKEN], 2, PaginationError, 'repeated a cursor'),
+        (None, [_TOKEN, 'other', _TOKEN], 4, PaginationError, 'repeated a cursor'),
+        (None, [_TOKEN, 400], 3, APIStatusError, 'HTTP 400'),
+    ],
+)
+def test_collectors_surface_pagination_failures(api, resource, start, tokens, limit, error, message) -> None:
+    client, requests, responses = api
+    for token in tokens:
+        if token == 400:
+            responses.append(httpx.Response(400, text='private-payload'))
+        else:
+            payload = {resource: []}
+            if token is not None:
+                payload['nextPageToken'] = token
+            responses.append(httpx.Response(200, json=payload))
+    collect, args = (client.events.search_all, _SEARCH) if resource == 'events' else (client.tenants.list_all, {})
+    if error is None:
+        assert collect(**args, page_token=start, max_pages=limit) == []
+    else:
+        with pytest.raises(error, match=message) as exc:
+            collect(**args, page_token=start, max_pages=limit)
+        _safe_error(exc.value)
+        if error is APIStatusError:
+            assert exc.value.status_code == 400
+    assert len(requests) == len(tokens)
+    for request, token in zip(requests, [start, *tokens[:-1]], strict=True):
+        params = json.loads(request.content) if resource == 'events' else request.url.params
+        assert params.get('pageToken') == token
+        assert 'pageSize' not in params
+
+
+@pytest.mark.parametrize('limit', [False, True, 0, -1, 1.0, '1', None])
+def test_pagination_rejects_invalid_limits_before_io(api, limit) -> None:
+    client, requests, _ = api
+    for iterator in (client.tenants.iter_all(max_pages=limit), client.events.iter_search(**_SEARCH, max_pages=limit)):
+        with pytest.raises(ConfigurationError, match='max_pages must be a positive integer'):
+            next(iterator)
+    assert not requests
+
+
+def test_iterator_yields_current_page_before_reporting_limit(api) -> None:
+    client, requests, responses = api
+    responses.append(httpx.Response(200, json={'tenants': [_TENANT], 'nextPageToken': _TOKEN}))
+    iterator = client.tenants.iter_all(max_pages=1)
+    assert next(iterator).id == _TENANT['id']
+    with pytest.raises(PaginationError) as exc:
+        next(iterator)
+    _safe_error(exc.value)
+    assert len(requests) == 1
