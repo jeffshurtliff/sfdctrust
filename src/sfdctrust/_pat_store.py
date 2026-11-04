@@ -70,3 +70,30 @@ class PATStore(Protocol):
                   and no write occurred. Raise if the outcome cannot be confirmed.
         """
         ...
+
+
+@runtime_checkable
+class AsyncPATStore(Protocol):
+    """Asynchronous durable, atomic store for one PAT lineage.
+
+    Provide the same strongly consistent reads and durable cross-process
+    compare-and-swap as ``PATStore``. Propagate cancellation. A cancelled
+    write can have committed, and pending state must survive process loss.
+    """
+
+    async def load(self) -> PATStoreRecord | None:
+        """Return the latest committed record, or None for an unseeded lineage."""
+        ...
+
+    async def compare_and_swap(
+        self, *, expected_revision: UUID, expected_attempt: UUID | None, replacement: PATStoreRecord
+    ) -> bool:
+        """Conditionally and durably replace the complete record.
+
+        :param expected_revision: Credential version that must still be current.
+        :param expected_attempt: Pending marker that must still match, including None.
+        :param replacement: Full next record, with the credential and marker written atomically.
+        :returns: True only after durable commit. False if the comparison failed
+                  and no write occurred. Raise if the outcome cannot be confirmed.
+        """
+        ...

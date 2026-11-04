@@ -13,7 +13,32 @@ from collections.abc import Iterator
 
 from .._transport import _Transport
 from ..models.tenants import Tenant, TenantDetail, TenantListResponse
-from ._requests import _id_segment, _iterate_pages, _locale_params, _page_params, _request_model
+from ._requests import _id_segment, _iterate_pages, _locale_params, _ModelRequest, _page_params
+
+
+def _tenant_list_request(
+    *, page_size: int | None = None, page_token: str | None = None, locale: str | None = None
+) -> _ModelRequest[TenantListResponse]:
+    params = _page_params(page_size, page_token)
+    params.update(_locale_params(locale))
+    return _ModelRequest(
+        'GET',
+        '/tenants',
+        TenantListResponse,
+        params=params,
+        response_error='My Trust Center returned an invalid tenant page.',
+        encoding_error='Tenant query arguments could not be encoded in a request URL.',
+    )
+
+
+def _tenant_detail_request(tenant_id: str, *, locale: str | None = None) -> _ModelRequest[TenantDetail]:
+    return _ModelRequest(
+        'GET',
+        f'/tenants/{_id_segment(tenant_id)}',
+        TenantDetail,
+        params=_locale_params(locale),
+        response_error='My Trust Center returned invalid tenant detail.',
+    )
 
 
 class TenantsResource:
@@ -36,17 +61,7 @@ class TenantsResource:
         :raises APIStatusError: If Salesforce rejects the request, including a stale cursor.
         :raises MalformedResponseError: If the response is invalid JSON or violates the tenant schema.
         """
-        params = _page_params(page_size, page_token)
-        params.update(_locale_params(locale))
-        return _request_model(
-            self._transport,
-            'GET',
-            '/tenants',
-            TenantListResponse,
-            params=params,
-            response_error='My Trust Center returned an invalid tenant page.',
-            encoding_error='Tenant query arguments could not be encoded in a request URL.',
-        )
+        return _tenant_list_request(page_size=page_size, page_token=page_token, locale=locale).send(self._transport)
 
     def iter_all(
         self,
@@ -97,11 +112,4 @@ class TenantsResource:
         :returns: Tenant detail with embedded events.
         :raises NotFoundError: If the tenant is nonexistent or unauthorized.
         """
-        return _request_model(
-            self._transport,
-            'GET',
-            f'/tenants/{_id_segment(tenant_id)}',
-            TenantDetail,
-            params=_locale_params(locale),
-            response_error='My Trust Center returned invalid tenant detail.',
-        )
+        return _tenant_detail_request(tenant_id, locale=locale).send(self._transport)

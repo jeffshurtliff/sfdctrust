@@ -93,6 +93,40 @@ with an ID from your tenant list. For search filters, paging, and field
 descriptions, see {doc}`../reference/events-and-status` and
 {doc}`../reference/tenants`.
 
+## Use asyncio for the same reads
+
+With `SFDCTRUST_PAT` configured, save this as a Python script and run it with
+Python 3.12 or later.
+
+```python
+import asyncio
+
+from sfdctrust import AsyncTrustCenterClient
+
+
+async def main():
+    async with AsyncTrustCenterClient.from_env() as client:
+        page = await client.tenants.list(page_size=5)
+        print("Tenants on this page", len(page.tenants))
+
+        snapshot = await client.status.snapshot()
+        print("Upcoming maintenance", len(snapshot.upcoming.maintenance))
+
+        async for tenant in client.tenants.iter_all(page_size=50):
+            print(tenant.id, tenant.name)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+Use `await client.tenants.list_all()` to collect pages into a list. Event
+search supports both `await client.events.search_all(...)` and
+`async for` over `client.events.iter_search(...)` with the search arguments
+above. The context closes the SDK-owned HTTP client on exit.
+See {doc}`../reference/package` for the async interface and
+{doc}`../reference/authentication` for async rotation.
+
 ## Rotate a PAT from a store
 
 Use the client from {doc}`setup`, Option B. Make sure the tenant listing

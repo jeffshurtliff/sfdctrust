@@ -7,6 +7,7 @@
 :Modified Date:     04 Nov 2026
 """
 
+from ._async_client import AsyncTrustCenterClient
 from ._client import TrustCenterClient
 from ._exceptions import (
     APIStatusError,
@@ -25,12 +26,13 @@ from ._exceptions import (
     TrustCenterError,
 )
 from ._pat_refresh import PATRefreshResult
-from ._pat_store import PATStore, PATStoreRecord
+from ._pat_store import AsyncPATStore, PATStore, PATStoreRecord
 from ._version import __version__
 
 __all__ = [
     '__version__',
     'TrustCenterClient',
+    'AsyncTrustCenterClient',
     'TrustCenterError',
     'ConfigurationError',
     'NetworkError',
@@ -42,6 +44,7 @@ __all__ = [
     'MalformedResponseError',
     'PaginationError',
     'PATStore',
+    'AsyncPATStore',
     'PATStoreRecord',
     'PATRefreshResult',
     'PATProbeResult',

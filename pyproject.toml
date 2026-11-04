@@ -92,6 +92,7 @@ indent-style = "space"
 line-ending = "lf"
 
 [tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"
 testpaths = ["tests/unit", "tests/integration"]
 addopts = "--import-mode=importlib"
 
@@ -107,6 +108,7 @@ dev = [
     "bandit (>=1.8,<2)",
     "twine (>=6.2,<7)",
     "poetry-core (>=2.2,<3) ; python_version >= \"3.12\" and python_version < \"4.0\"",
+    "pytest-asyncio (>=1,<2)",
 ]
 docs = [
     "sphinx (>=9.1,<10)",

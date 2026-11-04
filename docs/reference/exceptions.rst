@@ -44,6 +44,9 @@ A traversal raises ``PaginationError`` if a further page would reuse a cursor
 or exceed ``max_pages``. A lazy iterator may have already yielded items.
 A server rejection of a cursor with HTTP 400 raises ``APIStatusError``.
 
+Async task cancellation propagates as ``asyncio.CancelledError``.
+See :doc:`authentication` for the durable state left by interrupted rotation.
+
 .. autoclass:: sfdctrust.TrustCenterError
 .. autoclass:: sfdctrust.ConfigurationError
 .. autoclass:: sfdctrust.NetworkError

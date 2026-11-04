@@ -4,14 +4,24 @@
 :Synopsis:          Synchronous status snapshot
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     03 Nov 2026
+:Modified Date:     04 Nov 2026
 """
 
 from __future__ import annotations
 
 from .._transport import _Transport
 from ..models.status import StatusSnapshot
-from ._requests import _locale_params, _request_model
+from ._requests import _locale_params, _ModelRequest
+
+
+def _snapshot_request(*, locale: str | None = None) -> _ModelRequest[StatusSnapshot]:
+    return _ModelRequest(
+        'GET',
+        '/status',
+        StatusSnapshot,
+        params=_locale_params(locale),
+        response_error='My Trust Center returned an invalid status snapshot.',
+    )
 
 
 class StatusResource:
@@ -26,11 +36,4 @@ class StatusResource:
         :param locale: BCP 47 locale forwarded to Salesforce for fallback.
         :returns: The tenant-scoped status snapshot, including repeated events.
         """
-        return _request_model(
-            self._transport,
-            'GET',
-            '/status',
-            StatusSnapshot,
-            params=_locale_params(locale),
-            response_error='My Trust Center returned an invalid status snapshot.',
-        )
+        return _snapshot_request(locale=locale).send(self._transport)

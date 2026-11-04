@@ -86,6 +86,35 @@ def _require_ready(record: PATStoreRecord) -> None:
         raise PATRefreshPendingError('The PAT store has an unresolved rotation.')
 
 
+def _validate_refresh_days(days: int | None) -> None:
+    if days is not None and (type(days) is not int or not 1 <= days <= 30):
+        raise ConfigurationError('expires_in_days must be an integer from 1 through 30 or None.')
+
+
+def _replacement_write(current: PATStoreRecord, attempt: UUID, payload: dict[str, object] | None) -> _UnconfirmedWrite | None:
+    if payload is None:
+        return None
+    secret = _replacement_secret(payload, current.get_pat())
+    if secret is None:
+        return None
+    replacement = PATStoreRecord(uuid4(), secret)
+    result = PATRefreshResult(metadata_valid=_validate_metadata(payload))
+    return _UnconfirmedWrite(current.revision, attempt, replacement, result)
+
+
+def _probe_error(status: int | None) -> PATRefreshAmbiguousError:
+    probe = {200: PATProbeResult.OLD_PAT_ACCEPTED, 401: PATProbeResult.OLD_PAT_REJECTED}
+    return PATRefreshAmbiguousError(probe.get(status, PATProbeResult.INCONCLUSIVE))
+
+
+def _matches_replacement(current: PATStoreRecord, write: _UnconfirmedWrite) -> bool:
+    return (
+        current.revision == write.replacement.revision
+        and current.pending_attempt is None
+        and current.get_pat() == write.replacement.get_pat()
+    )
+
+
 class _StoredPAT:
     def __init__(self, store: PATStore) -> None:
         try:
@@ -167,15 +196,10 @@ class _StoredPAT:
                 raise AuthenticationError()
             raise RateLimitError()
 
-        secret = _replacement_secret(payload, old_pat) if payload is not None else None
-        if payload is None or secret is None:
-            probe_status = transport.probe_once(auth)
-            probe = {200: PATProbeResult.OLD_PAT_ACCEPTED, 401: PATProbeResult.OLD_PAT_REJECTED}
-            raise PATRefreshAmbiguousError(probe.get(probe_status, PATProbeResult.INCONCLUSIVE))
+        write = _replacement_write(current, attempt, payload)
+        if write is None:
+            raise _probe_error(transport.probe_once(auth))
 
-        replacement = PATStoreRecord(uuid4(), secret)
-        result = PATRefreshResult(metadata_valid=_validate_metadata(payload))
-        write = _UnconfirmedWrite(current.revision, attempt, replacement, result)
         self._unconfirmed = write
         return self._commit(write)
 
@@ -210,10 +234,6 @@ class _StoredPAT:
             raise PATPersistenceError('Could not read the PAT store to confirm the replacement.')
         if current.revision == write.revision and current.pending_attempt == write.attempt:
             return self._commit(write)
-        if (
-            current.revision == write.replacement.revision
-            and current.pending_attempt is None
-            and current.get_pat() == write.replacement.get_pat()
-        ):
+        if _matches_replacement(current, write):
             return self._finish(write)
         raise PATPersistenceError('The store changed while persistence was unresolved. Reconcile the store before use.')

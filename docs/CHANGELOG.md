@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
+- Added `AsyncTrustCenterClient` with native HTTPX asyncio support for all
+  five reads, lazy async pagination, and the synchronous client's retry rules.
+- Added `AsyncPATStore` and explicit async PAT refresh, with cancellation
+  handling and persistence-only recovery for a retained replacement.
+
 - Added explicit one-shot PAT refresh for `TrustCenterClient.from_store()` with
   an atomic versioned store contract, recovery probing, and persistence-only
   retry after an unconfirmed write.

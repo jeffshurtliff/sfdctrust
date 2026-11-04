@@ -1,20 +1,22 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust.resources._requests
-:Synopsis:          Shared synchronous resource request validation
+:Synopsis:          Shared resource request validation and pagination
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     03 Nov 2026
+:Modified Date:     04 Nov 2026
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable, Iterator, Mapping
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterator, Mapping
+from dataclasses import dataclass
 from urllib.parse import quote
 
 import httpx
 from pydantic import BaseModel, ValidationError
 
+from .._async_transport import _AsyncTransport
 from .._exceptions import ConfigurationError, MalformedResponseError, PaginationError
 from .._transport import _Transport
 
@@ -51,35 +53,56 @@ def _id_segment(identifier: str) -> str:
     raise ConfigurationError('The resource ID could not be encoded in a request URL.')
 
 
-def _request_model[Model: BaseModel](
-    transport: _Transport,
-    method: str,
-    path: str,
-    model: type[Model],
-    *,
-    params: Mapping[str, str | int],
-    response_error: str,
-    encoding_error: str = 'Request arguments could not be encoded.',
-    json_body: dict[str, object] | None = None,
-) -> Model:
-    try:
-        payload = transport.request(method, path, params=params, json_body=json_body)
-    except (UnicodeEncodeError, httpx.InvalidURL):
-        pass
-    else:
+@dataclass(frozen=True, slots=True)
+class _ModelRequest[Model: BaseModel]:
+    method: str
+    path: str
+    model: type[Model]
+    params: Mapping[str, str | int]
+    response_error: str
+    encoding_error: str = 'Request arguments could not be encoded.'
+    json_body: dict[str, object] | None = None
+
+    def send(self, transport: _Transport) -> Model:
         try:
-            return model.model_validate(payload)
+            payload = transport.request(self.method, self.path, params=self.params, json_body=self.json_body)
+        except (UnicodeEncodeError, httpx.InvalidURL):
+            pass
+        else:
+            return self._validate(payload)
+        raise ConfigurationError(self.encoding_error)
+
+    async def send_async(self, transport: _AsyncTransport) -> Model:
+        try:
+            payload = await transport.request(self.method, self.path, params=self.params, json_body=self.json_body)
+        except (UnicodeEncodeError, httpx.InvalidURL):
+            pass
+        else:
+            return self._validate(payload)
+        raise ConfigurationError(self.encoding_error)
+
+    def _validate(self, payload: object) -> Model:
+        try:
+            return self.model.model_validate(payload)
         except ValidationError:
             pass
-        raise MalformedResponseError(response_error)
-    raise ConfigurationError(encoding_error)
+        raise MalformedResponseError(self.response_error)
+
+
+def _validate_max_pages(max_pages: int) -> None:
+    if not isinstance(max_pages, int) or isinstance(max_pages, bool) or max_pages < 1:
+        raise ConfigurationError('max_pages must be a positive integer.')
+
+
+def _check_cursor(next_token: str, seen: set[str]) -> None:
+    if next_token in seen:
+        raise PaginationError('My Trust Center pagination repeated a cursor.')
 
 
 def _iterate_pages[Item](
     fetch: Callable[[str | None], tuple[list[Item], str | None]], page_token: str | None, max_pages: int
 ) -> Iterator[Item]:
-    if not isinstance(max_pages, int) or isinstance(max_pages, bool) or max_pages < 1:
-        raise ConfigurationError('max_pages must be a positive integer.')
+    _validate_max_pages(max_pages)
     seen: set[str] = set()
     for _ in range(max_pages):
         items, next_token = fetch(page_token)
@@ -88,7 +111,24 @@ def _iterate_pages[Item](
         yield from items
         if next_token is None:
             return
-        if next_token in seen:
-            raise PaginationError('My Trust Center pagination repeated a cursor.')
+        _check_cursor(next_token, seen)
+        page_token = next_token
+    raise PaginationError('My Trust Center pagination exceeded max_pages.')
+
+
+async def _iterate_pages_async[Item](
+    fetch: Callable[[str | None], Awaitable[tuple[list[Item], str | None]]], page_token: str | None, max_pages: int
+) -> AsyncIterator[Item]:
+    _validate_max_pages(max_pages)
+    seen: set[str] = set()
+    for _ in range(max_pages):
+        items, next_token = await fetch(page_token)
+        if page_token is not None:
+            seen.add(page_token)
+        for item in items:
+            yield item
+        if next_token is None:
+            return
+        _check_cursor(next_token, seen)
         page_token = next_token
     raise PaginationError('My Trust Center pagination exceeded max_pages.')

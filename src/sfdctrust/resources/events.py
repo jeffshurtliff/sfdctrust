@@ -17,7 +17,7 @@ from .._exceptions import ConfigurationError
 from .._transport import _Transport
 from ..models._wire import _parse_timestamp
 from ..models.events import EventDetail, EventSearchResponse, EventSearchResult, EventSearchScope, EventType
-from ._requests import _id_segment, _iterate_pages, _locale_params, _page_params, _request_model
+from ._requests import _id_segment, _iterate_pages, _locale_params, _ModelRequest, _page_params
 
 _EVENT_TYPES = frozenset(get_args(EventType))
 
@@ -33,6 +33,63 @@ def _search_window(start_time: datetime, end_time: datetime) -> tuple[str, str]:
             pass
     raise ConfigurationError(
         'Search requires aware start_time and end_time with minute-aligned offsets and start_time before end_time.'
+    )
+
+
+def _event_search_request(
+    *,
+    scopes: Sequence[EventSearchScope],
+    start_time: datetime,
+    end_time: datetime,
+    event_types: Sequence[EventType] | None = None,
+    page_size: int | None = None,
+    page_token: str | None = None,
+    locale: str | None = None,
+) -> _ModelRequest[EventSearchResponse]:
+    if not isinstance(scopes, Sequence) or not 1 <= len(scopes) <= 50:
+        raise ConfigurationError('scopes must contain one through 50 tenant scopes.')
+    scope_body = []
+    for scope in scopes:
+        if not isinstance(scope, EventSearchScope) or scope.type != 'tenant' or not isinstance(scope.id, str) or not scope.id:
+            raise ConfigurationError('Each scope must be an EventSearchScope with type tenant and a nonempty string ID.')
+        scope_body.append({'type': 'tenant', 'id': scope.id})
+
+    start, end = _search_window(start_time, end_time)
+    body: dict[str, object] = {
+        'scopes': scope_body,
+        'startTime': start,
+        'endTime': end,
+        **_page_params(page_size, page_token),
+    }
+    if event_types is not None:
+        if not isinstance(event_types, Sequence) or isinstance(event_types, str):
+            raise ConfigurationError('event_types must be a nonempty sequence of distinct supported event types.')
+        filters = list(event_types)
+        if (
+            not filters
+            or any(not isinstance(value, str) or value not in _EVENT_TYPES for value in filters)
+            or len(set(filters)) != len(filters)
+        ):
+            raise ConfigurationError('event_types must be a nonempty sequence of distinct supported event types.')
+        body['eventTypes'] = filters
+
+    return _ModelRequest(
+        'POST',
+        '/events/search',
+        EventSearchResponse,
+        params=_locale_params(locale),
+        json_body=body,
+        response_error='My Trust Center returned an invalid event search page.',
+    )
+
+
+def _event_detail_request(event_id: str, *, locale: str | None = None) -> _ModelRequest[EventDetail]:
+    return _ModelRequest(
+        'GET',
+        f'/events/{_id_segment(event_id)}',
+        EventDetail,
+        params=_locale_params(locale),
+        response_error='My Trust Center returned invalid event detail.',
     )
 
 
@@ -66,42 +123,15 @@ class EventsResource:
         :raises ConfigurationError: If a supplied argument is invalid.
         :raises APIStatusError: If Salesforce rejects the request or cursor.
         """
-        if not isinstance(scopes, Sequence) or not 1 <= len(scopes) <= 50:
-            raise ConfigurationError('scopes must contain one through 50 tenant scopes.')
-        scope_body = []
-        for scope in scopes:
-            if not isinstance(scope, EventSearchScope) or scope.type != 'tenant' or not isinstance(scope.id, str) or not scope.id:
-                raise ConfigurationError('Each scope must be an EventSearchScope with type tenant and a nonempty string ID.')
-            scope_body.append({'type': 'tenant', 'id': scope.id})
-
-        start, end = _search_window(start_time, end_time)
-        body: dict[str, object] = {
-            'scopes': scope_body,
-            'startTime': start,
-            'endTime': end,
-            **_page_params(page_size, page_token),
-        }
-        if event_types is not None:
-            if not isinstance(event_types, Sequence) or isinstance(event_types, str):
-                raise ConfigurationError('event_types must be a nonempty sequence of distinct supported event types.')
-            filters = list(event_types)
-            if (
-                not filters
-                or any(not isinstance(value, str) or value not in _EVENT_TYPES for value in filters)
-                or len(set(filters)) != len(filters)
-            ):
-                raise ConfigurationError('event_types must be a nonempty sequence of distinct supported event types.')
-            body['eventTypes'] = filters
-
-        return _request_model(
-            self._transport,
-            'POST',
-            '/events/search',
-            EventSearchResponse,
-            params=_locale_params(locale),
-            json_body=body,
-            response_error='My Trust Center returned an invalid event search page.',
-        )
+        return _event_search_request(
+            scopes=scopes,
+            start_time=start_time,
+            end_time=end_time,
+            event_types=event_types,
+            page_size=page_size,
+            page_token=page_token,
+            locale=locale,
+        ).send(self._transport)
 
     def iter_search(
         self,
@@ -195,11 +225,4 @@ class EventsResource:
         :returns: The event detail and its optional timeline.
         :raises NotFoundError: If the event is nonexistent or unauthorized.
         """
-        return _request_model(
-            self._transport,
-            'GET',
-            f'/events/{_id_segment(event_id)}',
-            EventDetail,
-            params=_locale_params(locale),
-            response_error='My Trust Center returned invalid event detail.',
-        )
+        return _event_detail_request(event_id, locale=locale).send(self._transport)

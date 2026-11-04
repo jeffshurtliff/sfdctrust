@@ -44,6 +44,11 @@ client.events.get(event_id: str, *, locale: str | None = None) -> EventDetail
 Import `StatusSnapshot` and `EventTypeBuckets` from `sfdctrust.models.status`.
 Import the other types on this page from `sfdctrust.models.events`.
 
+With `AsyncTrustCenterClient`, await `snapshot()`, `search()`,
+`search_all()`, and `get()`. Consume `iter_search()` directly with
+`async for`. It copies the scope and event type sequences when called,
+and fetches the first page when iteration advances.
+
 ## Status snapshot
 
 `StatusSnapshot.ongoing` and `StatusSnapshot.upcoming` are `EventTypeBuckets`.

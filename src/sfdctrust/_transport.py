@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 :Module:            sfdctrust._transport
-:Synopsis:          Internal synchronous HTTP transport for My Trust Center
+:Synopsis:          Internal HTTP transport and shared request policies for My Trust Center
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
 :Modified Date:     04 Nov 2026
@@ -141,6 +141,88 @@ def _refresh_fields(pairs: list[tuple[str, object]]) -> dict[str, object]:
     return fields
 
 
+_QueryParams = httpx.QueryParams | Mapping[str, str | int | float | bool | None]
+_READ_EXCEPTIONS = (ValueError, RecursionError, httpx.RequestError)
+
+
+def _validate_max_retries(max_retries: int) -> int:
+    if not isinstance(max_retries, int) or isinstance(max_retries, bool) or not 0 <= max_retries <= 5:
+        raise ConfigurationError('max_retries must be an integer from 0 through 5.')
+    return max_retries
+
+
+def _request_timeout(timeout: httpx.Timeout | None) -> httpx.Timeout:
+    result = httpx.Timeout(30.0, connect=5.0, pool=5.0) if timeout is None else httpx.Timeout(timeout)
+    if any(value is None or not math.isfinite(value) or value <= 0 for value in result.as_dict().values()):
+        raise ConfigurationError('HTTP timeouts must be finite and positive.')
+    return result
+
+
+def _pool_limits() -> httpx.Limits:
+    return httpx.Limits(max_connections=20, max_keepalive_connections=10)
+
+
+def _build_request(
+    method: str, url: httpx.URL, timeout: httpx.Timeout, *, params: _QueryParams | None = None, json_body: Any = None
+) -> httpx.Request:
+    return httpx.Request(
+        method,
+        url,
+        params=params,
+        json=json_body,
+        headers={'Accept': 'application/json', 'User-Agent': f'{PACKAGE_NAME}/{__version__}'},
+        extensions={'timeout': timeout.as_dict()},
+    )
+
+
+def _status_failure(response: httpx.Response) -> tuple[TrustCenterError, bool, str | None]:
+    status = response.status_code
+    if status in _STATUS_ERRORS:
+        error: TrustCenterError = _STATUS_ERRORS[status]()
+    elif response.is_error:
+        error = APIStatusError(status)
+    else:
+        error = TrustCenterError('My Trust Center API returned an unexpected HTTP status.')
+    retry_after = response.headers.get('Retry-After') if status in {429, 503} else None
+    return error, status in _RETRY_STATUSES, retry_after
+
+
+def _read_failure(exc: Exception) -> tuple[TrustCenterError, bool]:
+    if isinstance(exc, httpx.TimeoutException):
+        return RequestTimeoutError('My Trust Center request timed out.'), True
+    if isinstance(exc, (ValueError, RecursionError, httpx.DecodingError)):
+        return MalformedResponseError('My Trust Center returned an invalid JSON response.'), False
+    return NetworkError('My Trust Center request could not complete.'), isinstance(exc, httpx.ConnectError)
+
+
+def _retry_delay(attempt: int, retry_after: str | None) -> float:
+    delay = _retry_after(retry_after)
+    if delay is None:
+        jitter = random.uniform(0, _MAX_JITTER)  # nosec B311
+        delay = 0.5 * 2**attempt + jitter
+    return delay
+
+
+def _decode_json(content: bytes) -> Any:
+    return json.loads(content.decode('utf-8'), parse_constant=_reject_json_constant)
+
+
+def _refresh_body(days: int | None) -> dict[str, int] | None:
+    return None if days is None else {'expiresInDays': days}
+
+
+def _decode_refresh(content: bytes) -> dict[str, object] | None:
+    payload = json.loads(
+        content.decode('utf-8'),
+        parse_constant=_reject_json_constant,
+        # Refresh fields are strings. Invalid numeric metadata must not lose the secret.
+        parse_int=lambda _: None,
+        parse_float=lambda _: None,
+        object_pairs_hook=_refresh_fields,
+    )
+    return payload if isinstance(payload, dict) else None
+
+
 class _Transport:
     """Send synchronous requests using one SDK-owned or trusted injected client.
 
@@ -158,19 +240,11 @@ class _Transport:
         timeout: httpx.Timeout | None = None,
         max_retries: int = 2,
     ) -> None:
-        if not isinstance(max_retries, int) or isinstance(max_retries, bool) or not 0 <= max_retries <= 5:
-            raise ConfigurationError('max_retries must be an integer from 0 through 5.')
-        self._max_retries = max_retries
+        self._max_retries = _validate_max_retries(max_retries)
         self._auth = auth
-        self._timeout = httpx.Timeout(30.0, connect=5.0, pool=5.0) if timeout is None else httpx.Timeout(timeout)
-        if any(value is None or not math.isfinite(value) or value <= 0 for value in self._timeout.as_dict().values()):
-            raise ConfigurationError('HTTP timeouts must be finite and positive.')
+        self._timeout = _request_timeout(timeout)
         self._owns_client = client is None
-        self._client = (
-            httpx.Client(trust_env=False, limits=httpx.Limits(max_connections=20, max_keepalive_connections=10))
-            if client is None
-            else client
-        )
+        self._client = httpx.Client(trust_env=False, limits=_pool_limits()) if client is None else client
 
     def close(self) -> None:
         """Close the SDK-owned client."""
@@ -183,29 +257,12 @@ class _Transport:
     def __exit__(self, *_: object) -> None:
         self.close()
 
-    def _build_request(
-        self,
-        method: str,
-        url: httpx.URL,
-        *,
-        params: httpx.QueryParams | Mapping[str, str | int | float | bool | None] | None = None,
-        json_body: Any = None,
-    ) -> httpx.Request:
-        return httpx.Request(
-            method,
-            url,
-            params=params,
-            json=json_body,
-            headers={'Accept': 'application/json', 'User-Agent': f'{PACKAGE_NAME}/{__version__}'},
-            extensions={'timeout': self._timeout.as_dict()},
-        )
-
     def _send(self, request: httpx.Request, auth: PATAuth) -> httpx.Response:
         return self._client.send(request, auth=auth, follow_redirects=False, stream=True)
 
     def refresh_once(self, auth: PATAuth, days: int | None) -> tuple[int | None, dict[str, object] | None]:
         """Use the fixed refresh destination exactly once, decoding only success."""
-        body = None if days is None else {'expiresInDays': days}
+        body = _refresh_body(days)
         return self._send_pat_operation('POST', _REFRESH_URL, auth, json_body=body)
 
     def probe_once(self, auth: PATAuth) -> int | None:
@@ -218,23 +275,14 @@ class _Transport:
     ) -> tuple[int | None, dict[str, object] | None]:
         status = None
         try:
-            response = self._send(self._build_request(method, url, json_body=json_body), auth)
+            response = self._send(_build_request(method, url, self._timeout, json_body=json_body), auth)
         except Exception:
             # Hooks and custom transports can raise arbitrary exceptions containing secrets.
             return None, None
         try:
             status = response.status_code
             if method == 'POST' and response.is_success:
-                payload = json.loads(
-                    response.read().decode('utf-8'),
-                    parse_constant=_reject_json_constant,
-                    # Refresh fields are strings. Invalid numeric metadata must not lose the secret.
-                    parse_int=lambda _: None,
-                    parse_float=lambda _: None,
-                    object_pairs_hook=_refresh_fields,
-                )
-                if isinstance(payload, dict):
-                    return status, payload
+                return status, _decode_refresh(response.read())
         except Exception:
             return status, None
         finally:
@@ -248,7 +296,7 @@ class _Transport:
         method: str,
         path: str,
         *,
-        params: httpx.QueryParams | Mapping[str, str | int | float | bool | None] | None = None,
+        params: _QueryParams | None = None,
         json_body: Any = None,
     ) -> Any:
         """Send an API-relative request and return its decoded JSON."""
@@ -257,42 +305,22 @@ class _Transport:
         retryable = _can_retry(method, url.path.removeprefix(_BASE.path))
 
         for attempt in range(self._max_retries + 1):
-            retry_after = None
-            request = self._build_request(method, url, params=params, json_body=json_body)
+            request = _build_request(method, url, self._timeout, params=params, json_body=json_body)
             auth = self._auth if isinstance(self._auth, PATAuth) else self._auth()
             try:
                 response = self._send(request, auth)
                 try:
-                    status = response.status_code
                     if response.is_success:
-                        return json.loads(response.read().decode('utf-8'), parse_constant=_reject_json_constant)
-                    if status in _STATUS_ERRORS:
-                        error: TrustCenterError = _STATUS_ERRORS[status]()
-                    elif response.is_error:
-                        error = APIStatusError(status)
-                    else:
-                        error = TrustCenterError('My Trust Center API returned an unexpected HTTP status.')
-                    transient = status in _RETRY_STATUSES
-                    if retryable and attempt < self._max_retries and status in {429, 503}:
-                        retry_after = response.headers.get('Retry-After')
+                        return _decode_json(response.read())
+                    error, transient, retry_after = _status_failure(response)
                 finally:
                     response.close()
-            except httpx.TimeoutException:
-                error = RequestTimeoutError('My Trust Center request timed out.')
-                transient = True
-            except (ValueError, RecursionError, httpx.DecodingError):
-                error = MalformedResponseError('My Trust Center returned an invalid JSON response.')
-                transient = False
-            except httpx.RequestError as exc:
-                error = NetworkError('My Trust Center request could not complete.')
-                transient = isinstance(exc, httpx.ConnectError)
+            except _READ_EXCEPTIONS as exc:
+                error, transient = _read_failure(exc)
+                retry_after = None
 
             if not retryable or not transient or attempt == self._max_retries:
                 raise error
-            delay = _retry_after(retry_after)
-            if delay is None:
-                jitter = random.uniform(0, _MAX_JITTER)  # nosec B311
-                delay = 0.5 * 2**attempt + jitter
-            time.sleep(delay)
+            time.sleep(_retry_delay(attempt, retry_after))
 
         raise AssertionError('Unreachable retry state.')

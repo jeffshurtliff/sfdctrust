@@ -1,7 +1,7 @@
 # My Trust Center API contract
 
-The synchronous SDK implements all five documented read operations. The inventory
-also covers explicit PAT refresh.
+The synchronous and asynchronous clients implement all five documented read
+operations and explicit store-backed PAT refresh.
 
 ## Sources and verification boundary
 
@@ -200,7 +200,7 @@ The Pydantic lower bound is retained from this repository. Use HTTPX's pool, exp
 and `MockTransport`; use Pydantic v2 validation/serialization directly. Let those packages
 manage their own `pydantic-core`, `typing-extensions`, and concurrency dependencies.
 Existing pytest, coverage, Ruff, Bandit, Twine, and optional Sphinx tooling are retained.
-RESPX, pytest-asyncio, JWT, dotenv, retry frameworks, and AI dependencies are unnecessary now.
+Milestone 8 adds pytest-asyncio to the development group for offline async tests.
 A type checker and its configuration are a separate tooling decision.
 See [HTTPX](https://www.python-httpx.org/) and
 [Pydantic models](https://docs.pydantic.dev/latest/concepts/models/).
@@ -222,8 +222,8 @@ search each offer a single-page method and traversal helpers.
 
 | Area | SDK policy |
 | --- | --- |
-| Credentials | Explicit required `pat` for construction; opt-in `from_env()` reads only `SFDCTRUST_PAT`. An explicit override takes precedence; empty overrides fail rather than silently fall back. No `.env` loading, JWT parsing, provider framework, or refresh. Hide the PAT from repr/logs/errors. |
-| Ownership | Internally created `httpx.Client` is SDK-owned and closed by `close()`/context exit; caller-supplied client remains caller-owned. No network I/O at construction. |
+| Credentials | Explicit required `pat` for construction; opt-in `from_env()` reads only `SFDCTRUST_PAT`. An explicit override takes precedence; empty overrides fail rather than silently fall back. Store-backed mode uses its configured store as the sole PAT source. Hide the PAT from repr/logs/errors. |
+| Ownership | Internally created `httpx.Client` and `httpx.AsyncClient` instances are SDK-owned and closed by `close()`, `await aclose()`, or context exit. Injected clients remain caller-owned. Construction makes no network requests. |
 | Network defaults | Connect and pool timeouts default to 5 seconds, read and write to 30 seconds. The owned pool allows 20 total and 10 idle connections. Two retries by default, configurable from 0 to 5. Fallback waits start at 0.5 seconds and double, plus up to 0.25 seconds of jitter. Applicable `Retry-After` waits are capped at 30 seconds. |
 | Safe retry classification | Retry the five documented reads on connection establishment failures, timeouts, and HTTP 429/500/502/503/504. Other errors fail immediately. The transport rejects PAT refresh. |
 | Credential destination | Fixed production HTTPS origin and API base path with redirects disabled per request. The owned client verifies TLS and ignores environment proxy and CA settings. Injection requires a trusted client. |
@@ -361,6 +361,29 @@ until it confirms persistence. Recovery of the held replacement uses the
 original attempt and candidate revision, with no additional POST. See the
 [authentication reference](reference/authentication.md) for the public
 adapter guarantees and recovery runbook.
+
+### Asynchronous client (2026-11-04)
+
+`AsyncTrustCenterClient` implements the merged synchronous wire contract
+using native HTTPX asyncio I/O. The five reads share request preparation,
+validation, model parsing, and retry decisions with the sync client. The
+resource methods and collectors are awaited. The traversal factories return
+lazy async iterators directly, with search sequences copied at iterator
+creation and fetches starting on first advancement. Cancellation propagates
+from requests, backoff, and traversal.
+
+`await AsyncTrustCenterClient.from_store(store, ...)` awaits an explicit
+`AsyncPATStore` that provides the same strongly consistent load and durable
+CAS semantics as `PATStore`. Refresh awaits marker confirmation before one
+POST, preserves unresolved attempts after cancellation or ambiguous outcomes,
+and retains a decoded usable replacement before another await. Persistence
+recovery reconciles the exact attempt or committed replacement with store
+I/O alone. See the
+[authentication reference](reference/authentication.md#async-store-backed-clients).
+
+Milestone 8 preserves the existing API methods, fields, and errors. The
+wire details above retain their original Salesforce guide and local vendor
+YAML provenance.
 
 ## Validation of the original foundation
 
