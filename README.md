@@ -17,16 +17,16 @@ through their detail operations.
 The API exposes only tenants authorized by the caller's personal access token (PAT);
 empty results do not establish Salesforce-wide health.
 
-See the [API contract and implementation decisions](https://sfdctrust.readthedocs.io/en/latest/API_CONTRACT.html) for the verified
+See the [API contract and implementation decisions](https://sfdctrust.readthedocs.io/en/stable/API_CONTRACT.html) for the verified
 operation inventory, schema notes, and authentication rules.
 
 ## Quickstart
 
 Install from PyPI with `python -m pip install sfdctrust` on Python 3.12 or later.
 Set `SFDCTRUST_PAT` in the process environment using a PAT from My Trust Center.
-For installation in a virtual environment, see [Installation](https://sfdctrust.readthedocs.io/en/latest/getting-started/installation.html).
+For installation in a virtual environment, see [Installation](https://sfdctrust.readthedocs.io/en/stable/getting-started/installation.html).
 For creating a PAT and entering it at a hidden prompt, see
-[Prepare to use sfdctrust](https://sfdctrust.readthedocs.io/en/latest/getting-started/setup.html).
+[Prepare to use sfdctrust](https://sfdctrust.readthedocs.io/en/stable/getting-started/setup.html).
 
 ```python
 from sfdctrust import TrustCenterClient
@@ -40,8 +40,8 @@ If you use `client.tenants.list()` to fetch a single page and `page.next_page_to
 is set, request the next page with
 `client.tenants.list(page_token=page.next_page_token)` inside the same context.
 If you supplied `page_size` or `locale` on the first call, repeat those values.
-See the [quickstart](https://sfdctrust.readthedocs.io/en/latest/getting-started/quickstart.html) and
-[tenant reference](https://sfdctrust.readthedocs.io/en/latest/reference/tenants.html) for details.
+See the [quickstart](https://sfdctrust.readthedocs.io/en/stable/getting-started/quickstart.html) and
+[tenant reference](https://sfdctrust.readthedocs.io/en/stable/reference/tenants.html) for details.
 
 ## Use the asynchronous client
 
@@ -66,7 +66,7 @@ if __name__ == '__main__':
 Await single-page methods and the `list_all()` and `search_all()` collectors.
 Consume `iter_all()` and `iter_search()` directly with `async for`.
 Both clients use the same arguments, response models, and retry rules.
-[Package reference](https://sfdctrust.readthedocs.io/en/latest/reference/package.html)
+[Package reference](https://sfdctrust.readthedocs.io/en/stable/reference/package.html)
 
 ## Read status, search events, and inspect details
 
@@ -127,7 +127,7 @@ cover the preceding 365 days. The PAT determines which tenants and events
 are visible. An empty snapshot bucket, search page, or history establishes
 no Salesforce-wide health claim.
 
-See the [status and event reference](https://sfdctrust.readthedocs.io/en/latest/reference/events-and-status.html) for signatures and models.
+See the [status and event reference](https://sfdctrust.readthedocs.io/en/stable/reference/events-and-status.html) for signatures and models.
 
 ## Rotate a PAT explicitly
 
@@ -136,13 +136,13 @@ caller-supplied adapter that provides durable atomic updates shared by all
 rotators of the PAT. Call `client.refresh_pat(expires_in_days=7)` to save and
 activate a replacement. It sends one POST and returns a secret-free
 `PATRefreshResult`. The constructor and `from_env()` remain static credential
-modes. See the [authentication reference](https://sfdctrust.readthedocs.io/en/latest/reference/authentication.html)
+modes. See the [authentication reference](https://sfdctrust.readthedocs.io/en/stable/reference/authentication.html)
 for the adapter contract and recovery runbook. To create and seed a working
-local test store, follow [Prepare to use sfdctrust](https://sfdctrust.readthedocs.io/en/latest/getting-started/setup.html).
+local test store, follow [Prepare to use sfdctrust](https://sfdctrust.readthedocs.io/en/stable/getting-started/setup.html).
 
 For asyncio, use `await AsyncTrustCenterClient.from_store(store)` with an
 `AsyncPATStore`, then await rotation and any persistence recovery.
-[Async adapter contract and cancellation recovery](https://sfdctrust.readthedocs.io/en/latest/reference/authentication.html#async-store-backed-clients)
+[Async adapter contract and cancellation recovery](https://sfdctrust.readthedocs.io/en/stable/reference/authentication.html#async-store-backed-clients)
 
 ## Development
 
@@ -159,9 +159,9 @@ poetry build
 
 The SDK uses HTTPX and Pydantic v2. Tests run offline with synthetic PATs.
 
-The [exception hierarchy](https://sfdctrust.readthedocs.io/en/latest/reference/exceptions.html) is available from `sfdctrust`, including
+The [exception hierarchy](https://sfdctrust.readthedocs.io/en/stable/reference/exceptions.html) is available from `sfdctrust`, including
 `ConfigurationError`, `AuthenticationError`, and the shared `TrustCenterError` base.
-See [authentication](https://sfdctrust.readthedocs.io/en/latest/reference/authentication.html) for the implemented boundaries.
+See [authentication](https://sfdctrust.readthedocs.io/en/stable/reference/authentication.html) for the implemented boundaries.
 
 The documentation uses Sphinx with the optional `docs` dependency group:
 
@@ -170,4 +170,4 @@ poetry install --with docs
 poetry run sphinx-build -W --keep-going -E -a -b html docs docs/_build/html
 ```
 
-See [Maintain the documentation](https://sfdctrust.readthedocs.io/en/latest/maintainers/documentation.html) for details.
+See [Maintain the documentation](https://sfdctrust.readthedocs.io/en/stable/maintainers/documentation.html) for details.
