@@ -47,6 +47,8 @@ dependencies = [
 ]
 
 [project.urls]
+Documentation = "https://sfdctrust.readthedocs.io/en/stable/"
+Changelog = "https://sfdctrust.readthedocs.io/en/latest/CHANGELOG.html"
 Repository = "https://github.com/jeffshurtliff/sfdctrust"
 Issues = "https://github.com/jeffshurtliff/sfdctrust/issues"
 
