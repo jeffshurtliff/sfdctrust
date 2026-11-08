@@ -120,8 +120,8 @@ For a second PAT lineage, choose an alias:
 python -m sfdctrust.pat_store init --alias secondary
 ```
 
-Open that store with `SQLitePATStore(alias='secondary')`. It uses
-`~/.sfdctrust/secondary.sqlite3`. Aliases accept letters, numbers, hyphens,
+The `secondary` alias uses `~/.sfdctrust/secondary.sqlite3`.
+Aliases accept letters, numbers, hyphens,
 and underscores; Windows reserved names such as `CON` are rejected.
 An alias selects a different store; it does not copy an existing PAT.
 
@@ -131,7 +131,6 @@ For a different encrypted local location, use a full database filename:
 python -m sfdctrust.pat_store init --path "path/to/private-folder/pat.sqlite3"
 ```
 
-Open it with `SQLitePATStore('path/to/private-folder/pat.sqlite3')`.
 The command can create the final private folder when its parent exists.
 It checks existing folders instead of changing their permissions. Use either
 `--path` or `--alias`.
@@ -140,6 +139,22 @@ For a job whose environment already contains the initial PAT, add `--from-env`
 to read `SFDCTRUST_PAT`, or `--from-env=SFDCTRUST_PAT_ALT` to select another variable.
 These options save that value once. They do not change the environment or
 keep it updated after refresh. There is no command-line argument for the PAT itself.
+
+### Opening an existing store
+
+When opening an existing store in Python, use the same path or alias you
+used during initialization. If you leveraged the default path and alias with 
+`init` then you can open the store with `store = SQLitePATStore()` without needing 
+to pass any parameters.
+
+For stores created in a non-default directory or with a non-default alias, you will 
+need to pass either the `path` or `alias` parameter when calling `SQLitePATStore()`.
+
+Since `path` is the first argument, you can pass
+it positionally as `store = SQLitePATStore('path/to/private-folder/pat.sqlite3')`
+or explicitly as `store = SQLitePATStore(path='path/to/private-folder/pat.sqlite3')`.
+Both forms open the same database. To open a store in the default `~/.sfdctrust/` directory 
+by its alias, use `store = SQLitePATStore(alias='secondary')`.
 
 ### If initialization fails
 
