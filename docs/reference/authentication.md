@@ -108,6 +108,10 @@ the PAT from malicious code running as you or from privileged administrators.
 | macOS and Linux | Current-user ownership, no group/other mode permissions on the directory or files; newly created directories use `0700`, files `0600`. macOS extended allow ACLs are conservatively rejected, including on containing directories. Deny-only ACLs are permitted. |
 | Windows | A local filesystem with persistent ACL support, current-user ownership of the store directory and database, and protected DACLs. Allow entries may name only the current user, SYSTEM, or Administrators. SQLite journals may have a trusted privileged owner and inherited restricted ACLs. Unsupported ACE types, broad grants, and null DACLs are rejected. No administrator elevation is requested. |
 
+On Windows, an `OWNER RIGHTS` entry applies to the verified owner of the
+object. This supports private containing directories created by Python's
+`tempfile` module.
+
 Plain SQLite does not encrypt the PAT. The operator must select a private,
 encrypted local volume (for example, FileVault or BitLocker). Encryption
 protects a locked volume; it does not prevent access by authorized accounts

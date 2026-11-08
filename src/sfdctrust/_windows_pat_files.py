@@ -153,6 +153,9 @@ class _WindowsFiles:
             # SQLite-created journals can inherit an elevated token's default Administrators owner
             # Their grants must still be strictly private
             self._require(self._sid(owner) in ({self.user} if protected else trusted))
+            # OWNER RIGHTS grants apply to the verified owner. CPython uses this
+            # SID on private directories created by tempfile and mkdir(mode=0o700).
+            trusted.add('S-1-3-4')
             control, revision = w.WORD(), w.DWORD()
             self._require(self.security.GetSecurityDescriptorControl(descriptor, c.byref(control), c.byref(revision)))
             if protected:
