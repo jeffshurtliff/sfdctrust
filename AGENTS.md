@@ -354,3 +354,8 @@ including the corresponding label for the AI agent when available. For example:
 At the end of each task, summarize: what changed; user-visible/API implications; tests, lint, build, and docs 
 checks run (with results); anything intentionally not run; unresolved assumptions or risks; and whether changes 
 are uncommitted. Never claim a release, GitHub update, or live Salesforce verification without evidence.
+
+<!-- entire-agent:begin -->
+Read .entire/agent-guide.md for this repository's workflow, source inspection, and verification guidance.
+@.entire/agent-guide.md
+<!-- entire-agent:end -->

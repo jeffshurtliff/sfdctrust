@@ -69,3 +69,7 @@ Codex. Only update headers of files you actually change.
 - Use subagents for broad read-only exploration if needed, but keep design decisions and edits in the
   main session so they follow this file.
 - Finish every task with the completion handoff described in `AGENTS.md`.
+
+<!-- entire-agent:begin -->
+<!-- Entire agent instructions are inherited through AGENTS.md. -->
+<!-- entire-agent:end -->
