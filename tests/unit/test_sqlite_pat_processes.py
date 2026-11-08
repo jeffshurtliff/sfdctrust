@@ -138,27 +138,20 @@ def test_two_processes_can_send_only_one_refresh_post(tmp_path) -> None:
     context = multiprocessing.get_context('spawn')
     barrier, release = context.Barrier(2), context.Event()
     with _children(_refresh_worker, [(path, barrier, release)] * 2) as (children, channels):
-        first = []
+        reported = {}
         remaining = channels.copy()
         try:
             while remaining:
                 ready = wait(remaining, timeout=15)
                 assert ready
                 for channel in ready:
-                    first.append(_receive(channel))
+                    reported[_receive(channel)] = channel
                     remaining.remove(channel)
-            assert sorted(first) == ['POST', 'blocked']
+            assert set(reported) == {'POST', 'blocked'}
         finally:
             release.set()
-        # Find the winner by readiness; the loser has exited and its pipe is at EOF
-        saved = []
-        for channel in channels:
-            try:
-                if channel.poll(15):
-                    saved.append(channel.recv())
-            except EOFError:
-                pass
-        assert saved == ['saved']
+        # Only the POST worker can report a save. The blocked worker may have closed its pipe.
+        assert _receive(reported['POST']) == 'saved'
         for child in children:
             child.join(timeout=15)
             assert child.exitcode == 0
