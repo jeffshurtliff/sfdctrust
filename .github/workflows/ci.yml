@@ -2,7 +2,41 @@ name: SDK validation
 
 on:
   push:
+    paths-ignore:
+      - README.md
+      - CONTRIBUTING.md
+      - AGENTS.md
+      - CLAUDE.md
+      - GEMINI.md
+      - LICENSE
+      - docs/**
+      - examples/**
+      - .agents/**
+      - .claude/**
+      - .codex/**
+      - .entire/**
+      - .gemini/**
+      - .github/ISSUE_TEMPLATE/**
+      - .gitignore
+      - .readthedocs.yaml
   pull_request:
+    paths-ignore:
+      - README.md
+      - CONTRIBUTING.md
+      - AGENTS.md
+      - CLAUDE.md
+      - GEMINI.md
+      - LICENSE
+      - docs/**
+      - examples/**
+      - .agents/**
+      - .claude/**
+      - .codex/**
+      - .entire/**
+      - .gemini/**
+      - .github/ISSUE_TEMPLATE/**
+      - .gitignore
+      - .readthedocs.yaml
   workflow_dispatch:
 
 permissions:
