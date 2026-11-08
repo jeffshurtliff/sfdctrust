@@ -52,21 +52,29 @@ coverage.xml
 .pytest_cache/
 cover/
 
+# General logs
+*.log
+
 # Translations
 *.mo
 *.pot
 
-# Django stuff:
-*.log
+# Django
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
-# Flask stuff:
+# Local PAT stores and SQLite sidecars (never source fixtures)
+*.sqlite3
+*.sqlite3-journal
+*.sqlite3-wal
+*.sqlite3-shm
+
+# Flask
 instance/
 .webassets-cache
 
-# Scrapy stuff:
+# Scrapy
 .scrapy
 
 # Sphinx documentation
@@ -93,7 +101,7 @@ ipython_config.py
 # PEP 582; used by e.g. github.com/David-OConnor/pyflow and github.com/pdm-project/pdm
 __pypackages__/
 
-# Celery stuff
+# Celery
 celerybeat-schedule
 celerybeat.pid
 
@@ -162,7 +170,7 @@ tempCodeRunnerFile.py
 #   Learn more at https://abstra.io/docs
 .abstra/
 
-# Ruff stuff:
+# Ruff
 .ruff_cache/
 
 # PyPI configuration file

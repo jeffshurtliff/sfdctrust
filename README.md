@@ -7,8 +7,8 @@
 
 # sfdctrust
 
-An unofficial, community-maintained Python SDK project for the **Salesforce My Trust Center
-API**. It is not affiliated with or supported by Salesforce.
+An unofficial, community-maintained Python SDK project for the **Salesforce My Trust Center API**. 
+It is not affiliated with or supported by Salesforce.
 
 The synchronous and asynchronous clients list authorized tenants, retrieve
 status snapshots, search events, and return event timelines and tenant history
@@ -17,8 +17,11 @@ through their detail operations.
 The API exposes only tenants authorized by the caller's personal access token (PAT);
 empty results do not establish Salesforce-wide health.
 
-See the [API contract and implementation decisions](https://sfdctrust.readthedocs.io/en/stable/API_CONTRACT.html) for the verified
-operation inventory, schema notes, and authentication rules.
+See the [API contract and implementation decisions](https://sfdctrust.readthedocs.io/en/stable/API_CONTRACT.html) 
+for the verified operation inventory, schema notes, and authentication rules.
+
+Review the [changelog](https://sfdctrust.readthedocs.io/en/latest/CHANGELOG.html) to see the changes associated 
+with previous and upcoming releases.
 
 ## Quickstart
 
@@ -127,21 +130,41 @@ cover the preceding 365 days. The PAT determines which tenants and events
 are visible. An empty snapshot bucket, search page, or history establishes
 no Salesforce-wide health claim.
 
-See the [status and event reference](https://sfdctrust.readthedocs.io/en/stable/reference/events-and-status.html) for signatures and models.
+See the [status and event reference](https://sfdctrust.readthedocs.io/en/stable/reference/events-and-status.html) 
+for signatures and models.
 
 ## Rotate a PAT explicitly
 
-For rotation, use `TrustCenterClient.from_store(store)` with a seeded,
-caller-supplied adapter that provides durable atomic updates shared by all
-rotators of the PAT. Call `client.refresh_pat(expires_in_days=7)` to save and
+For scripts on one computer, initialize the built-in SQLite store on a private,
+encrypted local drive. Paste the first PAT at the hidden prompt:
+
+```sh
+python -m sfdctrust.pat_store init
+```
+
+```python
+from sfdctrust import SQLitePATStore, TrustCenterClient
+
+with TrustCenterClient.from_store(SQLitePATStore()) as client:
+    result = client.refresh_pat(expires_in_days=7)
+```
+
+All jobs using that PAT must use the same database under the same OS account.
+Keep it outside shared, network, and synced folders. The database contains the
+PAT in readable form while the drive is unlocked. Custom durable adapters
+remain supported for other storage systems.
+
+Call `client.refresh_pat(expires_in_days=7)` to save and
 activate a replacement. It sends one POST and returns a secret-free
 `PATRefreshResult`. The constructor and `from_env()` remain static credential
 modes. See the [authentication reference](https://sfdctrust.readthedocs.io/en/stable/reference/authentication.html)
-for the adapter contract and recovery runbook. To create and seed a working
-local test store, follow [Prepare to use sfdctrust](https://sfdctrust.readthedocs.io/en/stable/getting-started/setup.html).
+for the adapter contract and recovery runbook. For setup, aliases, custom paths,
+and environment-based initialization, 
+follow [Prepare to use sfdctrust](https://sfdctrust.readthedocs.io/en/stable/getting-started/setup.html).
 
-For asyncio, use `await AsyncTrustCenterClient.from_store(store)` with an
-`AsyncPATStore`, then await rotation and any persistence recovery.
+For asyncio, use `await AsyncTrustCenterClient.from_store(store)` with a
+custom `AsyncPATStore`, then await rotation and any persistence recovery.
+The built-in SQLite store currently supports the synchronous client.
 [Async adapter contract and cancellation recovery](https://sfdctrust.readthedocs.io/en/stable/reference/authentication.html#async-store-backed-clients)
 
 ## Development

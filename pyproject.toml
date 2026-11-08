@@ -73,6 +73,7 @@ exclude = [
     "dev", "local", ".env", ".env.*", "*.key", "**/*.key", "scratch.txt", "**/scratch.txt",
     "tempCodeRunnerFile.py", "**/tempCodeRunnerFile.py", "**/__pycache__", "**/*.pyc",
     "**/.DS_Store", "**/._*", ".venv", "dist", "build", "docs/_build",
+    "**/*.sqlite3", "**/*.sqlite3-journal", "**/*.sqlite3-wal", "**/*.sqlite3-shm",
 ]
 
 [tool.poetry.group.docs]

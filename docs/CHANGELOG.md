@@ -13,17 +13,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
-No unreleased additions at this time.
+- Built-in synchronous `SQLitePATStore` for durable single-host PAT refresh,
+  with private file protection on macOS, Windows, and Linux, versioned storage,
+  and support for the existing persistence-only recovery API.
+- Installed-package initialization command, `python -m sfdctrust.pat_store init`,
+  with hidden input, optional environment input, custom paths, and named aliases.
+- Offline SQLite process/crash tests and a hosted cross-platform test workflow.
 
 (unreleased-changed)=
 ### Changed
 
-No unreleased changes at this time.
+- Getting Started now uses the built-in SQLite store instead of downloading an
+  example adapter. Existing example databases remain unchanged and require a
+  controlled transition to a fresh built-in store; automatic migration is not provided.
 
 (unreleased-security)=
 ### Security
 
-No unreleased security updates at this time.
+- SQLite stores enforce ownership and private permissions/ACLs, check file
+  identities, and reject unsafe linked paths. PATs remain plaintext in SQLite;
+  a private encrypted local volume is required.
 
 (relnotes-0-1-0)=
 ## [0.1.0] - 2026-11-04

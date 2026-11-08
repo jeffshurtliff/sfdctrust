@@ -6,6 +6,38 @@ Package
 The top-level ``sfdctrust`` package is the stable import location for the public
 API. Underscore-prefixed modules are implementation details.
 
+.. py:class:: SQLitePATStore(path=None, *, alias=None)
+
+   Open an existing, protected SQLite store for one PAT lineage on this host.
+   ``path`` accepts a string or ``pathlib.Path``. ``alias`` selects another
+   basename in ``~/.sfdctrust`` and is mutually exclusive with ``path``.
+   Connections close after each operation; the adapter needs no close method.
+
+   .. py:classmethod:: initialize(*, pat, path=None, alias=None)
+
+      Exclusively create a private database, durably save the initial PAT, and
+      return the adapter. Every existing destination is refused. The final
+      private directory may be created if its parent exists. No existing
+      permissions are changed. Invalid input or initialization failure raises
+      ``ConfigurationError``. Prefer the hidden-prompt module command for
+      interactive setup.
+
+   .. py:method:: load()
+
+      Return the latest committed ``PATStoreRecord`` (including its pending
+      marker), or ``None`` if the supported database is unseeded. Unsafe access,
+      incompatible schema, and invalid records raise ``ConfigurationError``.
+
+   .. py:method:: compare_and_swap(*, expected_revision, expected_attempt, replacement)
+
+      Compare both UUID identifiers, including a ``None`` attempt, and commit
+      the complete replacement record atomically. Return ``True`` only after
+      durable commit and ``False`` only for a comparison mismatch. Invalid
+      arguments or an unconfirmed write raise ``PATPersistenceError``.
+
+   See :ref:`sqlite-pat-store` for supported storage, protection, initialization,
+   schema compatibility, and recovery.
+
 .. py:class:: TrustCenterClient(pat, *, http_client=None, max_retries=2)
 
    Configure a synchronous client with an explicit PAT. Construction makes no
