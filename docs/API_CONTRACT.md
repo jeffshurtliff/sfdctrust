@@ -385,6 +385,37 @@ Milestone 8 preserves the existing API methods, fields, and errors. The
 wire details above retain their original Salesforce guide and local vendor
 YAML provenance.
 
+### Built-in single-host SQLite store (v0.2.0 development)
+
+`SQLitePATStore` implements the synchronous `PATStore` contract without a new
+third-party runtime dependency. Ordinary construction opens an existing store;
+`initialize(*, pat, path=None, alias=None)` exclusively creates and seeds one.
+The installed `python -m sfdctrust.pat_store init` command uses hidden input or
+an explicitly selected environment variable. The default is
+`~/.sfdctrust/pat.sqlite3`; aliases choose another basename in that directory.
+
+The versioned format uses `application_id=0x53464454`, `user_version=1`, and a
+single credential slot with revision, PAT, and pending attempt. Conditional
+writes compare both identifiers and durably commit the complete record. Each
+connection uses rollback DELETE journaling, synchronous EXTRA, and macOS
+fullfsync. Missing, unsafe, incompatible, or corrupt stores fail closed.
+The old unversioned example is not automatically migrated.
+
+macOS/Linux ownership and mode checks, macOS ACL inspection, and native Windows
+ACL creation/inspection protect the database and private directory. Store
+identities and sidecars are rechecked on access. The supported boundary is
+one local encrypted volume, one host, and one OS account, with every rotator
+using the same database. SQLite does not encrypt the PAT, and volume encryption
+and placement outside sync/network folders remain operator responsibilities.
+
+This adapter uses the existing refresh state machine without new endpoint or
+retry behavior. Real SQLite offline tests cover process competition, persisted
+markers, process exit, rollback, lock/write failure, and lost acknowledgment.
+Native Windows qualification is performed by the hosted Windows workflow;
+local macOS results do not establish Windows verification. See the
+[authentication reference](reference/authentication.md#built-in-sqlite-store)
+for API, format, platform policy, and operator recovery.
+
 ## Validation of the original foundation
 
 On Python 3.12, the eight offline version tests, Ruff lint, formatting of changed Python

@@ -149,15 +149,13 @@ before testing.
    ```
 
 3. Verify the token survives reopening. Run `client.close()`, then `exit()`,
-   and start `python` again from the directory containing `local_pat_store.py`.
-   Run the following. If you selected a custom directory during setup,
-   use the same directory again.
+   and start `python` again. Run the following. If you selected a custom
+   path or alias during setup, use the same one again.
 
    ```python
-   from local_pat_store import LocalPATStore
-   from sfdctrust import TrustCenterClient
+   from sfdctrust import SQLitePATStore, TrustCenterClient
 
-   with TrustCenterClient.from_store(LocalPATStore()) as client:
+   with TrustCenterClient.from_store(SQLitePATStore()) as client:
        print('Tenants on this page:', len(client.tenants.list().tenants))
    ```
 
@@ -168,20 +166,21 @@ before testing.
 
 | What you see | What to check |
 | --- | --- |
-| `ConfigurationError` when creating the client | For Option A, check that you set `SFDCTRUST_PAT` in this Python session. For Option B, check that seeding succeeded and the client uses the same directory. |
+| `ConfigurationError` when creating the client | For Option A, check that you set `SFDCTRUST_PAT` in this Python session. For Option B, check that initialization succeeded and the client uses the same path or alias. |
 | `AuthenticationError` on a read | Salesforce rejected the PAT. Check for an expired or revoked token and verify that you used My Trust Center's PAT. |
 | `RateLimitError` during refresh | Salesforce rejected this attempt before replacing the PAT. Wait before making a later deliberate attempt. See the recovery runbook for backoff. |
 | `PATPersistenceError` reporting that durable storage of the replacement could not be confirmed | Keep this Python session and client open. Restore access to the store, then call `client.retry_pat_persistence()`. After it succeeds, verify with `client.tenants.list()`. |
 | `PATRefreshAmbiguousError`, `PATRefreshPendingError`, or a marker-write error | Stop and follow the recovery runbook before another refresh. The store can retain a marker to block another attempt while the outcome is uncertain. |
 
 If a replacement was lost and the runbook calls for a new PAT, close all
-clients using the test store. Revoke the active token in My Trust Center
-if present and create a new one. Seed a **new** private directory with
-`python local_pat_store.py seed --directory "path/to/new-private-folder"`.
-Use that directory when opening `LocalPATStore` in Python. After you
-confirm access with the new store, remove the old test store. For the full
+clients using the store and stop their jobs. Revoke the active token in My Trust Center
+if present and create a new one. Initialize a **new** store with
+`python -m sfdctrust.pat_store init --alias recovered`.
+Open it with `SQLitePATStore(alias='recovered')`. Update every job to use
+that same store before restarting. After you confirm access with the new
+store, retire the old store and its protected backups. For the full
 recovery procedure, see {doc}`../reference/authentication`.
 
 When you finish, call `client.close()` on any client you opened outside a
 `with` block and exit Python. If the PAT was created solely for testing,
-revoke it in My Trust Center before removing the test store.
+revoke it in My Trust Center before removing the store.

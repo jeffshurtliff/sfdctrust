@@ -15,3 +15,4 @@ history, see the :doc:`../CHANGELOG`.
    :hidden:
 
    documentation
+   sqlite-pat-store

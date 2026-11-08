@@ -4,7 +4,7 @@
 :Synopsis:          Primary module for the sfdctrust package
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     04 Nov 2026
+:Modified Date:     06 Nov 2026
 """
 
 from ._async_client import AsyncTrustCenterClient
@@ -27,6 +27,7 @@ from ._exceptions import (
 )
 from ._pat_refresh import PATRefreshResult
 from ._pat_store import AsyncPATStore, PATStore, PATStoreRecord
+from ._sqlite_pat_store import SQLitePATStore
 from ._version import __version__
 
 __all__ = [
@@ -44,6 +45,7 @@ __all__ = [
     'MalformedResponseError',
     'PaginationError',
     'PATStore',
+    'SQLitePATStore',
     'AsyncPATStore',
     'PATStoreRecord',
     'PATRefreshResult',

@@ -29,13 +29,12 @@ on your existing PAT. See the
 | Option | Use it for | What happens to the PAT |
 | --- | --- | --- |
 | Environment variable | A quick read-only session or a job whose environment is managed by your organization | Python reads the value from `SFDCTRUST_PAT` when the client is created. To change it, supply a new value and create a new client. |
-| PAT store | Testing refresh or integrating with persistent secret storage | The store saves the token between sessions. When you request refresh, the client can save the replacement before it switches tokens. |
+| Built-in SQLite PAT store | Scripts and jobs running on one computer under the same operating-system account | The store saves the PAT between sessions and saves its replacement when you explicitly request refresh. |
 
 An **environment variable** is a setting available to a running program.
-A **PAT store** is where an application can read and safely replace a saved
-PAT. The SDK works with a small Python object called an *adapter* that
-handles the actual storage. Option B supplies a working adapter for a
-single-machine test.
+A **PAT store** saves the PAT so your script can use it again later.
+Option B uses the built-in `SQLitePATStore`. Integrations using other secret
+storage systems can continue to supply their own adapter.
 
 Keep the PAT out of source code, command arguments, chat, screenshots,
 and logs. Both paths below use a prompt that hides what you type.
@@ -72,62 +71,82 @@ client creation step. Use {doc}`quickstart` in the same session to verify
 authentication and read data. When finished, close the client and exit Python
 to end the temporary session.
 
-## Option B. Create and seed a local test store
+## Option B. Create a local SQLite PAT store
 
-The example adapter uses SQLite, a small database stored on disk.
-It comes with a setup command that creates the database and **seeds** it,
-meaning it saves the first PAT. Python supplies SQLite on standard
-installations, and the example needs no database server or extra packages.
+SQLite is a small database stored in a file. The package includes a command
+that creates the store and **seeds** it, meaning it saves your first PAT.
+Standard Python installations supply SQLite; no database server or extra
+package is needed.
 
 ```{important}
-Use this example for a test on one computer. The database contains the PAT
-in readable form when the volume is unlocked. Before entering a real PAT,
-confirm your home directory is on an encrypted local volume and is private
-to your account. Keep the store outside shared or synced folders and source
-control. For a deployed integration, use an approved secret storage system
-and an adapter that meets the {doc}`../reference/authentication` contract.
+Use a private folder on an encrypted local drive, outside OneDrive, iCloud
+Drive, Dropbox, network shares, and source control. The database contains
+the PAT in readable form while the drive is unlocked. The SDK checks file
+protection but does not check drive encryption or detect every sync service.
+All scripts that refresh the same PAT must use this same database, on this
+computer, under the same operating-system account.
 ```
 
-1. {download}`Download local_pat_store.py <_examples/local_pat_store.py>`.
-   If reading from a checkout, copy `docs/getting-started/_examples/local_pat_store.py`
-   to your working directory. In your terminal, change into the directory
-   containing that file. Keep your Python environment active.
-2. Run this command **in your terminal**, paste the PAT at the hidden prompt,
+1. With your Python environment active, run this command **in your terminal**, paste the PAT at the hidden prompt,
    and press Enter.
 
    ```sh
-   python local_pat_store.py seed
+   python -m sfdctrust.pat_store init
    ```
 
-   You should see `Saved the PAT in the local test store.` The example
-   creates `.sfdctrust/pat.sqlite3` under your home directory.
-   Seeding refuses to overwrite an existing PAT. If you need to use a
-   different private, encrypted local location, pass
-   `--directory "path/to/private-folder"` to the seed command and pass the
-   same directory as a `pathlib.Path` to `LocalPATStore` below.
-3. From the same directory, run `python`. At the Python prompt, create
+   You should see `Initialized the private SQLite PAT store.` The command
+   creates `.sfdctrust/pat.sqlite3` under your home directory. It refuses to
+   overwrite any existing database, including one with an unfinished refresh.
+2. Run `python`. At the Python prompt, create
    a client using the store you just seeded.
 
    ```python
-   from local_pat_store import LocalPATStore
-   from sfdctrust import TrustCenterClient
+   from sfdctrust import SQLitePATStore, TrustCenterClient
 
-   store = LocalPATStore()
+   store = SQLitePATStore()
    client = TrustCenterClient.from_store(store)
    ```
-
-   For a custom location, first run `from pathlib import Path`, then
-   use `store = LocalPATStore(Path("path/to/private-folder"))` with the
-   directory you supplied to the seed command.
 
    The client reads its credential from the store even if
    `SFDCTRUST_PAT` is set. Keep this session open and follow the read
    and refresh steps in {doc}`quickstart`. To use the saved PAT another
-   day, repeat step 3.
+   day, repeat step 2. There is no downloaded adapter to keep alongside your script.
 
-If Python cannot import `local_pat_store`, check the downloaded filename
-and the directory you launched Python from. If the seed command cannot
-write the store, check that the directory exists or that its parent is
-writable. On macOS and Linux the example requires the store directory and
-database to be owned by you with no group or other access. On Windows,
-check the folder's **Properties → Security** for access by other users.
+### Choose another location or name
+
+For a second PAT lineage, choose an alias:
+
+```sh
+python -m sfdctrust.pat_store init --alias secondary
+```
+
+Open that store with `SQLitePATStore(alias='secondary')`. It uses
+`~/.sfdctrust/secondary.sqlite3`. Aliases accept letters, numbers, hyphens,
+and underscores; Windows reserved names such as `CON` are rejected.
+An alias selects a different store; it does not copy an existing PAT.
+
+For a different encrypted local location, use a full database filename:
+
+```sh
+python -m sfdctrust.pat_store init --path "path/to/private-folder/pat.sqlite3"
+```
+
+Open it with `SQLitePATStore('path/to/private-folder/pat.sqlite3')`.
+The command can create the final private folder when its parent exists.
+It checks existing folders instead of changing their permissions. Use either
+`--path` or `--alias`.
+
+For a job whose environment already contains the initial PAT, add `--from-env`
+to read `SFDCTRUST_PAT`, or `--from-env=SFDCTRUST_PAT_ALT` to select another variable.
+These options save that value once. They do not change the environment or
+keep it updated after refresh. There is no command-line argument for the PAT itself.
+
+### If initialization fails
+
+Check that the destination is new, the containing folders exist, and the
+store folder is private to your account. On Windows, use a local drive that
+supports access-control lists, such as NTFS. An existing folder may need your
+administrator's help to prepare; the SDK will not broaden access or silently
+repair it. If a failed initialization left a file, inspect it before removing
+it or choose a fresh alias. See {doc}`../reference/authentication` for the
+exact protection requirements and the transition from the older downloadable example.
