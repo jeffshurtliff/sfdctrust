@@ -385,7 +385,7 @@ Milestone 8 preserves the existing API methods, fields, and errors. The
 wire details above retain their original Salesforce guide and local vendor
 YAML provenance.
 
-### Built-in single-host SQLite store (v0.2.0 development)
+### Built-in single-host SQLite store (0.2.0)
 
 `SQLitePATStore` implements the synchronous `PATStore` contract without a new
 third-party runtime dependency. Ordinary construction opens an existing store;
