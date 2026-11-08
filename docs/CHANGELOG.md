@@ -13,6 +13,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
+- None yet.
+
+(unreleased-changed)=
+### Changed
+
+- None yet.
+
+(unreleased-fixed)=
+### Fixed
+
+- None yet.
+
+(unreleased-security)=
+### Security
+
+- None yet.
+
+(relnotes-0-2-0)=
+## [0.2.0] - 2026-11-08
+
+This release adds a built-in SQLite PAT store for synchronous clients. It
+requires Python 3.12 or later.
+
+(release-0-2-0-added)=
+### Added
+
 - Built-in synchronous `SQLitePATStore` for durable single-host PAT refresh,
   with private file protection on macOS, Windows, and Linux, versioned storage,
   and support for the existing persistence-only recovery API.
@@ -21,21 +47,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Offline SQLite process and crash tests, with hosted tests and installed-wheel
   checks on macOS, Windows, and Ubuntu.
 
-(unreleased-changed)=
+(release-0-2-0-changed)=
 ### Changed
 
 - Getting Started uses the built-in SQLite store and shows how to reopen it
   with the default location, a custom path, or an alias. The authentication
   reference documents the transition from an example database to a fresh store.
 
-(unreleased-fixed)=
+(release-0-2-0-fixed)=
 ### Fixed
 
 - `SQLitePATStore` can open and initialize stores under Windows directories
   whose ACL grants `OWNER RIGHTS` to a verified owner, including Python's
   private temporary directories.
 
-(unreleased-security)=
+(release-0-2-0-security)=
 ### Security
 
 - SQLite stores enforce ownership and private permissions/ACLs, check file
@@ -76,5 +102,6 @@ Center API. Requires Python 3.12 or later.
   metadata or from `pyproject.toml` in a source checkout.
 - The direct runtime dependencies are HTTPX and Pydantic v2.
 
-[Unreleased]: https://github.com/jeffshurtliff/sfdctrust/compare/0.1.0...main
+[Unreleased]: https://github.com/jeffshurtliff/sfdctrust/compare/0.2.0...main
+[0.2.0]: https://github.com/jeffshurtliff/sfdctrust/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/jeffshurtliff/sfdctrust/tree/0.1.0
