@@ -4,7 +4,7 @@
 :Synopsis:          Native macOS and Windows PAT store access-control regression tests
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     06 Nov 2026
+:Modified Date:     08 Nov 2026
 """
 
 from __future__ import annotations
@@ -96,6 +96,15 @@ def test_windows_unprotected_database_rejected(tmp_path) -> None:
     _replace_windows_acl(path, f'D:(A;;FA;;;{_windows().user})', protected=False)
     with pytest.raises(ConfigurationError):
         store.load()
+
+
+@windows_only
+def test_windows_parent_grants_owner_rights_to_verified_owner(tmp_path) -> None:
+    native = _windows()
+    _replace_windows_acl(tmp_path, f'D:P(A;OICI;FA;;;{native.user})(A;OICI;FA;;;OW)')
+    path = tmp_path / 'private' / 'pat.sqlite3'
+    SQLitePATStore.initialize(pat=PAT, path=path)
+    assert SQLitePATStore(path).load().get_pat() == PAT
 
 
 @windows_only

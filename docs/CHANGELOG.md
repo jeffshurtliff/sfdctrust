@@ -27,6 +27,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   example adapter. Existing example databases remain unchanged and require a
   controlled transition to a fresh built-in store; automatic migration is not provided.
 
+(unreleased-fixed)=
+### Fixed
+
+- `SQLitePATStore` can open and initialize stores under Windows directories
+  whose ACL grants `OWNER RIGHTS` to a verified owner, including Python's
+  private temporary directories.
+
 (unreleased-security)=
 ### Security
 
