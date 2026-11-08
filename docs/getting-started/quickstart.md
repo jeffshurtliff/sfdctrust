@@ -1,7 +1,7 @@
 # Quickstart
 
 Follow {doc}`setup` first and keep the interactive Python session open.
-The examples use the `client` you created there. The read steps work with
+The examples use the `client` you created there. The *read* steps work with
 either setup option. Refresh requires the store from Option B. When pasting
 a loop or an `if` block into a basic Python prompt, enter a blank line
 after the block to run it.
