@@ -9,6 +9,7 @@ on:
       - CLAUDE.md
       - GEMINI.md
       - LICENSE
+      - dev/**
       - docs/**
       - examples/**
       - .agents/**
@@ -27,6 +28,7 @@ on:
       - CLAUDE.md
       - GEMINI.md
       - LICENSE
+      - dev/**
       - docs/**
       - examples/**
       - .agents/**
