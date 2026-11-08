@@ -18,14 +18,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and support for the existing persistence-only recovery API.
 - Installed-package initialization command, `python -m sfdctrust.pat_store init`,
   with hidden input, optional environment input, custom paths, and named aliases.
-- Offline SQLite process/crash tests and a hosted cross-platform test workflow.
+- Offline SQLite process and crash tests, with hosted tests and installed-wheel
+  checks on macOS, Windows, and Ubuntu.
 
 (unreleased-changed)=
 ### Changed
 
-- Getting Started now uses the built-in SQLite store instead of downloading an
-  example adapter. Existing example databases remain unchanged and require a
-  controlled transition to a fresh built-in store; automatic migration is not provided.
+- Getting Started uses the built-in SQLite store and shows how to reopen it
+  with the default location, a custom path, or an alias. The authentication
+  reference documents the transition from an example database to a fresh store.
 
 (unreleased-fixed)=
 ### Fixed

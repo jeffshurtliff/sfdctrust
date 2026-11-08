@@ -411,8 +411,9 @@ and placement outside sync/network folders remain operator responsibilities.
 This adapter uses the existing refresh state machine without new endpoint or
 retry behavior. Real SQLite offline tests cover process competition, persisted
 markers, process exit, rollback, lock/write failure, and lost acknowledgment.
-Native Windows qualification is performed by the hosted Windows workflow;
-local macOS results do not establish Windows verification. See the
+Hosted tests and installed-wheel walkthroughs passed on macOS, Windows, and
+Ubuntu. See the [platform qualification results](maintainers/sqlite-pat-store.md)
+for the verified run and the
 [authentication reference](reference/authentication.md#built-in-sqlite-store)
 for API, format, platform policy, and operator recovery.
 

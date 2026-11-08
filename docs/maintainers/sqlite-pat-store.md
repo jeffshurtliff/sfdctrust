@@ -23,6 +23,24 @@ Local macOS success does not establish Windows or Linux qualification.
 Do not use a live PAT as part of these checks. Any optional real-account
 walkthrough requires separate maintainer authorization.
 
+### Hosted qualification
+
+All five jobs passed on November 8, 2026 at `7571999` on `main`. Each platform
+job ran the offline suite and exercised initialization, tenant and event reads,
+one explicit refresh, and reopening from the installed wheel.
+[SDK validation run](https://github.com/jeffshurtliff/sfdctrust/actions/runs/42520055761)
+
+| Runner | Python | Offline tests | Installed-wheel walkthrough |
+| --- | --- | --- | --- |
+| macOS | 3.12 | 597 passed, 15 skipped | Passed |
+| Windows | 3.12 | 601 passed, 11 skipped | Passed |
+| Ubuntu | 3.12 | 594 passed, 18 skipped | Passed |
+| Ubuntu | 3.15 | 594 passed, 18 skipped | Passed |
+
+The Windows run includes the `OWNER RIGHTS` ACL regression and the
+two-process refresh test. The quality job passed Ruff, Bandit, distribution
+build and metadata checks, and strict Sphinx validation.
+
 ### Initial implementation results — 2026-11-06
 
 | Environment/check | Observed result |
@@ -31,7 +49,6 @@ walkthrough requires separate maintainer authorization.
 | Fresh macOS Python 3.14 environment | Wheel installed offline with locked runtime dependencies; dependency consistency and the installed-package SQLite walkthrough passed. |
 | Local quality/package checks | Ruff lint and formatting, Bandit, strict Poetry/lock checks, wheel/sdist builds, archive content checks, and strict Twine metadata validation passed. |
 | Documentation | Strict Sphinx HTML build passed; setup, refresh, and recovery pages reviewed in the browser. |
-| Hosted Windows and Ubuntu | Pending a maintainer or separately authorized push and the resulting GitHub Actions runs. No hosted success is claimed here. |
 
 ## Follow-up work
 
