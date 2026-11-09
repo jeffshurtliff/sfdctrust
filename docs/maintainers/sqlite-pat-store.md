@@ -21,7 +21,8 @@ refresh, and reopening. The script rejects editable/source imports.
 Record actual platform results before declaring the feature release-ready.
 Local macOS success does not establish Windows or Linux qualification.
 Do not use a live PAT as part of these checks. Any optional real-account
-walkthrough requires separate maintainer authorization.
+walkthrough requires separate maintainer authorization. See
+{doc}`pat-rotation-qualification` for the installed-wheel procedure.
 
 ### Hosted qualification
 
