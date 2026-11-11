@@ -83,6 +83,21 @@ jobs:
           poetry build
           poetry run python -m pip install --force-reinstall --no-deps dist/*.whl
           poetry run python tests/package_smoke.py
+      - name: Rehearse offline recovery in a clean wheel environment
+        run: |
+          python -m venv "$RUNNER_TEMP/pat-recovery-venv"
+          recovery_python="$RUNNER_TEMP/pat-recovery-venv/bin/python"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            recovery_python="$RUNNER_TEMP/pat-recovery-venv/Scripts/python.exe"
+          fi
+          "$recovery_python" -I -m pip install dist/*.whl
+          "$recovery_python" -I -m pip check
+          "$recovery_python" -I tests/pat_recovery_rehearsal.py \
+            --wheel dist/sfdctrust-*.whl \
+            --source-commit "$(git rev-parse HEAD)" \
+            --source-branch "${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}" \
+            --source-state "hosted checkout; git status follows"
+          git status --short --branch
 
   quality:
     name: Lint, packaging, and documentation

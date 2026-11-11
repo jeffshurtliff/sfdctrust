@@ -13,12 +13,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
-- None yet.
+- Repeatable offline installed-wheel SQLite PAT recovery rehearsal for pending
+  attempts, retained replacements, and replacement loss across process exit.
 
 (unreleased-changed)=
 ### Changed
 
-- None yet.
+- PAT recovery instructions show conditional reconciliation through public store
+  operations and fresh-store verification before jobs resume, including backup retirement.
 
 (unreleased-fixed)=
 ### Fixed

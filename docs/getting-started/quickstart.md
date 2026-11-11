@@ -169,16 +169,25 @@ before testing.
 | `ConfigurationError` when creating the client | For Option A, check that you set `SFDCTRUST_PAT` in this Python session. For Option B, check that initialization succeeded and the client uses the same path or alias. |
 | `AuthenticationError` on a read | Salesforce rejected the PAT. Check for an expired or revoked token and verify that you used My Trust Center's PAT. |
 | `RateLimitError` during refresh | Salesforce rejected this attempt before replacing the PAT. Wait before making a later deliberate attempt. See the recovery runbook for backoff. |
-| `PATPersistenceError` reporting that durable storage of the replacement could not be confirmed | Keep this Python session and client open. Restore access to the store, then call `client.retry_pat_persistence()`. After it succeeds, verify with `client.tenants.list()`. |
+| `PATPersistenceError` reporting that durable storage of the replacement could not be confirmed | Keep this Python session and client open. Restore access to the store, then call `client.retry_pat_persistence()` on this same client. It makes no HTTP requests, including when the write committed but its acknowledgment was lost. After success, reopen the same store in a fresh process and verify tenant listing before resuming jobs. |
 | `PATRefreshAmbiguousError`, `PATRefreshPendingError`, or a marker-write error | Stop and follow the recovery runbook before another refresh. The store can retain a marker to block another attempt while the outcome is uncertain. |
+
+An accepted old-PAT probe does not authorize clearing a pending marker while
+the refresh could still finish. Stop rotators, establish that the request has
+settled, and follow the runbook's controlled read and conditional clear of the
+exact revision and attempt. Rejected or inconclusive probes leave the marker
+in place. Do not edit SQLite directly or refresh again to resolve uncertainty.
 
 If a replacement was lost and the runbook calls for a new PAT, close all
 clients using the store and stop their jobs. Revoke the active token in My Trust Center
 if present and create a new one. Initialize a **new** store with
 `python -m sfdctrust.pat_store init --alias recovered`.
 Open it with `SQLitePATStore(alias='recovered')`. Update every job to use
-that same store before restarting. After you confirm access with the new
-store, retire the old store and its protected backups. For the full
+that same store. Confirm a tenant read from a fresh process before restarting
+any job. Remove old-store references from configuration and restore procedures;
+retire the old store, sidecars, and protected backups under your retention policy
+without restoring them as credential sources. Deletion does not guarantee secure
+erasure. For the full
 recovery procedure, see {doc}`../reference/authentication`.
 
 When you finish, call `client.close()` on any client you opened outside a

@@ -1,0 +1,160 @@
+{
+  "source_commit": "d4dde2dc1e753c16ebecb3545a87370ece0acec2",
+  "source_branch": "test/9-rehearse-sqlite-pat-recovery-runbook",
+  "source_state": "## test/9-rehearse-sqlite-pat-recovery-runbook\n M .github/workflows/ci.yml\n M docs/CHANGELOG.md\n M docs/getting-started/quickstart.md\n M docs/maintainers/index.rst\n M docs/maintainers/sqlite-pat-store.md\n M docs/reference/authentication.md\n?? docs/maintainers/evidence/\n?? docs/maintainers/sqlite-pat-recovery-evidence.md\n?? tests/pat_recovery_rehearsal.py",
+  "package_version": "0.2.0",
+  "wheel": "sfdctrust-0.2.0-py3-none-any.whl",
+  "wheel_sha256": "ac39c38e87825d36b81d418264feb703972adbe1fdae169b57745d51e2ba2922",
+  "rehearsal_sha256": "e06ed10c979e559445072e461acd36b1f4b7246e38f8350545abdfc2891906ef",
+  "python": "3.12.7",
+  "runtime_dependencies": {
+    "httpx": "0.28.1",
+    "httpcore": "1.0.9",
+    "anyio": "4.16.0",
+    "certifi": "2026.10.23",
+    "idna": "3.20",
+    "h11": "0.16.0",
+    "pydantic": "2.14.2",
+    "pydantic-core": "2.50.2",
+    "annotated-types": "0.8.0",
+    "typing-extensions": "4.16.0",
+    "typing-inspection": "0.4.4"
+  },
+  "platform": "Darwin 27.0.0 arm64",
+  "date_utc": "2026-11-11T14:41:38.480264+00:00",
+  "imports": "non-editable site-packages; package files match wheel; isolated venv interpreter",
+  "network_guard": "socket audit guard tested in parent and every child; zero unexpected attempts",
+  "scope": "synthetic PATs, disposable SQLite, mocked HTTP and operator actions",
+  "cases": [
+    {
+      "case": "pending-probe-200",
+      "expected_state": "settled-old-accepted-exact-clear-stale-matches-refused",
+      "observed_state": "settled-old-accepted-exact-clear-stale-matches-refused",
+      "refresh_posts": 1,
+      "initial_probe_http": 1,
+      "recovery_http": 1,
+      "fresh_process_verification_http": 1,
+      "passed": true
+    },
+    {
+      "case": "pending-probe-401",
+      "expected_state": "old-pending-preserved-no-replay",
+      "observed_state": "old-pending-preserved-no-replay",
+      "refresh_posts": 1,
+      "initial_probe_http": 1,
+      "recovery_http": 0,
+      "fresh_process_verification_http": 0,
+      "passed": true
+    },
+    {
+      "case": "pending-probe-503",
+      "expected_state": "old-pending-preserved-no-replay",
+      "observed_state": "old-pending-preserved-no-replay",
+      "refresh_posts": 1,
+      "initial_probe_http": 1,
+      "recovery_http": 0,
+      "fresh_process_verification_http": 0,
+      "passed": true
+    },
+    {
+      "case": "pending-probe-timeout",
+      "expected_state": "old-pending-preserved-no-replay",
+      "observed_state": "old-pending-preserved-no-replay",
+      "refresh_posts": 1,
+      "initial_probe_http": 1,
+      "recovery_http": 0,
+      "fresh_process_verification_http": 0,
+      "passed": true
+    },
+    {
+      "case": "unacknowledged-claim-False",
+      "expected_state": "old-ready-no-post",
+      "observed_state": "old-ready-no-post",
+      "refresh_posts": 0,
+      "initial_probe_http": 0,
+      "recovery_http": 0,
+      "fresh_process_verification_http": 0,
+      "passed": true
+    },
+    {
+      "case": "unacknowledged-claim-True",
+      "expected_state": "old-pending",
+      "observed_state": "old-pending",
+      "refresh_posts": 0,
+      "initial_probe_http": 0,
+      "recovery_http": 0,
+      "fresh_process_verification_http": 0,
+      "passed": true
+    },
+    {
+      "case": "persistence-False-None",
+      "expected_state": "replacement-durable-marker-clear-fresh-process-read",
+      "observed_state": "replacement-durable-marker-clear-fresh-process-read",
+      "refresh_posts": 1,
+      "initial_probe_http": 0,
+      "recovery_http": 0,
+      "fresh_process_verification_http": 1,
+      "passed": true
+    },
+    {
+      "case": "persistence-False-revision",
+      "expected_state": "different-revision-preserved-retry-refused",
+      "observed_state": "different-revision-preserved-retry-refused",
+      "refresh_posts": 1,
+      "initial_probe_http": 0,
+      "recovery_http": 0,
+      "fresh_process_verification_http": 0,
+      "passed": true
+    },
+    {
+      "case": "persistence-False-attempt",
+      "expected_state": "different-attempt-preserved-retry-refused",
+      "observed_state": "different-attempt-preserved-retry-refused",
+      "refresh_posts": 1,
+      "initial_probe_http": 0,
+      "recovery_http": 0,
+      "fresh_process_verification_http": 0,
+      "passed": true
+    },
+    {
+      "case": "persistence-True-None",
+      "expected_state": "replacement-durable-marker-clear-fresh-process-read",
+      "observed_state": "replacement-durable-marker-clear-fresh-process-read",
+      "refresh_posts": 1,
+      "initial_probe_http": 0,
+      "recovery_http": 0,
+      "fresh_process_verification_http": 1,
+      "passed": true
+    },
+    {
+      "case": "persistence-True-revision",
+      "expected_state": "different-revision-preserved-retry-refused",
+      "observed_state": "different-revision-preserved-retry-refused",
+      "refresh_posts": 1,
+      "initial_probe_http": 0,
+      "recovery_http": 0,
+      "fresh_process_verification_http": 0,
+      "passed": true
+    },
+    {
+      "case": "persistence-True-attempt",
+      "expected_state": "different-attempt-preserved-retry-refused",
+      "observed_state": "different-attempt-preserved-retry-refused",
+      "refresh_posts": 1,
+      "initial_probe_http": 0,
+      "recovery_http": 0,
+      "fresh_process_verification_http": 0,
+      "passed": true
+    },
+    {
+      "case": "replacement-lost-process-exit",
+      "expected_state": "old-blocked-all-jobs-new-store-verified-before-resume",
+      "observed_state": "old-blocked-all-jobs-new-store-verified-before-resume",
+      "refresh_posts": 1,
+      "initial_probe_http": 0,
+      "recovery_http": 0,
+      "fresh_process_verification_http": 1,
+      "passed": true
+    }
+  ]
+}

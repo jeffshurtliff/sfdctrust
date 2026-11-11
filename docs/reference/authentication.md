@@ -345,13 +345,101 @@ of the replacement. If the store still has a pending attempt and the PAT is
 unrecoverable, use My Trust Center to create a fresh PAT after revoking the
 active one if present.
 
-For administrative reconciliation, stop all rotators and check for in-flight
-requests before clearing or replacing the marker. Use a controlled read with
-the old PAT only to determine whether it still works. Conditionally clear the
-matching marker while retaining the revision only when you have established
-that the old credential is still usable and no refresh can still be in flight.
-If reseeding, conditionally replace the observed revision and marker with a
-fresh revision and the new PAT in one durable write. Restart or recreate
-clients afterward and verify tenant listing. A PAT and all its replacements
-can last up to 365 days in total. See the
+#### Clear an exact pending attempt after confirming the old PAT
+
+Stop every job that can rotate this lineage, including other processes and
+scheduled restarts. Establish that the original request has settled. A timeout,
+process exit, elapsed delay, or successful probe alone does not establish this:
+the remote request could still finish later. If settlement cannot be established,
+keep the marker and resolve the uncertainty before clearing it.
+
+In a trusted administrative Python session, open the **same path or alias**
+used by all affected jobs and take a snapshot with the supported public API.
+Do not print the record, credential, revision, attempt, request, or response.
+
+```python
+from sfdctrust import PATStoreRecord, SQLitePATStore, TrustCenterClient
+
+store = SQLitePATStore(alias='production')  # Use your existing path or alias.
+observed = store.load()
+if observed is None or observed.pending_attempt is None:
+    raise RuntimeError('No pending attempt to reconcile; inspect the current state.')
+```
+
+Only after rotators are quiesced and settlement is established, perform one
+controlled tenant read with the old credential. This deliberately uses a
+static client because a store-backed client must refuse a pending store.
+`get_pat()` is for this trusted administrative I/O; do not expose its result.
+
+```python
+with TrustCenterClient(observed.get_pat(), max_retries=0) as probe:
+    probe.tenants.list(page_size=1)
+```
+
+A successful read confirms acceptance, even if the tenant list is empty.
+An authentication rejection or any inconclusive failure means **leave the
+marker in place**. Do not continue to the following write. If the old PAT
+worked and no refresh can still be in flight, clear only the observed attempt,
+preserving its credential and revision:
+
+```python
+cleared = store.compare_and_swap(
+    expected_revision=observed.revision,
+    expected_attempt=observed.pending_attempt,
+    replacement=PATStoreRecord(observed.revision, observed.get_pat()),
+)
+if not cleared:
+    raise RuntimeError('The store changed; stop and investigate the newer state.')
+```
+
+Both identifiers must match. Never substitute a newly loaded revision or attempt
+and repeat the clear without reestablishing ownership and outcome. If the write
+raises `PATPersistenceError`, its acknowledgment may have been lost: inspect with
+`load()` and confirm the same revision, same credential, and absent marker before
+calling it cleared. Preserve unresolved or different state. Use no direct SQL
+edits. Recreate store-backed clients and verify tenant listing before resuming
+jobs; clearing a marker does not itself request a refresh.
+
+#### Finish a retained replacement without HTTP
+
+Keep the original process and client alive after a replacement persistence error.
+Restore store access, then call `client.retry_pat_persistence()` on that same
+client. It either repeats the conditional write or confirms that the matching
+replacement already committed. The method performs store I/O only. It cannot
+recover an unacknowledged initial claim, and it refuses a different revision or
+attempt. A second failure is a reason to keep investigating storage or ownership,
+not to call `refresh_pat()` again. After success, reopen the same store in a fresh
+process and verify tenant listing before resuming jobs.
+
+#### Recover when the replacement was lost
+
+If the process exited before durable commit and its replacement is unavailable,
+`retry_pat_persistence()` on a new client cannot recover it. Keep the old pending
+store blocked. Stop all affected jobs, close their clients, and prevent scheduled
+restarts. In My Trust Center, revoke the active PAT if present and create a fresh
+one. Initialize a **new** protected database on a private encrypted local volume;
+the initializer refuses an existing destination:
+
+```sh
+python -m sfdctrust.pat_store init --alias recovered
+```
+
+Enter the fresh PAT at the hidden prompt. Configure **every** affected job to use
+`SQLitePATStore(alias='recovered')` under the same OS account on the same host.
+For a custom path, use `init --path "/private/location/recovered.sqlite3"` and
+that exact path in every job instead. Verify tenant listing in a fresh process
+using the new store before resuming any job. If verification fails, keep jobs
+stopped. Do not create independent database copies for different jobs.
+
+Retire the old store only after this verification. Remove old paths/aliases from
+job configuration and restore procedures so no job can silently revert to them.
+Keep old databases, SQLite sidecars, backups, and snapshots protected until they
+are disposed of under your retention and encrypted-storage policies. Do not
+restore an old backup as an active source, copy its bytes into the new store,
+or clear its marker to revive it. File deletion does not promise secure erasure
+of credential bytes from backups, snapshots, or storage devices.
+
+The offline, synthetic rehearsal of these steps is documented in
+{doc}`../maintainers/sqlite-pat-store`. Live-service qualification is separate.
+A PAT and all its replacements can last up to 365 days in total. See the
 [Salesforce authentication and recovery guide](https://developer.salesforce.com/docs/mytrust-api/authentication.html).
