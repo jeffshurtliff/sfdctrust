@@ -18,5 +18,6 @@ history, see the :doc:`../CHANGELOG`.
 
    documentation
    sqlite-pat-store
+   sqlite-pat-recovery-evidence
    installed-wheel-qualification
    pat-rotation-qualification
