@@ -15,6 +15,7 @@ import json
 import os
 import platform
 import socket
+import struct
 import subprocess
 import sys
 import sysconfig
@@ -83,6 +84,14 @@ def installed() -> None:
     assert Path(sfdctrust.__file__).resolve().is_relative_to(Path(sysconfig.get_path('purelib')).resolve())
     direct = distribution('sfdctrust').read_text('direct_url.json')
     assert not direct or not json.loads(direct).get('dir_info', {}).get('editable', False)
+
+
+def platform_description() -> str:
+    """Describe the OS without the Windows uname fallback's hostname lookup."""
+    if sys.platform == 'win32':
+        version = sys.getwindowsversion()
+        return f'Windows {version.major}.{version.minor}.{version.build} ({struct.calcsize("P") * 8}-bit Python)'
+    return f'{platform.system()} {platform.release()} {platform.machine()}'
 
 
 def same(left, right) -> bool:
@@ -431,7 +440,7 @@ def main() -> None:
                         'typing-inspection',
                     )
                 },
-                'platform': f'{platform.system()} {platform.release()} {platform.machine()}',
+                'platform': platform_description(),
                 'date_utc': datetime.now(UTC).isoformat(),
                 'imports': 'non-editable site-packages; package files match wheel; isolated venv interpreter',
                 'network_guard': 'socket audit guard tested in parent and every child; zero unexpected attempts',

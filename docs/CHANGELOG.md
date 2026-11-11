@@ -25,7 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-fixed)=
 ### Fixed
 
-- None yet.
+- Windows recovery rehearsal evidence reporting no longer requests the local
+  hostname through Python's platform helpers while the socket guard is active.
 
 (unreleased-security)=
 ### Security

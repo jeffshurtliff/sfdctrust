@@ -41,6 +41,11 @@ It reads no credential sources and simulates all My Trust Center operator action
 The guard applies during the rehearsal; dependency installation is a separate
 preparation step. No live PAT or Salesforce request is part of issue #9.
 
+Platform evidence on Windows records the OS version/build and Python bitness
+through local interpreter APIs. It avoids the hostname lookup performed by
+Python's general platform helpers; the socket guard remains active and rejects
+hostname queries as well as socket creation and DNS.
+
 ### Reproduce from a checkout
 
 Run these commands from the repository root on macOS or Linux with Python 3.12
