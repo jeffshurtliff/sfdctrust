@@ -103,12 +103,14 @@ class TenantsResource:
         :param locale: BCP 47 locale forwarded to Salesforce.
         :param max_pages: Positive maximum number of fetched pages.
         """
-        return list(self.iter_all(
-            page_size=page_size,
-            page_token=page_token,
-            locale=locale,
-            max_pages=max_pages,
-        ))
+        return list(
+            self.iter_all(
+                page_size=page_size,
+                page_token=page_token,
+                locale=locale,
+                max_pages=max_pages,
+            )
+        )
 
     def get(self, tenant_id: str, *, locale: str | None = None) -> TenantDetail:
         """Retrieve a tenant and its history in Salesforce's fixed window.
