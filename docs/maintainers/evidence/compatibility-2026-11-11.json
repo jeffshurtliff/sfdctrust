@@ -1,0 +1,351 @@
+{
+  "issue": "https://github.com/jeffshurtliff/sfdctrust/issues/10",
+  "date_local": "2026-11-11T17:58:45.273346-07:00",
+  "source": {
+    "branch": "main",
+    "parent_commit": "3b7438ecf9f0ad8c9c922982c8afe1d101b55fbc",
+    "package_version": "1.0.0.dev0",
+    "initial_working_tree": "clean",
+    "final_working_tree": "M .github/workflows/ci.yml\n M README.md\n M docs/CHANGELOG.md\n M docs/maintainers/index.rst\n M docs/reference/authentication.md\n M docs/reference/index.rst\n M docs/reference/transport.md\n M poetry.lock\n M pyproject.toml\n M src/sfdctrust/resources/_async_tenants.py\n M src/sfdctrust/resources/tenants.py\n?? docs/maintainers/compatibility-qualification.md\n?? docs/maintainers/evidence/compatibility-2026-11-11.json\n?? docs/reference/compatibility.md\n?? tests/compatibility/check_wheel.py\n?? tests/compatibility/downstream.py\n?? tests/compatibility/mypy.ini\n?? tests/compatibility/public-api.json",
+    "package_input_sha256": {
+      "README.md": "f3e1a892850bb84c07bc2eb6dfb5171476e3707541410c64a389a4ea89a4dfb2",
+      "poetry.lock": "1695dbec1fccca98889dd94f3e17a4a3961122333832ab71c2c777ddb3de19ec",
+      "pyproject.toml": "f9735bca53ca11933b29d5a400f32b59b2690bb721d3e0ebadd7feb6cd677eea",
+      "src/sfdctrust/__init__.py": "12a6f7228f35c0e2e411885b1e514fefc7741f908d1a4bac75e2cdfa22cc1487",
+      "src/sfdctrust/_async_client.py": "04b60dde035e47020d4f482219c944f0848bed62ea8d422a5901cea7fa5b18f4",
+      "src/sfdctrust/_async_pat_refresh.py": "9e75e4c0ec6928753db4d82d03cbb634a8c43ac2acad405dfef8adbef69a999b",
+      "src/sfdctrust/_async_transport.py": "079213b3a53ca8984ebdae3b437b48baa9680a0f68c196daff6823f4bdb9f1c3",
+      "src/sfdctrust/_auth.py": "7a959cd18f1488d4d765c08b01b863ad34e7e9329dd06f17c660c7830f0635d6",
+      "src/sfdctrust/_client.py": "3eeff8a7246cdc4a5db29532b50cab3788766f8c9b784961a26176f3b9a7059d",
+      "src/sfdctrust/_constants.py": "dbbfa5440221b4641290720ed9f7deac970a0b043c2cace2a9691d0076570a0c",
+      "src/sfdctrust/_exceptions.py": "2b39834dfa6847d3baaf8c2b479684cfdb2f5d5e3bd50be6e3418a2175f3c3d1",
+      "src/sfdctrust/_pat_refresh.py": "02f39e139d1bcf04d024487dfd5b59eb43ecd99f9546b40339c499adcb26a1a1",
+      "src/sfdctrust/_pat_store.py": "e746d89a858af65d2099144a6a41c5afc36e5a93c8a4da02c1890f2631ac6a96",
+      "src/sfdctrust/_pat_store_files.py": "24a858b330444e5c18715082a39414e41a6a4ddc8c9cb674537fd8abaac6fe41",
+      "src/sfdctrust/_sqlite_pat_store.py": "6210d64a35bf861f4fc976239d6c0fb058485fb5dfe3ba17258f9cc950592465",
+      "src/sfdctrust/_transport.py": "1cc972a7a3646169a68b9278f0e93b89ffc4bacb72198773a57f14160e78531a",
+      "src/sfdctrust/_version.py": "29c0b33c08a7672da2a247e81aba23e23a045e360b0ca67210753f6c1ab8b018",
+      "src/sfdctrust/_windows_pat_files.py": "3069145e1a28d108da7f517e2555338ba9d4c04dc613c0dfee6e77f31c1be359",
+      "src/sfdctrust/integrations/__init__.py": "35ee8844f5a05ca8dedf71c24408266f82c161caf2cb1f376180af4a74b8ed3e",
+      "src/sfdctrust/models/__init__.py": "e26d1091022e369e2bdeef7f485bd7126382ab5ee6462ca9f3ab4bb5dc616abb",
+      "src/sfdctrust/models/_wire.py": "c6f1971e48c84508a4d45dafad0e662b33dba2f4695e71b5484749ab7716dcce",
+      "src/sfdctrust/models/events.py": "959b42fe671ca8109003bdfdeec6dcaad8053760839fabc6067150d7a25ae462",
+      "src/sfdctrust/models/status.py": "e0e9132c4c6d550e369fc8a1bc5f208af2951821e2478ad6fac98ba7a6417928",
+      "src/sfdctrust/models/tenants.py": "eeac4f1b89cc564a3fa15dcab3d3d7f6179b8e41e45d5c68c082eb17e790e78c",
+      "src/sfdctrust/pat_store.py": "6a63e8b072a6167f17ebc09ac01de79784eb4dc8ef537bacc9da2d5089f14f7b",
+      "src/sfdctrust/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "src/sfdctrust/resources/__init__.py": "8276ec76588e7a4ad8b1e13b1f9521e9794e0b0004de8a203178b49b4c983c22",
+      "src/sfdctrust/resources/_async_events.py": "5605ad5e6d679664190dabcdebd8ce4557e9927fb01309386c9a5e439587ff72",
+      "src/sfdctrust/resources/_async_status.py": "5b39ae3298039b1ccef37a331b9515bc8e38c5740afde2afdaea599f615243ff",
+      "src/sfdctrust/resources/_async_tenants.py": "4b5350b3837357213729243dc2127ad489cc96859ee1f7ba2902b8cf9fdec518",
+      "src/sfdctrust/resources/_requests.py": "8232ca51f891a328f4f32ba407d1b653c9c27f751b73678c29b5f3c06d7884d0",
+      "src/sfdctrust/resources/events.py": "12685da904f20833ce5eb02b2ea437cc2e1157b3488459be8815aea0891837cd",
+      "src/sfdctrust/resources/status.py": "a6127d38a303256307e81e91d745ffc68056b7cc584b174ffe99fb202287f747",
+      "src/sfdctrust/resources/tenants.py": "b7b07bf607d6a382273ae0371a410513e4add2d0139ed7ce195eb3055f31505c"
+    },
+    "qualification_file_sha256": {
+      "tests/compatibility/check_wheel.py": "4fbbd37a8aad8418adf1c625a6e02e9bbfdc84c3b53069e6dcf03c72f11cec8f",
+      "tests/compatibility/downstream.py": "f0174e384efcb7a5be0df30a2eb9daa684b448fd13300b6850e51703ae1703a9",
+      "tests/compatibility/mypy.ini": "4d6aa290b8b9bba56f42d066170d35c0693b90a047ea3d0ba495179bd790e540",
+      "tests/compatibility/public-api.json": "8a0e39d4b17ac833f47b7bd69eb1b5c2c13da26bb64c43e0e754b25bb016ec27"
+    },
+    "committed": false
+  },
+  "baseline_source": "https://pypi.org/project/sfdctrust/0.2.0/",
+  "baseline_hash_also_matches": "https://github.com/jeffshurtliff/sfdctrust/releases/tag/0.2.0",
+  "preparation": "Published baseline and dependencies downloaded separately; all venv installations used --no-index and --find-links. Behavioral qualification blocked every socket/DNS audit event after event-loop setup.",
+  "runs": {
+    "baseline": {
+      "date_utc": "2026-11-12T00:57:57.414706+00:00",
+      "version": "0.2.0",
+      "wheel": "sfdctrust-0.2.0-py3-none-any.whl",
+      "sha256": "ac39c38e87825d36b81d418264feb703972adbe1fdae169b57745d51e2ba2922",
+      "installed_from": "/private/tmp/sfdctrust-compat/baseline/lib/python3.12/site-packages/sfdctrust/__init__.py",
+      "python": "3.12.7 (v3.12.7:0b05ead877f, Sep 30 2024, 23:18:00) [Clang 13.0.0 (clang-1300.0.29.30)]",
+      "runtime_dependencies": {
+        "httpx": "0.28.1",
+        "pydantic": "2.14.3",
+        "pydantic-core": "2.50.4"
+      },
+      "harness_sha256": "4fbbd37a8aad8418adf1c625a6e02e9bbfdc84c3b53069e6dcf03c72f11cec8f",
+      "snapshot_sha256": "8a0e39d4b17ac833f47b7bd69eb1b5c2c13da26bb64c43e0e754b25bb016ec27",
+      "platform": "darwin 27.0.0 64-bit",
+      "mode": "qualify",
+      "checks_passed": [
+        "installed-wheel-identity",
+        "py.typed",
+        "public-inventory",
+        "serialization",
+        "sync-five-reads-and-pagination-errors",
+        "async-five-reads-and-lazy-iteration",
+        "timeouts-ownership-and-bounded-retries",
+        "async-cancellation",
+        "installed-initialization-cli"
+      ],
+      "network_guard_self_checks": 2,
+      "unexpected_network_attempts": 0
+    },
+    "candidate": {
+      "date_utc": "2026-11-12T00:57:57.636934+00:00",
+      "version": "1.0.0.dev0",
+      "wheel": "sfdctrust-1.0.0.dev0-py3-none-any.whl",
+      "sha256": "1cd7473e936f0612eca2f22dccafdc43df510fe87babcfdb243808309a3f7711",
+      "installed_from": "/private/tmp/sfdctrust-compat/candidate/lib/python3.12/site-packages/sfdctrust/__init__.py",
+      "python": "3.12.7 (v3.12.7:0b05ead877f, Sep 30 2024, 23:18:00) [Clang 13.0.0 (clang-1300.0.29.30)]",
+      "runtime_dependencies": {
+        "httpx": "0.28.1",
+        "pydantic": "2.14.3",
+        "pydantic-core": "2.50.4"
+      },
+      "harness_sha256": "4fbbd37a8aad8418adf1c625a6e02e9bbfdc84c3b53069e6dcf03c72f11cec8f",
+      "snapshot_sha256": "8a0e39d4b17ac833f47b7bd69eb1b5c2c13da26bb64c43e0e754b25bb016ec27",
+      "platform": "darwin 27.0.0 64-bit",
+      "mode": "qualify",
+      "checks_passed": [
+        "installed-wheel-identity",
+        "py.typed",
+        "public-inventory",
+        "serialization",
+        "sync-five-reads-and-pagination-errors",
+        "async-five-reads-and-lazy-iteration",
+        "timeouts-ownership-and-bounded-retries",
+        "async-cancellation",
+        "installed-initialization-cli"
+      ],
+      "network_guard_self_checks": 2,
+      "unexpected_network_attempts": 0
+    },
+    "seed": {
+      "date_utc": "2026-11-12T00:57:57.803843+00:00",
+      "version": "0.2.0",
+      "wheel": "sfdctrust-0.2.0-py3-none-any.whl",
+      "sha256": "ac39c38e87825d36b81d418264feb703972adbe1fdae169b57745d51e2ba2922",
+      "installed_from": "/private/tmp/sfdctrust-compat/baseline/lib/python3.12/site-packages/sfdctrust/__init__.py",
+      "python": "3.12.7 (v3.12.7:0b05ead877f, Sep 30 2024, 23:18:00) [Clang 13.0.0 (clang-1300.0.29.30)]",
+      "runtime_dependencies": {
+        "httpx": "0.28.1",
+        "pydantic": "2.14.3",
+        "pydantic-core": "2.50.4"
+      },
+      "harness_sha256": "4fbbd37a8aad8418adf1c625a6e02e9bbfdc84c3b53069e6dcf03c72f11cec8f",
+      "snapshot_sha256": "8a0e39d4b17ac833f47b7bd69eb1b5c2c13da26bb64c43e0e754b25bb016ec27",
+      "platform": "darwin 27.0.0 64-bit",
+      "mode": "seed",
+      "checks_passed": [
+        "installed-wheel-identity",
+        "py.typed",
+        "public-inventory",
+        "baseline-public-initializer-ready-and-pending"
+      ],
+      "network_guard_self_checks": 2,
+      "unexpected_network_attempts": 0
+    },
+    "upgrade": {
+      "date_utc": "2026-11-12T00:57:57.936574+00:00",
+      "version": "1.0.0.dev0",
+      "wheel": "sfdctrust-1.0.0.dev0-py3-none-any.whl",
+      "sha256": "1cd7473e936f0612eca2f22dccafdc43df510fe87babcfdb243808309a3f7711",
+      "installed_from": "/private/tmp/sfdctrust-compat/candidate/lib/python3.12/site-packages/sfdctrust/__init__.py",
+      "python": "3.12.7 (v3.12.7:0b05ead877f, Sep 30 2024, 23:18:00) [Clang 13.0.0 (clang-1300.0.29.30)]",
+      "runtime_dependencies": {
+        "httpx": "0.28.1",
+        "pydantic": "2.14.3",
+        "pydantic-core": "2.50.4"
+      },
+      "harness_sha256": "4fbbd37a8aad8418adf1c625a6e02e9bbfdc84c3b53069e6dcf03c72f11cec8f",
+      "snapshot_sha256": "8a0e39d4b17ac833f47b7bd69eb1b5c2c13da26bb64c43e0e754b25bb016ec27",
+      "platform": "darwin 27.0.0 64-bit",
+      "mode": "upgrade",
+      "checks_passed": [
+        "installed-wheel-identity",
+        "py.typed",
+        "public-inventory",
+        "candidate-reopened-baseline-ready-and-pending-stores"
+      ],
+      "network_guard_self_checks": 2,
+      "unexpected_network_attempts": 0
+    }
+  },
+  "typing": {
+    "checker": "mypy",
+    "baseline_checker": "mypy 1.20.2 (compiled: yes)",
+    "candidate_checker": "mypy 1.20.2 (compiled: yes)",
+    "baseline": {
+      "exit_code": 1,
+      "stdout": "tests/compatibility/downstream.py:96: error: Expression is of type \"list?[sfdctrust.models.tenants.Tenant]\", not \"list[Tenant]\"  [assert-type]\ntests/compatibility/downstream.py:131: error: Expression is of type \"list?[sfdctrust.models.tenants.Tenant]\", not \"list[Tenant]\"  [assert-type]\nFound 2 errors in 1 file (checked 1 source file)",
+      "stderr": ""
+    },
+    "candidate": {
+      "exit_code": 0,
+      "stdout": "Success: no issues found in 1 source file",
+      "stderr": ""
+    },
+    "baseline_disposition": "Two existing list_all annotation diagnostics; candidate qualifies builtins.list without changing calls or runtime results. No application migration needed."
+  },
+  "environments": {
+    "baseline": [
+      {
+        "name": "annotated-types",
+        "version": "0.8.0"
+      },
+      {
+        "name": "anyio",
+        "version": "4.16.0"
+      },
+      {
+        "name": "certifi",
+        "version": "2026.10.23"
+      },
+      {
+        "name": "h11",
+        "version": "0.16.0"
+      },
+      {
+        "name": "httpcore",
+        "version": "1.0.9"
+      },
+      {
+        "name": "httpx",
+        "version": "0.28.1"
+      },
+      {
+        "name": "idna",
+        "version": "3.20"
+      },
+      {
+        "name": "librt",
+        "version": "0.16.0"
+      },
+      {
+        "name": "mypy",
+        "version": "1.20.2"
+      },
+      {
+        "name": "mypy_extensions",
+        "version": "1.2.0"
+      },
+      {
+        "name": "pathspec",
+        "version": "1.1.1"
+      },
+      {
+        "name": "pip",
+        "version": "24.2"
+      },
+      {
+        "name": "pydantic",
+        "version": "2.14.3"
+      },
+      {
+        "name": "pydantic_core",
+        "version": "2.50.4"
+      },
+      {
+        "name": "sfdctrust",
+        "version": "0.2.0"
+      },
+      {
+        "name": "typing_extensions",
+        "version": "4.16.0"
+      },
+      {
+        "name": "typing-inspection",
+        "version": "0.4.5"
+      }
+    ],
+    "candidate": [
+      {
+        "name": "annotated-types",
+        "version": "0.8.0"
+      },
+      {
+        "name": "anyio",
+        "version": "4.16.0"
+      },
+      {
+        "name": "certifi",
+        "version": "2026.10.23"
+      },
+      {
+        "name": "h11",
+        "version": "0.16.0"
+      },
+      {
+        "name": "httpcore",
+        "version": "1.0.9"
+      },
+      {
+        "name": "httpx",
+        "version": "0.28.1"
+      },
+      {
+        "name": "idna",
+        "version": "3.20"
+      },
+      {
+        "name": "librt",
+        "version": "0.16.0"
+      },
+      {
+        "name": "mypy",
+        "version": "1.20.2"
+      },
+      {
+        "name": "mypy_extensions",
+        "version": "1.2.0"
+      },
+      {
+        "name": "pathspec",
+        "version": "1.1.1"
+      },
+      {
+        "name": "pip",
+        "version": "24.2"
+      },
+      {
+        "name": "pydantic",
+        "version": "2.14.3"
+      },
+      {
+        "name": "pydantic_core",
+        "version": "2.50.4"
+      },
+      {
+        "name": "sfdctrust",
+        "version": "1.0.0.dev0"
+      },
+      {
+        "name": "typing_extensions",
+        "version": "4.16.0"
+      },
+      {
+        "name": "typing-inspection",
+        "version": "0.4.5"
+      }
+    ]
+  },
+  "checks": {
+    "pytest": "605 passed, 15 platform-specific skips; macOS Python 3.12.7",
+    "ruff": "passed",
+    "ruff_format": "passed",
+    "bandit": "passed",
+    "poetry_lock": "passed",
+    "build_wheel_sdist": "passed",
+    "twine_strict": "passed",
+    "pip_check_both_environments": "passed",
+    "workflow_yaml_parse": "passed; hosted execution not performed",
+    "sphinx_strict": "passed: standard -W --keep-going -E -a HTML build; no warnings",
+    "packaging_contents": "passed: py.typed in wheel and installation; two runtime dependencies only, no mypy runtime dependency; compatibility fixtures included in sdist; no local credentials/databases in wheel"
+  },
+  "decisions": {
+    "public_phase_timeouts": "Maintainer approved deferral on 2026-11-11; fixed connect/pool 5 s and read/write 30 s per attempt, including injected clients."
+  },
+  "limits": [
+    "Local qualification only; new hosted CI not run.",
+    "Inventory, versioning and upgrade policy require maintainer approval before issue closure.",
+    "No live credentials or Salesforce calls; live gate owned by issue #8.",
+    "Issue #9 completed hosted recovery evidence reused; dedicated recovery gate not rerun.",
+    "No intentional runtime incompatibility found; package version unchanged; no push, release or issue modifications."
+  ],
+  "reproduction": "docs/maintainers/compatibility-qualification.md"
+}

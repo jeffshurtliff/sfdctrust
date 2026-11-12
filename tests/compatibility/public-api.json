@@ -1,0 +1,1857 @@
+{
+  "exports": [
+    "APIStatusError",
+    "AsyncPATStore",
+    "AsyncTrustCenterClient",
+    "AuthenticationError",
+    "ConfigurationError",
+    "MalformedResponseError",
+    "NetworkError",
+    "NotFoundError",
+    "PATPersistenceError",
+    "PATProbeResult",
+    "PATRefreshAmbiguousError",
+    "PATRefreshPendingError",
+    "PATRefreshResult",
+    "PATStore",
+    "PATStoreRecord",
+    "PaginationError",
+    "RateLimitError",
+    "RequestTimeoutError",
+    "SQLitePATStore",
+    "TrustCenterClient",
+    "TrustCenterError",
+    "__version__"
+  ],
+  "calls": {
+    "TrustCenterClient": {
+      "parameters": [
+        {
+          "name": "pat",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "str",
+          "default": "<required>"
+        },
+        {
+          "name": "http_client",
+          "kind": "KEYWORD_ONLY",
+          "type": "httpx.Client | None",
+          "default": "None"
+        },
+        {
+          "name": "max_retries",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "2"
+        }
+      ],
+      "returns": "None",
+      "invocation": "call"
+    },
+    "TrustCenterClient.from_env": {
+      "parameters": [
+        {
+          "name": "pat",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None | <omitted>",
+          "default": "<omitted>"
+        },
+        {
+          "name": "http_client",
+          "kind": "KEYWORD_ONLY",
+          "type": "httpx.Client | None",
+          "default": "None"
+        },
+        {
+          "name": "max_retries",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "2"
+        }
+      ],
+      "returns": "Self",
+      "invocation": "call"
+    },
+    "TrustCenterClient.from_store": {
+      "parameters": [
+        {
+          "name": "store",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "PATStore",
+          "default": "<required>"
+        },
+        {
+          "name": "http_client",
+          "kind": "KEYWORD_ONLY",
+          "type": "httpx.Client | None",
+          "default": "None"
+        },
+        {
+          "name": "max_retries",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "2"
+        }
+      ],
+      "returns": "Self",
+      "invocation": "call"
+    },
+    "TrustCenterClient.refresh_pat": {
+      "parameters": [
+        {
+          "name": "expires_in_days",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        }
+      ],
+      "returns": "PATRefreshResult",
+      "invocation": "call"
+    },
+    "TrustCenterClient.retry_pat_persistence": {
+      "parameters": [],
+      "returns": "PATRefreshResult",
+      "invocation": "call"
+    },
+    "TrustCenterClient.close": {
+      "parameters": [],
+      "returns": "None",
+      "invocation": "call"
+    },
+    "TrustCenterClient.__enter__": {
+      "parameters": [],
+      "returns": "Self",
+      "invocation": "call"
+    },
+    "TrustCenterClient.__exit__": {
+      "parameters": [
+        {
+          "name": "_",
+          "kind": "VAR_POSITIONAL",
+          "type": "object",
+          "default": "<required>"
+        }
+      ],
+      "returns": "None",
+      "invocation": "call"
+    },
+    "TrustCenterClient.tenants.list": {
+      "parameters": [
+        {
+          "name": "page_size",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        },
+        {
+          "name": "page_token",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        }
+      ],
+      "returns": "TenantListResponse",
+      "invocation": "call"
+    },
+    "TrustCenterClient.tenants.get": {
+      "parameters": [
+        {
+          "name": "tenant_id",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "str",
+          "default": "<required>"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        }
+      ],
+      "returns": "TenantDetail",
+      "invocation": "call"
+    },
+    "TrustCenterClient.tenants.iter_all": {
+      "parameters": [
+        {
+          "name": "page_size",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        },
+        {
+          "name": "page_token",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "max_pages",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "1000"
+        }
+      ],
+      "returns": "Iterator[Tenant]",
+      "invocation": "call"
+    },
+    "TrustCenterClient.tenants.list_all": {
+      "parameters": [
+        {
+          "name": "page_size",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        },
+        {
+          "name": "page_token",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "max_pages",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "1000"
+        }
+      ],
+      "returns": "list[Tenant]",
+      "invocation": "call"
+    },
+    "TrustCenterClient.events.search": {
+      "parameters": [
+        {
+          "name": "scopes",
+          "kind": "KEYWORD_ONLY",
+          "type": "Sequence[EventSearchScope]",
+          "default": "<required>"
+        },
+        {
+          "name": "start_time",
+          "kind": "KEYWORD_ONLY",
+          "type": "datetime",
+          "default": "<required>"
+        },
+        {
+          "name": "end_time",
+          "kind": "KEYWORD_ONLY",
+          "type": "datetime",
+          "default": "<required>"
+        },
+        {
+          "name": "event_types",
+          "kind": "KEYWORD_ONLY",
+          "type": "Sequence[EventType] | None",
+          "default": "None"
+        },
+        {
+          "name": "page_size",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        },
+        {
+          "name": "page_token",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        }
+      ],
+      "returns": "EventSearchResponse",
+      "invocation": "call"
+    },
+    "TrustCenterClient.events.get": {
+      "parameters": [
+        {
+          "name": "event_id",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "str",
+          "default": "<required>"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        }
+      ],
+      "returns": "EventDetail",
+      "invocation": "call"
+    },
+    "TrustCenterClient.events.iter_search": {
+      "parameters": [
+        {
+          "name": "scopes",
+          "kind": "KEYWORD_ONLY",
+          "type": "Sequence[EventSearchScope]",
+          "default": "<required>"
+        },
+        {
+          "name": "start_time",
+          "kind": "KEYWORD_ONLY",
+          "type": "datetime",
+          "default": "<required>"
+        },
+        {
+          "name": "end_time",
+          "kind": "KEYWORD_ONLY",
+          "type": "datetime",
+          "default": "<required>"
+        },
+        {
+          "name": "event_types",
+          "kind": "KEYWORD_ONLY",
+          "type": "Sequence[EventType] | None",
+          "default": "None"
+        },
+        {
+          "name": "page_size",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        },
+        {
+          "name": "page_token",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "max_pages",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "1000"
+        }
+      ],
+      "returns": "Iterator[EventSearchResult]",
+      "invocation": "call"
+    },
+    "TrustCenterClient.events.search_all": {
+      "parameters": [
+        {
+          "name": "scopes",
+          "kind": "KEYWORD_ONLY",
+          "type": "Sequence[EventSearchScope]",
+          "default": "<required>"
+        },
+        {
+          "name": "start_time",
+          "kind": "KEYWORD_ONLY",
+          "type": "datetime",
+          "default": "<required>"
+        },
+        {
+          "name": "end_time",
+          "kind": "KEYWORD_ONLY",
+          "type": "datetime",
+          "default": "<required>"
+        },
+        {
+          "name": "event_types",
+          "kind": "KEYWORD_ONLY",
+          "type": "Sequence[EventType] | None",
+          "default": "None"
+        },
+        {
+          "name": "page_size",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        },
+        {
+          "name": "page_token",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "max_pages",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "1000"
+        }
+      ],
+      "returns": "list[EventSearchResult]",
+      "invocation": "call"
+    },
+    "TrustCenterClient.status.snapshot": {
+      "parameters": [
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        }
+      ],
+      "returns": "StatusSnapshot",
+      "invocation": "call"
+    },
+    "AsyncTrustCenterClient": {
+      "parameters": [
+        {
+          "name": "pat",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "str",
+          "default": "<required>"
+        },
+        {
+          "name": "http_client",
+          "kind": "KEYWORD_ONLY",
+          "type": "httpx.AsyncClient | None",
+          "default": "None"
+        },
+        {
+          "name": "max_retries",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "2"
+        }
+      ],
+      "returns": "None",
+      "invocation": "call"
+    },
+    "AsyncTrustCenterClient.from_env": {
+      "parameters": [
+        {
+          "name": "pat",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None | <omitted>",
+          "default": "<omitted>"
+        },
+        {
+          "name": "http_client",
+          "kind": "KEYWORD_ONLY",
+          "type": "httpx.AsyncClient | None",
+          "default": "None"
+        },
+        {
+          "name": "max_retries",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "2"
+        }
+      ],
+      "returns": "Self",
+      "invocation": "call"
+    },
+    "AsyncTrustCenterClient.from_store": {
+      "parameters": [
+        {
+          "name": "store",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "AsyncPATStore",
+          "default": "<required>"
+        },
+        {
+          "name": "http_client",
+          "kind": "KEYWORD_ONLY",
+          "type": "httpx.AsyncClient | None",
+          "default": "None"
+        },
+        {
+          "name": "max_retries",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "2"
+        }
+      ],
+      "returns": "Self",
+      "invocation": "await"
+    },
+    "AsyncTrustCenterClient.refresh_pat": {
+      "parameters": [
+        {
+          "name": "expires_in_days",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        }
+      ],
+      "returns": "PATRefreshResult",
+      "invocation": "await"
+    },
+    "AsyncTrustCenterClient.retry_pat_persistence": {
+      "parameters": [],
+      "returns": "PATRefreshResult",
+      "invocation": "await"
+    },
+    "AsyncTrustCenterClient.aclose": {
+      "parameters": [],
+      "returns": "None",
+      "invocation": "await"
+    },
+    "AsyncTrustCenterClient.__aenter__": {
+      "parameters": [],
+      "returns": "Self",
+      "invocation": "await"
+    },
+    "AsyncTrustCenterClient.__aexit__": {
+      "parameters": [
+        {
+          "name": "_",
+          "kind": "VAR_POSITIONAL",
+          "type": "object",
+          "default": "<required>"
+        }
+      ],
+      "returns": "None",
+      "invocation": "await"
+    },
+    "AsyncTrustCenterClient.tenants.list": {
+      "parameters": [
+        {
+          "name": "page_size",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        },
+        {
+          "name": "page_token",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        }
+      ],
+      "returns": "TenantListResponse",
+      "invocation": "await"
+    },
+    "AsyncTrustCenterClient.tenants.get": {
+      "parameters": [
+        {
+          "name": "tenant_id",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "str",
+          "default": "<required>"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        }
+      ],
+      "returns": "TenantDetail",
+      "invocation": "await"
+    },
+    "AsyncTrustCenterClient.tenants.iter_all": {
+      "parameters": [
+        {
+          "name": "page_size",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        },
+        {
+          "name": "page_token",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "max_pages",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "1000"
+        }
+      ],
+      "returns": "AsyncIterator[Tenant]",
+      "invocation": "call"
+    },
+    "AsyncTrustCenterClient.tenants.list_all": {
+      "parameters": [
+        {
+          "name": "page_size",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        },
+        {
+          "name": "page_token",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "max_pages",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "1000"
+        }
+      ],
+      "returns": "list[Tenant]",
+      "invocation": "await"
+    },
+    "AsyncTrustCenterClient.events.search": {
+      "parameters": [
+        {
+          "name": "scopes",
+          "kind": "KEYWORD_ONLY",
+          "type": "Sequence[EventSearchScope]",
+          "default": "<required>"
+        },
+        {
+          "name": "start_time",
+          "kind": "KEYWORD_ONLY",
+          "type": "datetime",
+          "default": "<required>"
+        },
+        {
+          "name": "end_time",
+          "kind": "KEYWORD_ONLY",
+          "type": "datetime",
+          "default": "<required>"
+        },
+        {
+          "name": "event_types",
+          "kind": "KEYWORD_ONLY",
+          "type": "Sequence[EventType] | None",
+          "default": "None"
+        },
+        {
+          "name": "page_size",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        },
+        {
+          "name": "page_token",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        }
+      ],
+      "returns": "EventSearchResponse",
+      "invocation": "await"
+    },
+    "AsyncTrustCenterClient.events.get": {
+      "parameters": [
+        {
+          "name": "event_id",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "str",
+          "default": "<required>"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        }
+      ],
+      "returns": "EventDetail",
+      "invocation": "await"
+    },
+    "AsyncTrustCenterClient.events.iter_search": {
+      "parameters": [
+        {
+          "name": "scopes",
+          "kind": "KEYWORD_ONLY",
+          "type": "Sequence[EventSearchScope]",
+          "default": "<required>"
+        },
+        {
+          "name": "start_time",
+          "kind": "KEYWORD_ONLY",
+          "type": "datetime",
+          "default": "<required>"
+        },
+        {
+          "name": "end_time",
+          "kind": "KEYWORD_ONLY",
+          "type": "datetime",
+          "default": "<required>"
+        },
+        {
+          "name": "event_types",
+          "kind": "KEYWORD_ONLY",
+          "type": "Sequence[EventType] | None",
+          "default": "None"
+        },
+        {
+          "name": "page_size",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        },
+        {
+          "name": "page_token",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "max_pages",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "1000"
+        }
+      ],
+      "returns": "AsyncIterator[EventSearchResult]",
+      "invocation": "call"
+    },
+    "AsyncTrustCenterClient.events.search_all": {
+      "parameters": [
+        {
+          "name": "scopes",
+          "kind": "KEYWORD_ONLY",
+          "type": "Sequence[EventSearchScope]",
+          "default": "<required>"
+        },
+        {
+          "name": "start_time",
+          "kind": "KEYWORD_ONLY",
+          "type": "datetime",
+          "default": "<required>"
+        },
+        {
+          "name": "end_time",
+          "kind": "KEYWORD_ONLY",
+          "type": "datetime",
+          "default": "<required>"
+        },
+        {
+          "name": "event_types",
+          "kind": "KEYWORD_ONLY",
+          "type": "Sequence[EventType] | None",
+          "default": "None"
+        },
+        {
+          "name": "page_size",
+          "kind": "KEYWORD_ONLY",
+          "type": "int | None",
+          "default": "None"
+        },
+        {
+          "name": "page_token",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        },
+        {
+          "name": "max_pages",
+          "kind": "KEYWORD_ONLY",
+          "type": "int",
+          "default": "1000"
+        }
+      ],
+      "returns": "list[EventSearchResult]",
+      "invocation": "await"
+    },
+    "AsyncTrustCenterClient.status.snapshot": {
+      "parameters": [
+        {
+          "name": "locale",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        }
+      ],
+      "returns": "StatusSnapshot",
+      "invocation": "await"
+    },
+    "PATStore.load": {
+      "parameters": [],
+      "returns": "PATStoreRecord | None",
+      "invocation": "call"
+    },
+    "PATStore.compare_and_swap": {
+      "parameters": [
+        {
+          "name": "expected_revision",
+          "kind": "KEYWORD_ONLY",
+          "type": "UUID",
+          "default": "<required>"
+        },
+        {
+          "name": "expected_attempt",
+          "kind": "KEYWORD_ONLY",
+          "type": "UUID | None",
+          "default": "<required>"
+        },
+        {
+          "name": "replacement",
+          "kind": "KEYWORD_ONLY",
+          "type": "PATStoreRecord",
+          "default": "<required>"
+        }
+      ],
+      "returns": "bool",
+      "invocation": "call"
+    },
+    "AsyncPATStore.load": {
+      "parameters": [],
+      "returns": "PATStoreRecord | None",
+      "invocation": "await"
+    },
+    "AsyncPATStore.compare_and_swap": {
+      "parameters": [
+        {
+          "name": "expected_revision",
+          "kind": "KEYWORD_ONLY",
+          "type": "UUID",
+          "default": "<required>"
+        },
+        {
+          "name": "expected_attempt",
+          "kind": "KEYWORD_ONLY",
+          "type": "UUID | None",
+          "default": "<required>"
+        },
+        {
+          "name": "replacement",
+          "kind": "KEYWORD_ONLY",
+          "type": "PATStoreRecord",
+          "default": "<required>"
+        }
+      ],
+      "returns": "bool",
+      "invocation": "await"
+    },
+    "PATStoreRecord": {
+      "parameters": [
+        {
+          "name": "revision",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "UUID",
+          "default": "<required>"
+        },
+        {
+          "name": "pat",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "InitVar[str]",
+          "default": "<required>"
+        },
+        {
+          "name": "pending_attempt",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "UUID | None",
+          "default": "None"
+        }
+      ],
+      "returns": "None",
+      "invocation": "call"
+    },
+    "PATStoreRecord.get_pat": {
+      "parameters": [],
+      "returns": "str",
+      "invocation": "call"
+    },
+    "PATRefreshResult": {
+      "parameters": [
+        {
+          "name": "metadata_valid",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "bool",
+          "default": "<required>"
+        }
+      ],
+      "returns": "None",
+      "invocation": "call"
+    },
+    "SQLitePATStore": {
+      "parameters": [
+        {
+          "name": "path",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "str | Path | None",
+          "default": "None"
+        },
+        {
+          "name": "alias",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        }
+      ],
+      "returns": "None",
+      "invocation": "call"
+    },
+    "SQLitePATStore.initialize": {
+      "parameters": [
+        {
+          "name": "pat",
+          "kind": "KEYWORD_ONLY",
+          "type": "str",
+          "default": "<required>"
+        },
+        {
+          "name": "path",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | Path | None",
+          "default": "None"
+        },
+        {
+          "name": "alias",
+          "kind": "KEYWORD_ONLY",
+          "type": "str | None",
+          "default": "None"
+        }
+      ],
+      "returns": "Self",
+      "invocation": "call"
+    },
+    "SQLitePATStore.load": {
+      "parameters": [],
+      "returns": "PATStoreRecord | None",
+      "invocation": "call"
+    },
+    "SQLitePATStore.compare_and_swap": {
+      "parameters": [
+        {
+          "name": "expected_revision",
+          "kind": "KEYWORD_ONLY",
+          "type": "UUID",
+          "default": "<required>"
+        },
+        {
+          "name": "expected_attempt",
+          "kind": "KEYWORD_ONLY",
+          "type": "UUID | None",
+          "default": "<required>"
+        },
+        {
+          "name": "replacement",
+          "kind": "KEYWORD_ONLY",
+          "type": "PATStoreRecord",
+          "default": "<required>"
+        }
+      ],
+      "returns": "bool",
+      "invocation": "call"
+    },
+    "APIStatusError": {
+      "parameters": [
+        {
+          "name": "status_code",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "int",
+          "default": "<required>"
+        }
+      ],
+      "returns": "None",
+      "invocation": "call"
+    },
+    "AuthenticationError": {
+      "parameters": [],
+      "returns": "None",
+      "invocation": "call"
+    },
+    "NotFoundError": {
+      "parameters": [],
+      "returns": "None",
+      "invocation": "call"
+    },
+    "RateLimitError": {
+      "parameters": [],
+      "returns": "None",
+      "invocation": "call"
+    },
+    "PATRefreshAmbiguousError": {
+      "parameters": [
+        {
+          "name": "probe",
+          "kind": "POSITIONAL_OR_KEYWORD",
+          "type": "PATProbeResult",
+          "default": "<required>"
+        }
+      ],
+      "returns": "None",
+      "invocation": "call"
+    }
+  },
+  "models": {
+    "sfdctrust.models.tenants.Tenant": {
+      "id": {
+        "alias": "id",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "cloud": {
+        "alias": "cloud",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "name": {
+        "alias": "name",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "environment": {
+        "alias": "environment",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "my_domain": {
+        "alias": "myDomain",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      }
+    },
+    "sfdctrust.models.tenants.TenantListResponse": {
+      "tenants": {
+        "alias": "tenants",
+        "required": true,
+        "type": "list[sfdctrust.models.tenants.Tenant]",
+        "default": "<required>"
+      },
+      "next_page_token": {
+        "alias": "nextPageToken",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      }
+    },
+    "sfdctrust.models.tenants.TenantDetail": {
+      "id": {
+        "alias": "id",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "cloud": {
+        "alias": "cloud",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "name": {
+        "alias": "name",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "environment": {
+        "alias": "environment",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "my_domain": {
+        "alias": "myDomain",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "region": {
+        "alias": "region",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "version": {
+        "alias": "version",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "maintenance_window": {
+        "alias": "maintenanceWindow",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "location": {
+        "alias": "location",
+        "required": false,
+        "type": "sfdctrust.models.tenants.TenantLocation | None",
+        "default": "None"
+      },
+      "events": {
+        "alias": "events",
+        "required": true,
+        "type": "list[sfdctrust.models.events.EventSummary]",
+        "default": "<required>"
+      }
+    },
+    "sfdctrust.models.tenants.TenantLocation": {
+      "city": {
+        "alias": "city",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "state_name": {
+        "alias": "stateName",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "state_code": {
+        "alias": "stateCode",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "country_name": {
+        "alias": "countryName",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "country_code": {
+        "alias": "countryCode",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      }
+    },
+    "sfdctrust.models.status.EventTypeBuckets": {
+      "patch": {
+        "alias": "patch",
+        "required": true,
+        "type": "list[sfdctrust.models.events.EventSummary]",
+        "default": "<required>"
+      },
+      "incident": {
+        "alias": "incident",
+        "required": true,
+        "type": "list[sfdctrust.models.events.EventSummary]",
+        "default": "<required>"
+      },
+      "maintenance": {
+        "alias": "maintenance",
+        "required": true,
+        "type": "list[sfdctrust.models.events.EventSummary]",
+        "default": "<required>"
+      },
+      "informational_message": {
+        "alias": "informationalMessage",
+        "required": true,
+        "type": "list[sfdctrust.models.events.EventSummary]",
+        "default": "<required>"
+      }
+    },
+    "sfdctrust.models.status.StatusSnapshot": {
+      "ongoing": {
+        "alias": "ongoing",
+        "required": true,
+        "type": "<class 'sfdctrust.models.status.EventTypeBuckets'>",
+        "default": "<required>"
+      },
+      "upcoming": {
+        "alias": "upcoming",
+        "required": true,
+        "type": "<class 'sfdctrust.models.status.EventTypeBuckets'>",
+        "default": "<required>"
+      }
+    },
+    "sfdctrust.models.events.EventType": {},
+    "sfdctrust.models.events.EventSearchScope": {
+      "id": {
+        "alias": "id",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "type": {
+        "alias": "type",
+        "required": false,
+        "type": "typing.Literal['tenant']",
+        "default": "'tenant'"
+      }
+    },
+    "sfdctrust.models.events.EventSearchResponse": {
+      "events": {
+        "alias": "events",
+        "required": true,
+        "type": "list[sfdctrust.models.events.EventSearchResult]",
+        "default": "<required>"
+      },
+      "next_page_token": {
+        "alias": "nextPageToken",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      }
+    },
+    "sfdctrust.models.events.EventSearchResult": {
+      "event_id": {
+        "alias": "eventId",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "event_type": {
+        "alias": "eventType",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "status": {
+        "alias": "status",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "products": {
+        "alias": "products",
+        "required": true,
+        "type": "list[str]",
+        "default": "<required>"
+      },
+      "services": {
+        "alias": "services",
+        "required": true,
+        "type": "list[str]",
+        "default": "<required>"
+      },
+      "created_at": {
+        "alias": "createdAt",
+        "required": true,
+        "type": "<class 'datetime.datetime'>",
+        "default": "<required>"
+      },
+      "title": {
+        "alias": "title",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "description": {
+        "alias": "description",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "start_time": {
+        "alias": "startTime",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      },
+      "end_time": {
+        "alias": "endTime",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      },
+      "duration": {
+        "alias": "duration",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "display_duration": {
+        "alias": "displayDuration",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "data": {
+        "alias": "data",
+        "required": false,
+        "type": "typing.Union[typing.Annotated[sfdctrust.models.events.PatchEventData, InstanceOf()], typing.Annotated[sfdctrust.models.events.IncidentEventData, InstanceOf()], typing.Annotated[sfdctrust.models.events.MaintenanceEventData, InstanceOf()], typing.Annotated[sfdctrust.models.events.InformationalMessageEventData, InstanceOf()], dict[str, typing.Any], NoneType]",
+        "default": "None"
+      },
+      "scope": {
+        "alias": "scope",
+        "required": true,
+        "type": "<class 'sfdctrust.models.events.SubEventScope'>",
+        "default": "<required>"
+      }
+    },
+    "sfdctrust.models.events.EventDetail": {
+      "event_id": {
+        "alias": "eventId",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "event_type": {
+        "alias": "eventType",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "status": {
+        "alias": "status",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "products": {
+        "alias": "products",
+        "required": true,
+        "type": "list[str]",
+        "default": "<required>"
+      },
+      "services": {
+        "alias": "services",
+        "required": true,
+        "type": "list[str]",
+        "default": "<required>"
+      },
+      "created_at": {
+        "alias": "createdAt",
+        "required": true,
+        "type": "<class 'datetime.datetime'>",
+        "default": "<required>"
+      },
+      "title": {
+        "alias": "title",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "description": {
+        "alias": "description",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "start_time": {
+        "alias": "startTime",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      },
+      "end_time": {
+        "alias": "endTime",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      },
+      "duration": {
+        "alias": "duration",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "display_duration": {
+        "alias": "displayDuration",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "data": {
+        "alias": "data",
+        "required": false,
+        "type": "typing.Union[typing.Annotated[sfdctrust.models.events.PatchEventData, InstanceOf()], typing.Annotated[sfdctrust.models.events.IncidentEventData, InstanceOf()], typing.Annotated[sfdctrust.models.events.MaintenanceEventData, InstanceOf()], typing.Annotated[sfdctrust.models.events.InformationalMessageEventData, InstanceOf()], dict[str, typing.Any], NoneType]",
+        "default": "None"
+      },
+      "timeline": {
+        "alias": "timeline",
+        "required": false,
+        "type": "list[typing.Annotated[typing.Union[typing.Annotated[sfdctrust.models.events.PatchTimelineItem, Tag(tag='patch')], typing.Annotated[sfdctrust.models.events.IncidentTimelineItem, Tag(tag='incident')], typing.Annotated[sfdctrust.models.events.MaintenanceTimelineItem, Tag(tag='maintenance')], typing.Annotated[sfdctrust.models.events.InformationalMessageTimelineItem, Tag(tag='informationalMessage')], typing.Annotated[sfdctrust.models.events._TimelineEntry, Tag(tag='unknown')]], Discriminator(discriminator=<function _timeline_tag>, custom_error_type=None, custom_error_message=None, custom_error_context=None)]] | None",
+        "default": "None"
+      }
+    },
+    "sfdctrust.models.events.EventSummary": {
+      "event_id": {
+        "alias": "eventId",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "event_type": {
+        "alias": "eventType",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "status": {
+        "alias": "status",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "products": {
+        "alias": "products",
+        "required": true,
+        "type": "list[str]",
+        "default": "<required>"
+      },
+      "services": {
+        "alias": "services",
+        "required": true,
+        "type": "list[str]",
+        "default": "<required>"
+      },
+      "created_at": {
+        "alias": "createdAt",
+        "required": true,
+        "type": "<class 'datetime.datetime'>",
+        "default": "<required>"
+      },
+      "title": {
+        "alias": "title",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "description": {
+        "alias": "description",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "start_time": {
+        "alias": "startTime",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      },
+      "end_time": {
+        "alias": "endTime",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      },
+      "duration": {
+        "alias": "duration",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "display_duration": {
+        "alias": "displayDuration",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "data": {
+        "alias": "data",
+        "required": false,
+        "type": "typing.Union[typing.Annotated[sfdctrust.models.events.PatchEventData, InstanceOf()], typing.Annotated[sfdctrust.models.events.IncidentEventData, InstanceOf()], typing.Annotated[sfdctrust.models.events.MaintenanceEventData, InstanceOf()], typing.Annotated[sfdctrust.models.events.InformationalMessageEventData, InstanceOf()], dict[str, typing.Any], NoneType]",
+        "default": "None"
+      },
+      "scope": {
+        "alias": "scope",
+        "required": true,
+        "type": "<class 'sfdctrust.models.events.SubEventScope'>",
+        "default": "<required>"
+      }
+    },
+    "sfdctrust.models.events.SubEventScope": {
+      "tenants": {
+        "alias": "tenants",
+        "required": true,
+        "type": "dict[str, dict[str, typing.Any]]",
+        "default": "<required>"
+      }
+    },
+    "sfdctrust.models.events.PatchEventData": {
+      "release_id": {
+        "alias": "releaseId",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "release_name": {
+        "alias": "releaseName",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "release_version": {
+        "alias": "releaseVersion",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "planned_start_time": {
+        "alias": "plannedStartTime",
+        "required": true,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "<required>"
+      },
+      "planned_end_time": {
+        "alias": "plannedEndTime",
+        "required": true,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "<required>"
+      }
+    },
+    "sfdctrust.models.events.IncidentEventData": {
+      "additional_information": {
+        "alias": "additionalInformation",
+        "required": true,
+        "type": "str | None",
+        "default": "<required>"
+      },
+      "rca_link": {
+        "alias": "rcaLink",
+        "required": true,
+        "type": "str | None",
+        "default": "<required>"
+      },
+      "rca_created_at": {
+        "alias": "rcaCreatedAt",
+        "required": true,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "<required>"
+      }
+    },
+    "sfdctrust.models.events.MaintenanceEventData": {
+      "planned_start_time": {
+        "alias": "plannedStartTime",
+        "required": true,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "<required>"
+      },
+      "planned_end_time": {
+        "alias": "plannedEndTime",
+        "required": true,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "<required>"
+      },
+      "additional_information": {
+        "alias": "additionalInformation",
+        "required": true,
+        "type": "str | None",
+        "default": "<required>"
+      }
+    },
+    "sfdctrust.models.events.InformationalMessageEventData": {
+      "informational_message_type": {
+        "alias": "informationalMessageType",
+        "required": true,
+        "type": "str | None",
+        "default": "<required>"
+      }
+    },
+    "sfdctrust.models.events.TimelineItem": {},
+    "sfdctrust.models.events.PatchTimelineItem": {
+      "sub_event_id": {
+        "alias": "subEventId",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "sub_event_type": {
+        "alias": "subEventType",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "scope": {
+        "alias": "scope",
+        "required": true,
+        "type": "<class 'sfdctrust.models.events.SubEventScope'>",
+        "default": "<required>"
+      },
+      "created_at": {
+        "alias": "createdAt",
+        "required": true,
+        "type": "<class 'datetime.datetime'>",
+        "default": "<required>"
+      },
+      "message": {
+        "alias": "message",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "updated_at": {
+        "alias": "updatedAt",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      },
+      "publication_date": {
+        "alias": "publicationDate",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      },
+      "planned_start_time": {
+        "alias": "plannedStartTime",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      },
+      "planned_end_time": {
+        "alias": "plannedEndTime",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      },
+      "contents": {
+        "alias": "contents",
+        "required": false,
+        "type": "list[sfdctrust.models.events.PatchNote] | None",
+        "default": "None"
+      }
+    },
+    "sfdctrust.models.events.IncidentTimelineItem": {
+      "sub_event_id": {
+        "alias": "subEventId",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "sub_event_type": {
+        "alias": "subEventType",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "scope": {
+        "alias": "scope",
+        "required": true,
+        "type": "<class 'sfdctrust.models.events.SubEventScope'>",
+        "default": "<required>"
+      },
+      "created_at": {
+        "alias": "createdAt",
+        "required": true,
+        "type": "<class 'datetime.datetime'>",
+        "default": "<required>"
+      },
+      "message": {
+        "alias": "message",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "updated_at": {
+        "alias": "updatedAt",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      }
+    },
+    "sfdctrust.models.events.MaintenanceTimelineItem": {
+      "sub_event_id": {
+        "alias": "subEventId",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "sub_event_type": {
+        "alias": "subEventType",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "scope": {
+        "alias": "scope",
+        "required": true,
+        "type": "<class 'sfdctrust.models.events.SubEventScope'>",
+        "default": "<required>"
+      },
+      "created_at": {
+        "alias": "createdAt",
+        "required": true,
+        "type": "<class 'datetime.datetime'>",
+        "default": "<required>"
+      },
+      "message": {
+        "alias": "message",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "updated_at": {
+        "alias": "updatedAt",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      },
+      "planned_start_time": {
+        "alias": "plannedStartTime",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      },
+      "planned_end_time": {
+        "alias": "plannedEndTime",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      }
+    },
+    "sfdctrust.models.events.InformationalMessageTimelineItem": {
+      "sub_event_id": {
+        "alias": "subEventId",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "sub_event_type": {
+        "alias": "subEventType",
+        "required": true,
+        "type": "<class 'str'>",
+        "default": "<required>"
+      },
+      "scope": {
+        "alias": "scope",
+        "required": true,
+        "type": "<class 'sfdctrust.models.events.SubEventScope'>",
+        "default": "<required>"
+      },
+      "created_at": {
+        "alias": "createdAt",
+        "required": true,
+        "type": "<class 'datetime.datetime'>",
+        "default": "<required>"
+      },
+      "message": {
+        "alias": "message",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "updated_at": {
+        "alias": "updatedAt",
+        "required": false,
+        "type": "typing.Optional[typing.Annotated[datetime.datetime, BeforeValidator(func=<function _parse_timestamp>, json_schema_input_type=PydanticUndefined)]]",
+        "default": "None"
+      }
+    },
+    "sfdctrust.models.events.PatchNote": {
+      "related_item": {
+        "alias": "relatedItem",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      },
+      "description": {
+        "alias": "description",
+        "required": false,
+        "type": "str | None",
+        "default": "None"
+      }
+    }
+  },
+  "exceptions": {
+    "TrustCenterError": [
+      "Exception"
+    ],
+    "ConfigurationError": [
+      "TrustCenterError",
+      "Exception"
+    ],
+    "NetworkError": [
+      "TrustCenterError",
+      "Exception"
+    ],
+    "RequestTimeoutError": [
+      "NetworkError",
+      "TrustCenterError",
+      "Exception"
+    ],
+    "APIStatusError": [
+      "TrustCenterError",
+      "Exception"
+    ],
+    "AuthenticationError": [
+      "APIStatusError",
+      "TrustCenterError",
+      "Exception"
+    ],
+    "RateLimitError": [
+      "APIStatusError",
+      "TrustCenterError",
+      "Exception"
+    ],
+    "NotFoundError": [
+      "APIStatusError",
+      "TrustCenterError",
+      "Exception"
+    ],
+    "MalformedResponseError": [
+      "TrustCenterError",
+      "Exception"
+    ],
+    "PaginationError": [
+      "TrustCenterError",
+      "Exception"
+    ],
+    "PATRefreshPendingError": [
+      "TrustCenterError",
+      "Exception"
+    ],
+    "PATRefreshAmbiguousError": [
+      "TrustCenterError",
+      "Exception"
+    ],
+    "PATPersistenceError": [
+      "TrustCenterError",
+      "Exception"
+    ]
+  },
+  "probe_values": {
+    "OLD_PAT_ACCEPTED": "old_pat_accepted",
+    "OLD_PAT_REJECTED": "old_pat_rejected",
+    "INCONCLUSIVE": "inconclusive"
+  }
+}

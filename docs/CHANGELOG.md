@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
+- Public 1.x compatibility inventory and versioning/SQLite upgrade policy, with
+  an offline published-wheel comparison and an installed-package downstream mypy CI gate.
 - Repeatable offline installed-wheel SQLite PAT recovery rehearsal for pending
   attempts, retained replacements, and replacement loss across process exit.
 
@@ -25,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-fixed)=
 ### Fixed
 
+- Sync and async tenant collectors now expose `list[Tenant]` correctly to
+  downstream type checkers despite the resource method named `list`.
 - Windows recovery rehearsal evidence reporting no longer requests the local
   hostname through Python's platform helpers while the socket guard is active.
 
