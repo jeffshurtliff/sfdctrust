@@ -17,6 +17,7 @@ history, see the :doc:`../CHANGELOG`.
    :hidden:
 
    documentation
+   compatibility-qualification
    sqlite-pat-store
    sqlite-pat-recovery-evidence
    installed-wheel-qualification

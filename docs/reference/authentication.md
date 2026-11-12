@@ -130,13 +130,11 @@ may retain older credential bytes; the SDK does not promise secure erasure.
 
 ### Format, transactions, and errors
 
-The built-in format uses SQLite `application_id=0x53464454` and
-`user_version=1`, with one `credential` table containing `slot` (fixed to 1),
-`revision`, `pat`, and nullable `pending_attempt`. UUIDs are stored as
-canonical text. This is an internal, versioned format, not a general database
-editing API. Unknown versions, unexpected schema objects, malformed records,
-and the old unversioned example format are rejected. There is no automatic
-migration or in-place reseeding.
+The built-in store uses an internal versioned format. SQL identifiers, table
+layout and format markers are private, not an editing API. Unknown versions,
+unexpected schema objects, malformed records, and the old unversioned example
+format are rejected. There is no automatic migration or in-place reseeding.
+See {doc}`compatibility` for the supported versioned-store upgrade promise.
 
 Connections last only for an operation, so the adapter needs no `close()`.
 Each connection uses an existing-file URI, a five-second lock timeout,

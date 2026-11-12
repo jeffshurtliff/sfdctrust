@@ -120,3 +120,63 @@ jobs:
       - run: poetry build
       - run: poetry run twine check --strict dist/*
       - run: poetry run sphinx-build -W --keep-going -E -a -b html docs docs/_build/html
+
+  compatibility:
+    name: Public compatibility and downstream typing
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Prepare wheels and isolated non-editable installations
+        run: |
+          python -m pip install 'poetry==2.4.2'
+          poetry check --lock --strict
+          poetry install --no-interaction
+          poetry build
+          compat_root="$RUNNER_TEMP/compatibility"
+          mkdir -p "$compat_root/wheels" "$compat_root/evidence"
+          checker_version="$(poetry run python -c 'from importlib.metadata import version; print(version("mypy"))')"
+          python -m pip download --only-binary=:all: --dest "$compat_root/wheels" \
+            'sfdctrust==0.2.0' "mypy==$checker_version"
+          python -m venv "$compat_root/baseline"
+          python -m venv "$compat_root/candidate"
+          "$compat_root/baseline/bin/python" -I -m pip install --no-index --find-links "$compat_root/wheels" \
+            "$compat_root/wheels/sfdctrust-0.2.0-py3-none-any.whl"
+          "$compat_root/candidate/bin/python" -I -m pip install --no-index --find-links "$compat_root/wheels" \
+            dist/sfdctrust-*.whl "mypy==$checker_version"
+          "$compat_root/baseline/bin/python" -I -m pip check
+          "$compat_root/candidate/bin/python" -I -m pip check
+      - name: Compare public inventories and offline behavior, then reopen baseline stores
+        run: |
+          compat_root="$RUNNER_TEMP/compatibility"
+          candidate_version="$(poetry run python -c 'from importlib.metadata import version; print(version("sfdctrust"))')"
+          "$compat_root/baseline/bin/python" -I tests/compatibility/check_wheel.py \
+            --wheel "$compat_root/wheels/sfdctrust-0.2.0-py3-none-any.whl" --expected-version 0.2.0 \
+            --snapshot tests/compatibility/public-api.json --evidence "$compat_root/evidence/baseline.json"
+          "$compat_root/candidate/bin/python" -I tests/compatibility/check_wheel.py \
+            --wheel dist/sfdctrust-*.whl --expected-version "$candidate_version" \
+            --snapshot tests/compatibility/public-api.json --evidence "$compat_root/evidence/candidate.json"
+          "$compat_root/baseline/bin/python" -I tests/compatibility/check_wheel.py \
+            --wheel "$compat_root/wheels/sfdctrust-0.2.0-py3-none-any.whl" --expected-version 0.2.0 \
+            --snapshot tests/compatibility/public-api.json --mode seed --store-directory "$compat_root/stores" \
+            --evidence "$compat_root/evidence/seed.json"
+          "$compat_root/candidate/bin/python" -I tests/compatibility/check_wheel.py \
+            --wheel dist/sfdctrust-*.whl --expected-version "$candidate_version" \
+            --snapshot tests/compatibility/public-api.json --mode upgrade --store-directory "$compat_root/stores" \
+            --evidence "$compat_root/evidence/upgrade.json"
+          git rev-parse HEAD
+          git status --short --branch
+      - name: Type-check the downstream fixture against the installed candidate
+        run: |
+          compat_root="$RUNNER_TEMP/compatibility"
+          "$compat_root/candidate/bin/python" -I -m mypy --version
+          "$compat_root/candidate/bin/python" -I -m mypy --config-file tests/compatibility/mypy.ini \
+            --no-incremental tests/compatibility/downstream.py

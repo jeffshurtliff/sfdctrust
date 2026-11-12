@@ -167,6 +167,13 @@ custom `AsyncPATStore`, then await rotation and any persistence recovery.
 The built-in SQLite store currently supports the synchronous client.
 [Async adapter contract and cancellation recovery](https://sfdctrust.readthedocs.io/en/stable/reference/authentication.html#async-store-backed-clients)
 
+## Compatibility
+
+The [1.x public compatibility baseline and versioning policy](https://sfdctrust.readthedocs.io/en/latest/reference/compatibility.html)
+identify supported imports, calls, serialization, errors, pagination, HTTP client
+ownership, and PAT-store upgrades. The 1.0 candidate retains fixed per-attempt
+phase timeouts, including with injected HTTPX clients.
+
 ## Development
 
 Requires Python **3.12 or later** and Poetry **2.2 or later, below 3**.

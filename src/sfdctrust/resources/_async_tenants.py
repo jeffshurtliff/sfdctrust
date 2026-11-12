@@ -4,11 +4,12 @@
 :Synopsis:          Asynchronous tenant listing and detail
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     04 Nov 2026
+:Modified Date:     12 Nov 2026
 """
 
 from __future__ import annotations
 
+import builtins
 from collections.abc import AsyncIterator
 
 from .._async_transport import _AsyncTransport
@@ -70,7 +71,7 @@ class AsyncTenantsResource:
         page_token: str | None = None,
         locale: str | None = None,
         max_pages: int = 1000,
-    ) -> list[Tenant]:
+    ) -> builtins.list[Tenant]:
         """Collect :meth:`iter_all` results, propagating any traversal error.
 
         :param page_size: Optional maximum tenants per page, from 1 through 200.
@@ -80,7 +81,12 @@ class AsyncTenantsResource:
         """
         return [
             tenant
-            async for tenant in self.iter_all(page_size=page_size, page_token=page_token, locale=locale, max_pages=max_pages)
+            async for tenant in self.iter_all(
+                page_size=page_size,
+                page_token=page_token,
+                locale=locale,
+                max_pages=max_pages,
+            )
         ]
 
     async def get(self, tenant_id: str, *, locale: str | None = None) -> TenantDetail:

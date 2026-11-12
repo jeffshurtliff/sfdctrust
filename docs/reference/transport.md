@@ -19,7 +19,10 @@ redirect following disabled per request.
 - Each attempt uses the transport's timeout configuration, including with injected
   clients. The defaults are 5 seconds each for connect and pool and 30 seconds each
   for read and write. Custom `httpx.Timeout` values must be positive and finite in
-  all four phases. These are HTTPX phase timeouts.
+  all four phases in the private transport. Public phase-timeout configuration
+  was deferred for 1.0 by maintainer decision; injected HTTPX timeout settings
+  do not override SDK limits. These are HTTPX phase timeouts, not a total deadline.
+  See {doc}`compatibility`.
 
 ## Responses and retries
 
