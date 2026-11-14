@@ -1,66 +1,44 @@
 name: SDK validation
 
+# Deliberately unfiltered: required checks must also complete on docs-only/fork PRs.
 on:
   push:
-    paths-ignore:
-      - README.md
-      - CONTRIBUTING.md
-      - AGENTS.md
-      - CLAUDE.md
-      - GEMINI.md
-      - LICENSE
-      - dev/**
-      - docs/**
-      - examples/**
-      - .agents/**
-      - .claude/**
-      - .codex/**
-      - .entire/**
-      - .gemini/**
-      - .github/ISSUE_TEMPLATE/**
-      - .gitignore
-      - .readthedocs.yaml
   pull_request:
-    paths-ignore:
-      - README.md
-      - CONTRIBUTING.md
-      - AGENTS.md
-      - CLAUDE.md
-      - GEMINI.md
-      - LICENSE
-      - dev/**
-      - docs/**
-      - examples/**
-      - .agents/**
-      - .claude/**
-      - .codex/**
-      - .entire/**
-      - .gemini/**
-      - .github/ISSUE_TEMPLATE/**
-      - .gitignore
-      - .readthedocs.yaml
   workflow_dispatch:
+  workflow_call:
+  schedule:
+    - cron: '23 9 * * 1'
 
 permissions:
   contents: read
 
 jobs:
+  metadata:
+    name: Supported Python policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - id: matrix
+        run: |
+          policy_matrix="$(python tools/ci/matrix.py)"
+          echo "matrix=$policy_matrix" >> "$GITHUB_OUTPUT"
+
   tests:
+    needs: metadata
     name: Tests (${{ matrix.os }}, Python ${{ matrix.python }})
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - os: macos-latest
-            python: '3.12'
-          - os: windows-latest
-            python: '3.12'
-          - os: ubuntu-latest
-            python: '3.12'
-          - os: ubuntu-latest
-            python: '3.15'
+      matrix: ${{ fromJSON(needs.metadata.outputs.matrix) }}
     defaults:
       run:
         shell: bash
@@ -73,16 +51,16 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install locked dependencies
         run: |
-          python -m pip install 'poetry==2.4.2'
+          python -m pip install 'poetry==2.5.1'
           poetry check --lock --strict
           poetry install --no-interaction
       - name: Offline tests including native permissions and spawned processes
-        run: poetry run pytest -q
+        run: poetry run python tests/offline/run.py -m pytest -q
       - name: Build and verify the installed wheel
         run: |
           poetry build
           poetry run python -m pip install --force-reinstall --no-deps dist/*.whl
-          poetry run python tests/package_smoke.py
+          poetry run python tests/offline/run.py tests/package_smoke.py
       - name: Rehearse offline recovery in a clean wheel environment
         run: |
           python -m venv "$RUNNER_TEMP/pat-recovery-venv"
@@ -102,7 +80,7 @@ jobs:
   quality:
     name: Lint, packaging, and documentation
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
         with:
@@ -112,19 +90,30 @@ jobs:
           python-version: '3.12'
       - name: Install locked tooling
         run: |
-          python -m pip install 'poetry==2.4.2'
+          python -m pip install 'poetry==2.5.1'
+          poetry check --lock --strict
           poetry install --with docs --no-interaction
       - run: poetry run ruff check .
       - run: poetry run ruff format --check .
       - run: poetry run bandit -r src -q
       - run: poetry build
       - run: poetry run twine check --strict dist/*
+      - name: Inspect wheel and sdist against source
+        run: poetry run python tools/ci/artifacts.py inspect --manifest "$RUNNER_TEMP/release-manifest.json"
+      - name: Retrieve locked artifact-qualification dependencies (network allowed)
+        run: >-
+          poetry run python tools/ci/qualify.py prepare
+          --wheelhouse "$RUNNER_TEMP/artifact-wheels" --work "$RUNNER_TEMP/artifact-checks"
+      - name: Qualify separate non-editable wheel and sdist installations (offline)
+        run: >-
+          poetry run python tools/ci/qualify.py qualify
+          --wheelhouse "$RUNNER_TEMP/artifact-wheels" --work "$RUNNER_TEMP/artifact-checks"
       - run: poetry run sphinx-build -W --keep-going -E -a -b html docs docs/_build/html
 
   compatibility:
     name: Public compatibility and downstream typing
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 25
     defaults:
       run:
         shell: bash
@@ -137,7 +126,7 @@ jobs:
           python-version: '3.12'
       - name: Prepare wheels and isolated non-editable installations
         run: |
-          python -m pip install 'poetry==2.4.2'
+          python -m pip install 'poetry==2.5.1'
           poetry check --lock --strict
           poetry install --no-interaction
           poetry build
@@ -180,3 +169,30 @@ jobs:
           "$compat_root/candidate/bin/python" -I -m mypy --version
           "$compat_root/candidate/bin/python" -I -m mypy --config-file tests/compatibility/mypy.ini \
             --no-incremental tests/compatibility/downstream.py
+
+  audit:
+    name: Locked runtime dependency audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install locked audit tooling
+        run: |
+          python -m pip install 'poetry==2.5.1'
+          poetry check --lock --strict
+          poetry install --no-interaction
+      - name: Scan all locked runtime variants (advisory networking allowed)
+        run: poetry run python tools/ci/audit.py --output "$RUNNER_TEMP/audit.json"
+      - name: Retain complete audit disposition, including failures
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: runtime-audit
+          path: ${{ runner.temp }}/audit.json
+          if-no-files-found: error
+          retention-days: 30

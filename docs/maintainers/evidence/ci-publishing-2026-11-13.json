@@ -1,0 +1,501 @@
+{
+  "date": "2026-11-13",
+  "issue": "https://github.com/jeffshurtliff/sfdctrust/issues/11",
+  "acceptance": "incomplete; hosted current-source CI/docs and approved TestPyPI rehearsal outstanding",
+  "starting_source": {
+    "branch": "ci/close-ci-and-pypi-publishing-gaps",
+    "commit": "a8be4ed79444450ac8986a96f1a60931f9da2237",
+    "version": "1.0.0.dev0",
+    "working_tree": "clean"
+  },
+  "ending_source": {
+    "branch": "ci/close-ci-and-pypi-publishing-gaps",
+    "commit": "a8be4ed79444450ac8986a96f1a60931f9da2237",
+    "version": "1.0.0.dev0",
+    "working_tree": "uncommitted task changes"
+  },
+  "runtime_lock_versions_unchanged": true,
+  "local_tests": [
+    {
+      "python": "3.12.7",
+      "platform": "macOS arm64",
+      "passed": 630,
+      "skipped": 15,
+      "mode": "Poetry editable checkout"
+    },
+    {
+      "python": "3.13.18",
+      "platform": "macOS arm64",
+      "passed": 627,
+      "skipped": 18,
+      "mode": "source unit suite via PYTHONPATH=src; separate isolated installed-wheel smoke passed"
+    },
+    {
+      "python": "3.14.10",
+      "platform": "macOS arm64",
+      "passed": 627,
+      "skipped": 18,
+      "mode": "source unit suite via PYTHONPATH=src; separate isolated installed-wheel smoke passed"
+    },
+    {
+      "python": "3.15.2",
+      "platform": "macOS arm64",
+      "passed": 627,
+      "skipped": 18,
+      "mode": "source unit suite via PYTHONPATH=src; separate isolated installed-wheel smoke passed"
+    }
+  ],
+  "skips": "15 native Windows-only cases on macOS; Python 3.13-3.15 additionally skip the pip-audit CLI fixture and two attestation-tool tests (tools restricted to 3.12)",
+  "checks": {
+    "poetry check --lock --strict": "passed",
+    "ruff check .": "passed",
+    "ruff format --check .": "passed",
+    "bandit -r src -q": "passed",
+    "actionlint 1.7.12": "passed",
+    "strict Sphinx 9.1.1 with nitpicky references": "passed",
+    "wheel and sdist build": "passed",
+    "twine check --strict": "passed",
+    "archive metadata and source byte equality": "passed",
+    "separate clean non-editable wheel and sdist installations": "passed",
+    "offline installed CLI SQLite smoke": "passed",
+    "public inventory and behavior comparison": "passed",
+    "strict downstream mypy 1.20.2": "passed",
+    "artifact copy and SHA-256 transfer check": "passed",
+    "controlled real pip-audit vulnerable fixture": "passed",
+    "final focused tooling regression tests": "25 passed"
+  },
+  "release_source_guard": "correctly rejected current uncommitted source; clean immutable source is required for dispatch builds",
+  "audit": {
+    "date_utc": "2026-11-13T15:24:46.826688+00:00",
+    "status": "passed",
+    "lock_sha256": "8aa4c8324d51491259c70d161f2ce4a102a25d5c1f1285972a1c4ab16a0e190a",
+    "pip_audit_version": "2.10.1",
+    "scope": "union of all locked main-group variants; no marker exclusions",
+    "packages": [
+      {
+        "name": "annotated-types",
+        "version": "0.8.0",
+        "python_versions": ">=3.10",
+        "markers": {
+          "dev": "python_version == \"3.12\""
+        }
+      },
+      {
+        "name": "anyio",
+        "version": "4.16.0",
+        "python_versions": ">=3.10",
+        "markers": "*"
+      },
+      {
+        "name": "certifi",
+        "version": "2026.10.23",
+        "python_versions": ">=3.7",
+        "markers": "*"
+      },
+      {
+        "name": "h11",
+        "version": "0.16.0",
+        "python_versions": ">=3.8",
+        "markers": "*"
+      },
+      {
+        "name": "httpcore",
+        "version": "1.0.9",
+        "python_versions": ">=3.8",
+        "markers": "*"
+      },
+      {
+        "name": "httpx",
+        "version": "0.28.1",
+        "python_versions": ">=3.8",
+        "markers": "*"
+      },
+      {
+        "name": "idna",
+        "version": "3.20",
+        "python_versions": ">=3.9",
+        "markers": "*"
+      },
+      {
+        "name": "pydantic",
+        "version": "2.14.2",
+        "python_versions": ">=3.10",
+        "markers": {
+          "dev": "python_version == \"3.12\""
+        }
+      },
+      {
+        "name": "pydantic-core",
+        "version": "2.50.2",
+        "python_versions": ">=3.10",
+        "markers": {
+          "dev": "python_version == \"3.12\""
+        }
+      },
+      {
+        "name": "typing-extensions",
+        "version": "4.16.0",
+        "python_versions": ">=3.9",
+        "markers": "*"
+      },
+      {
+        "name": "typing-inspection",
+        "version": "0.4.4",
+        "python_versions": ">=3.10",
+        "markers": {
+          "dev": "python_version == \"3.12\""
+        }
+      }
+    ],
+    "findings": [],
+    "exceptions": [],
+    "report": {
+      "dependencies": [
+        {
+          "name": "annotated-types",
+          "version": "0.8.0",
+          "vulns": []
+        },
+        {
+          "name": "anyio",
+          "version": "4.16.0",
+          "vulns": []
+        },
+        {
+          "name": "certifi",
+          "version": "2026.10.23",
+          "vulns": []
+        },
+        {
+          "name": "h11",
+          "version": "0.16.0",
+          "vulns": []
+        },
+        {
+          "name": "httpcore",
+          "version": "1.0.9",
+          "vulns": []
+        },
+        {
+          "name": "httpx",
+          "version": "0.28.1",
+          "vulns": []
+        },
+        {
+          "name": "idna",
+          "version": "3.20",
+          "vulns": []
+        },
+        {
+          "name": "pydantic",
+          "version": "2.14.2",
+          "vulns": []
+        },
+        {
+          "name": "pydantic-core",
+          "version": "2.50.2",
+          "vulns": []
+        },
+        {
+          "name": "typing-extensions",
+          "version": "4.16.0",
+          "vulns": []
+        },
+        {
+          "name": "typing-inspection",
+          "version": "0.4.4",
+          "vulns": []
+        }
+      ]
+    }
+  },
+  "artifacts": {
+    "sfdctrust-1.0.0.dev0-py3-none-any.whl": {
+      "sha256": "ceeda06eee10041b9abb3b49829187da5e06950646530fc06b105db549e0815e",
+      "size": 55757
+    },
+    "sfdctrust-1.0.0.dev0.tar.gz": {
+      "sha256": "bc6c5c3bba3b7a9a1a7567b803e4b1fec4562a2e92abe31d7cda5cd205c82941",
+      "size": 203572
+    }
+  },
+  "artifact_location": "/private/tmp/sfdctrust-issue11-reviewed/dist",
+  "artifact_payload_source_sha256": {
+    "CONTRIBUTING.md": "4dc658a8730675172fb17a5801562772ed07c46efdf0f2703d98bc450dbe2274",
+    "LICENSE": "1fe528d793de640ddaacf7036229bf87e608dfd08cef45a30363771b52406497",
+    "README.md": "f3e1a892850bb84c07bc2eb6dfb5171476e3707541410c64a389a4ea89a4dfb2",
+    "docs/API_CONTRACT.md": "b0b1adc57dd83f05483a984fb209c8c26008765efcb9af9b9569a594de774f8b",
+    "docs/CHANGELOG.md": "ae97c01685b8eb1a777201931632dcd36016bd1290b5e47c64fc61179662cde7",
+    "poetry.lock": "8aa4c8324d51491259c70d161f2ce4a102a25d5c1f1285972a1c4ab16a0e190a",
+    "pyproject.toml": "e6752ce95bd855714b401210c9c0636f99c48e318454fbf4cd3022af2f48ea04",
+    "src/sfdctrust/__init__.py": "12a6f7228f35c0e2e411885b1e514fefc7741f908d1a4bac75e2cdfa22cc1487",
+    "src/sfdctrust/_async_client.py": "04b60dde035e47020d4f482219c944f0848bed62ea8d422a5901cea7fa5b18f4",
+    "src/sfdctrust/_async_pat_refresh.py": "9e75e4c0ec6928753db4d82d03cbb634a8c43ac2acad405dfef8adbef69a999b",
+    "src/sfdctrust/_async_transport.py": "079213b3a53ca8984ebdae3b437b48baa9680a0f68c196daff6823f4bdb9f1c3",
+    "src/sfdctrust/_auth.py": "7a959cd18f1488d4d765c08b01b863ad34e7e9329dd06f17c660c7830f0635d6",
+    "src/sfdctrust/_client.py": "3eeff8a7246cdc4a5db29532b50cab3788766f8c9b784961a26176f3b9a7059d",
+    "src/sfdctrust/_constants.py": "dbbfa5440221b4641290720ed9f7deac970a0b043c2cace2a9691d0076570a0c",
+    "src/sfdctrust/_exceptions.py": "2b39834dfa6847d3baaf8c2b479684cfdb2f5d5e3bd50be6e3418a2175f3c3d1",
+    "src/sfdctrust/_pat_refresh.py": "02f39e139d1bcf04d024487dfd5b59eb43ecd99f9546b40339c499adcb26a1a1",
+    "src/sfdctrust/_pat_store.py": "e746d89a858af65d2099144a6a41c5afc36e5a93c8a4da02c1890f2631ac6a96",
+    "src/sfdctrust/_pat_store_files.py": "24a858b330444e5c18715082a39414e41a6a4ddc8c9cb674537fd8abaac6fe41",
+    "src/sfdctrust/_sqlite_pat_store.py": "6210d64a35bf861f4fc976239d6c0fb058485fb5dfe3ba17258f9cc950592465",
+    "src/sfdctrust/_transport.py": "1cc972a7a3646169a68b9278f0e93b89ffc4bacb72198773a57f14160e78531a",
+    "src/sfdctrust/_version.py": "29c0b33c08a7672da2a247e81aba23e23a045e360b0ca67210753f6c1ab8b018",
+    "src/sfdctrust/_windows_pat_files.py": "3069145e1a28d108da7f517e2555338ba9d4c04dc613c0dfee6e77f31c1be359",
+    "src/sfdctrust/integrations/__init__.py": "35ee8844f5a05ca8dedf71c24408266f82c161caf2cb1f376180af4a74b8ed3e",
+    "src/sfdctrust/models/__init__.py": "e26d1091022e369e2bdeef7f485bd7126382ab5ee6462ca9f3ab4bb5dc616abb",
+    "src/sfdctrust/models/_wire.py": "c6f1971e48c84508a4d45dafad0e662b33dba2f4695e71b5484749ab7716dcce",
+    "src/sfdctrust/models/events.py": "959b42fe671ca8109003bdfdeec6dcaad8053760839fabc6067150d7a25ae462",
+    "src/sfdctrust/models/status.py": "e0e9132c4c6d550e369fc8a1bc5f208af2951821e2478ad6fac98ba7a6417928",
+    "src/sfdctrust/models/tenants.py": "eeac4f1b89cc564a3fa15dcab3d3d7f6179b8e41e45d5c68c082eb17e790e78c",
+    "src/sfdctrust/pat_store.py": "6a63e8b072a6167f17ebc09ac01de79784eb4dc8ef537bacc9da2d5089f14f7b",
+    "src/sfdctrust/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "src/sfdctrust/resources/__init__.py": "8276ec76588e7a4ad8b1e13b1f9521e9794e0b0004de8a203178b49b4c983c22",
+    "src/sfdctrust/resources/_async_events.py": "5605ad5e6d679664190dabcdebd8ce4557e9927fb01309386c9a5e439587ff72",
+    "src/sfdctrust/resources/_async_status.py": "5b39ae3298039b1ccef37a331b9515bc8e38c5740afde2afdaea599f615243ff",
+    "src/sfdctrust/resources/_async_tenants.py": "9f3c4be149b2712c3b2cd96401928c9bbd3e41b622380511a61569f282e174ce",
+    "src/sfdctrust/resources/_requests.py": "8232ca51f891a328f4f32ba407d1b653c9c27f751b73678c29b5f3c06d7884d0",
+    "src/sfdctrust/resources/events.py": "12685da904f20833ce5eb02b2ea437cc2e1157b3488459be8815aea0891837cd",
+    "src/sfdctrust/resources/status.py": "a6127d38a303256307e81e91d745ffc68056b7cc584b174ffe99fb202287f747",
+    "src/sfdctrust/resources/tenants.py": "c7cf6c78fdf7593eb4e6ccfad29b1a58fea3bdb6d83719a4bddad3ef67bea182",
+    "tests/compatibility/check_wheel.py": "4fbbd37a8aad8418adf1c625a6e02e9bbfdc84c3b53069e6dcf03c72f11cec8f",
+    "tests/compatibility/downstream.py": "f0174e384efcb7a5be0df30a2eb9daa684b448fd13300b6850e51703ae1703a9",
+    "tests/compatibility/mypy.ini": "4d6aa290b8b9bba56f42d066170d35c0693b90a047ea3d0ba495179bd790e540",
+    "tests/compatibility/public-api.json": "8a0e39d4b17ac833f47b7bd69eb1b5c2c13da26bb64c43e0e754b25bb016ec27",
+    "tests/fixtures/.gitkeep": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tests/live_read_smoke.py": "0df16e11c8b31181d39ed6c8b986a2dc1f11c97e299f6ae3368df25d8bed89a7",
+    "tests/offline/run.py": "875f9e4d0dfdfe3412398d0ebe4ee0646fb6f5afa922a217b4a09f4ab89b820c",
+    "tests/offline/sitecustomize.py": "7055928911a86777bd603834b7011fb482f7b399b08a10e19fe3300b434e9026",
+    "tests/package_smoke.py": "ea3652e1e5d19d73f881d5c7754c9a4c390bc9550e558b7004e31130566a4536",
+    "tests/pat_recovery_rehearsal.py": "3ec2e9c42a95b77a1e66193717c276d625fc21667d08ce097206915ab0cedb91",
+    "tests/unit/.pytest_cache/.gitignore": "3ed731b65d06150c138e2dadb0be0697550888a6b47eb8c45ecc9adba8b8e9bd",
+    "tests/unit/.pytest_cache/CACHEDIR.TAG": "37dc88ef9a0abeddbe81053a6dd8fdfb13afb613045ea1eb4a5c815a74a3bde4",
+    "tests/unit/.pytest_cache/README.md": "73fd6fccdd802c419a6b2d983d6c3173b7da97558ac4b589edec2dfe443db9ad",
+    "tests/unit/.pytest_cache/v/cache/nodeids": "a412455db62eae58a8fdc747382cc8e2742fca3ddbce4b75443e31561ca8a2b4",
+    "tests/unit/test_async_client.py": "8bf6978dbea7846641de2a379d7abe89384183fefac0e895fe6a2b3f6573d406",
+    "tests/unit/test_async_pat_refresh.py": "41061ff2b7038a34c1ae7bd0e3deef2b2bd31bdf702101dcab2442a4f6e493a5",
+    "tests/unit/test_auth.py": "3f0c90d5e01c0f7815c319b85554649a7248abe8eac9e379bee8d53405e8aa8a",
+    "tests/unit/test_ci_tooling.py": "268bedb1695b2086b83278aa0c10b81776c488dcb7b01ebef1609c3946160598",
+    "tests/unit/test_client_retries.py": "522be5100509b5470817ee32f933ed8f39d762c25f3d00366efb144b2d762f9b",
+    "tests/unit/test_exceptions.py": "a5a469c946713ae29a9ac3e2e6019b795ee17e19ae4457d36bafb8a47ec71157",
+    "tests/unit/test_live_read_smoke.py": "78d4aa0afa18c5cf0e05c8a70759f9ecbf6c7d6d1a2073ebc4b9f7140139005d",
+    "tests/unit/test_pat_recovery_rehearsal.py": "c5401faa5cba977e3e0dd20190f7eafb96da438f962fc4920dc4737997638707",
+    "tests/unit/test_pat_refresh.py": "894bd6ae1ac19bdcb28ca21890a8ffd88aea66783473aed4a373259a89bf8e17",
+    "tests/unit/test_pat_store_cli.py": "5249132b43c6ed8fc289fd792603be5292667bd06b05259afd7e80d385af68bd",
+    "tests/unit/test_pat_store_native_permissions.py": "83d372f75ada08d5fc730fcc0bdf81dce8c5d08fc9a62d9e9503768bf3da1e36",
+    "tests/unit/test_read_resources.py": "0cce5b1a60461133d570d4ba8f18247a804e301e2ed32a50530d814d2e11ebeb",
+    "tests/unit/test_sqlite_pat_processes.py": "2ec3094713aa45446e75aa80c32f1f46d5f9dc4109c2abb4fee3313cdbb72ad2",
+    "tests/unit/test_sqlite_pat_store.py": "0fc802ab047690f76c89242ad891b649f213937be52a59a3fdeafc895c9fb917",
+    "tests/unit/test_tenants.py": "f40fa85ce783f5fa1135a9a2cd1ef0fe897b1662395168486040c54345a2c637",
+    "tests/unit/test_transport.py": "5dbc5e319e1f2a0b635d8628a1ef9dbe1b993b8d89df77cb5ee2415031daa618",
+    "tests/unit/test_version.py": "96991b6858db6573888009a997ec9390ba24c44f5288c71b614df0094ddc25b8",
+    "tools/ci/artifacts.py": "779c25e695e3ebfc2b7e1412efae49ecb14ac925b73fa36142391a3fc22e9b49",
+    "tools/ci/audit-exceptions.json": "584e697cce0eb005ea6f0037f5757f418c6cad912bcca8f486ed97c7cdfa7fe1",
+    "tools/ci/audit.py": "cdd3ec85df756957db35a2324263dba0eeaa3bae87b6aa1be1792a6ea1380bfe",
+    "tools/ci/matrix.py": "02fde9e87145c62b89652e30eca40cb235ae669c4411e07dfd37310e817f30bf",
+    "tools/ci/qualify.py": "39c89abaf0531df31624ee7ad98e39a43339b3bef76c74edcdb0df41eeb988f8",
+    "tools/ci/registry.py": "7b46a6626f2ed6391d50f98acb3f08b828cc2b755a1df1bb3c2e4cb556e17ea6"
+  },
+  "installed_artifact_evidence": {
+    "wheel": {
+      "date_utc": "2026-11-13T15:37:48.423091+00:00",
+      "version": "1.0.0.dev0",
+      "wheel": "sfdctrust-1.0.0.dev0-py3-none-any.whl",
+      "sha256": "ceeda06eee10041b9abb3b49829187da5e06950646530fc06b105db549e0815e",
+      "installed_from": "/private/tmp/sfdctrust-issue11-reviewed/evidence/installs/wheel/lib/python3.12/site-packages/sfdctrust/__init__.py",
+      "python": "3.12.7 (v3.12.7:0b05ead877f, Sep 30 2024, 23:18:00) [Clang 13.0.0 (clang-1300.0.29.30)]",
+      "runtime_dependencies": {
+        "httpx": "0.28.1",
+        "pydantic": "2.14.2",
+        "pydantic-core": "2.50.2"
+      },
+      "harness_sha256": "4fbbd37a8aad8418adf1c625a6e02e9bbfdc84c3b53069e6dcf03c72f11cec8f",
+      "snapshot_sha256": "8a0e39d4b17ac833f47b7bd69eb1b5c2c13da26bb64c43e0e754b25bb016ec27",
+      "platform": "darwin 27.0.0 64-bit",
+      "mode": "qualify",
+      "checks_passed": [
+        "installed-wheel-identity",
+        "py.typed",
+        "public-inventory",
+        "serialization",
+        "sync-five-reads-and-pagination-errors",
+        "async-five-reads-and-lazy-iteration",
+        "timeouts-ownership-and-bounded-retries",
+        "async-cancellation",
+        "installed-initialization-cli"
+      ],
+      "network_guard_self_checks": 2,
+      "unexpected_network_attempts": 0
+    },
+    "sdist": {
+      "date_utc": "2026-11-13T15:37:54.383576+00:00",
+      "version": "1.0.0.dev0",
+      "wheel": "sfdctrust-1.0.0.dev0-py3-none-any.whl",
+      "sha256": "ceeda06eee10041b9abb3b49829187da5e06950646530fc06b105db549e0815e",
+      "installed_from": "/private/tmp/sfdctrust-issue11-reviewed/evidence/installs/sdist/lib/python3.12/site-packages/sfdctrust/__init__.py",
+      "python": "3.12.7 (v3.12.7:0b05ead877f, Sep 30 2024, 23:18:00) [Clang 13.0.0 (clang-1300.0.29.30)]",
+      "runtime_dependencies": {
+        "httpx": "0.28.1",
+        "pydantic": "2.14.2",
+        "pydantic-core": "2.50.2"
+      },
+      "harness_sha256": "4fbbd37a8aad8418adf1c625a6e02e9bbfdc84c3b53069e6dcf03c72f11cec8f",
+      "snapshot_sha256": "8a0e39d4b17ac833f47b7bd69eb1b5c2c13da26bb64c43e0e754b25bb016ec27",
+      "platform": "darwin 27.0.0 64-bit",
+      "mode": "qualify",
+      "checks_passed": [
+        "installed-wheel-identity",
+        "py.typed",
+        "public-inventory",
+        "serialization",
+        "sync-five-reads-and-pagination-errors",
+        "async-five-reads-and-lazy-iteration",
+        "timeouts-ownership-and-bounded-retries",
+        "async-cancellation",
+        "installed-initialization-cli"
+      ],
+      "network_guard_self_checks": 2,
+      "unexpected_network_attempts": 0
+    }
+  },
+  "historical_hosted_evidence": {
+    "github_actions": {
+      "url": "https://github.com/jeffshurtliff/sfdctrust/actions/runs/43319593708",
+      "commit": "a8be4ed79444450ac8986a96f1a60931f9da2237",
+      "status": "success; existing source, not these edits"
+    },
+    "read_the_docs": {
+      "url": "https://app.readthedocs.org/projects/sfdctrust/builds/35852450/",
+      "commit": "a8be4ed79444450ac8986a96f1a60931f9da2237",
+      "success": true,
+      "status": "existing source only; new configuration not hosted"
+    },
+    "issue_9": "https://github.com/jeffshurtliff/sfdctrust/issues/9#issuecomment-6810823647",
+    "issue_10": "https://github.com/jeffshurtliff/sfdctrust/issues/10#issuecomment-6856289949"
+  },
+  "settings_inspection": {
+    "main_branch_protection": "GitHub reports branch not protected",
+    "repository_rulesets": [],
+    "environments": [],
+    "mutations": "none"
+  },
+  "testpypi_proposal": {
+    "version": "1.0.0rc2026111301",
+    "availability_at_check": "HTTP 404 on 2026-11-13; recheck before approval",
+    "source": "reviewed issue-11 snapshot plus version-only rehearsal commit",
+    "branch": "release/testpypi",
+    "workflow": "release.yml",
+    "environment": "testpypi",
+    "publisher": "GitHub jeffshurtliff/sfdctrust / release.yml / testpypi",
+    "upload": "not authorized or attempted",
+    "immutable_source_sha": "not yet available; maintainer must authorize commit/push and review resulting SHA",
+    "branch_policy_note": "Updated after maintainer review to a reusable agent-neutral branch; original artifact and implementation hashes remain historical."
+  },
+  "not_run": [
+    "hosted CI for uncommitted edits",
+    "hosted Read the Docs for changed config/rehearsal",
+    "TestPyPI upload or actual OIDC/attestation verification",
+    "production upload",
+    "live Salesforce qualification (#8)",
+    "dedicated operator recovery rehearsal (#9)"
+  ],
+  "local_preparation_notes": [
+    "Python 3.15 had no locked PyYAML macOS wheel; its hash-verified source distribution built successfully before offline tests.",
+    "An initial 3.13/3.14 whole-suite attempt imported the installed wheel and failed the source-checkout fallback test. The corrected source unit suite used PYTHONPATH=src; isolated installed-wheel smoke checks were separate. No runtime fix or test suppression was made."
+  ],
+  "implementation_files_sha256": {
+    ".github/workflows/ci.yml": "9c5f6c24f05b5f08dd51331aac78003b358a11235cb045597c619bb257d1f853",
+    ".github/workflows/release.yml": "2841d86cb7c9dff1998880df80deebd290942b63749db2ed192d10149d5d4c7d",
+    ".readthedocs.yaml": "26a43088ca2450498c83f08a9bbf34f0915469e5c2dcc2ae85a051e8cd220f1f",
+    "CONTRIBUTING.md": "4dc658a8730675172fb17a5801562772ed07c46efdf0f2703d98bc450dbe2274",
+    "docs/CHANGELOG.md": "ae97c01685b8eb1a777201931632dcd36016bd1290b5e47c64fc61179662cde7",
+    "docs/maintainers/ci-and-publishing.md": "393b64692cbb9e296e3cde59585791df07bef7202a321a8815d10d915e3da188",
+    "docs/maintainers/documentation.md": "e3c5a410488111b7ee95e950caaf9a2325a19d98225429a691872ab1d110d419",
+    "docs/maintainers/index.rst": "75da35cd7f489fb9eab3f58ed5755a35b153d76bc76fb46baff1f82d20605162",
+    "poetry.lock": "8aa4c8324d51491259c70d161f2ce4a102a25d5c1f1285972a1c4ab16a0e190a",
+    "pyproject.toml": "e6752ce95bd855714b401210c9c0636f99c48e318454fbf4cd3022af2f48ea04",
+    "tests/offline/run.py": "875f9e4d0dfdfe3412398d0ebe4ee0646fb6f5afa922a217b4a09f4ab89b820c",
+    "tests/offline/sitecustomize.py": "7055928911a86777bd603834b7011fb482f7b399b08a10e19fe3300b434e9026",
+    "tests/unit/test_ci_tooling.py": "268bedb1695b2086b83278aa0c10b81776c488dcb7b01ebef1609c3946160598",
+    "tools/ci/artifacts.py": "779c25e695e3ebfc2b7e1412efae49ecb14ac925b73fa36142391a3fc22e9b49",
+    "tools/ci/audit-exceptions.json": "584e697cce0eb005ea6f0037f5757f418c6cad912bcca8f486ed97c7cdfa7fe1",
+    "tools/ci/audit.py": "cdd3ec85df756957db35a2324263dba0eeaa3bae87b6aa1be1792a6ea1380bfe",
+    "tools/ci/matrix.py": "02fde9e87145c62b89652e30eca40cb235ae669c4411e07dfd37310e817f30bf",
+    "tools/ci/qualify.py": "39c89abaf0531df31624ee7ad98e39a43339b3bef76c74edcdb0df41eeb988f8",
+    "tools/ci/registry.py": "7b46a6626f2ed6391d50f98acb3f08b828cc2b755a1df1bb3c2e4cb556e17ea6"
+  },
+  "implementation_snapshot_sha256": "4b41f7d96424bdda66f04b3dd2d86aac09322627d64cf8c83d7ab3c160084acb",
+  "implementation_snapshot_scope": "Original issue #11 validation before the reusable branch-policy follow-up; current source is recorded separately in branch_policy_follow_up.",
+  "branch_policy_follow_up": {
+    "date": "2026-11-13",
+    "branch": "release/testpypi",
+    "purpose": "Reusable TestPyPI rehearsals independent of AI agent, issue number and package version",
+    "source_commit": "a8be4ed79444450ac8986a96f1a60931f9da2237",
+    "source_branch": "ci/close-ci-and-pypi-publishing-gaps",
+    "source_state": "uncommitted task changes; no rehearsal branch created",
+    "version": "1.0.0.dev0",
+    "validation_refs": [
+      "refs/heads/main",
+      "refs/heads/release/testpypi"
+    ],
+    "testpypi_ref": "refs/heads/release/testpypi",
+    "checks": {
+      "offline Python 3.12 suite": {
+        "passed": 630,
+        "skipped": 15
+      },
+      "focused CI tooling tests": {
+        "passed": 25
+      },
+      "Ruff lint and format": "passed",
+      "Actionlint 1.7.12": "passed",
+      "wheel and sdist build": "passed",
+      "Twine strict metadata": "passed",
+      "artifact metadata and source byte inspection": "passed",
+      "strict Sphinx with nitpicky cross-references": "passed"
+    },
+    "artifacts": {
+      "sfdctrust-1.0.0.dev0-py3-none-any.whl": {
+        "sha256": "ceeda06eee10041b9abb3b49829187da5e06950646530fc06b105db549e0815e",
+        "size": 55757
+      },
+      "sfdctrust-1.0.0.dev0.tar.gz": {
+        "sha256": "1dacb26363958bd7bddb1ee1406fb615c056905ce6d4e920da724ba2ea616e1d",
+        "size": 203797
+      }
+    },
+    "artifact_location": "/private/tmp/sfdctrust-branch-policy/dist",
+    "wheel_identical_to_original_qualified_wheel": true,
+    "implementation_files_sha256": {
+      ".github/workflows/ci.yml": "9c5f6c24f05b5f08dd51331aac78003b358a11235cb045597c619bb257d1f853",
+      ".github/workflows/release.yml": "a17500395c46c41a515435a8facf958548108eabe649fa8f6f32e90fab1cfc56",
+      ".readthedocs.yaml": "26a43088ca2450498c83f08a9bbf34f0915469e5c2dcc2ae85a051e8cd220f1f",
+      "CONTRIBUTING.md": "6dc5611ecef7218fc2a7ebf30508ed861acf2564892bee3f544eb81e1b7a200b",
+      "docs/CHANGELOG.md": "ae97c01685b8eb1a777201931632dcd36016bd1290b5e47c64fc61179662cde7",
+      "docs/maintainers/ci-and-publishing.md": "af3706c9ef2e3560cfdcbe6ab719a9d0f88c3566f9b9b3489ff187fe786438ba",
+      "docs/maintainers/documentation.md": "e3c5a410488111b7ee95e950caaf9a2325a19d98225429a691872ab1d110d419",
+      "docs/maintainers/index.rst": "75da35cd7f489fb9eab3f58ed5755a35b153d76bc76fb46baff1f82d20605162",
+      "poetry.lock": "8aa4c8324d51491259c70d161f2ce4a102a25d5c1f1285972a1c4ab16a0e190a",
+      "pyproject.toml": "e6752ce95bd855714b401210c9c0636f99c48e318454fbf4cd3022af2f48ea04",
+      "tests/offline/run.py": "875f9e4d0dfdfe3412398d0ebe4ee0646fb6f5afa922a217b4a09f4ab89b820c",
+      "tests/offline/sitecustomize.py": "7055928911a86777bd603834b7011fb482f7b399b08a10e19fe3300b434e9026",
+      "tests/unit/test_ci_tooling.py": "d88452c26db65eb6bcbdbca33d8b5b51a6e7f56bebe64aafbbe1b708e2f4dab1",
+      "tools/ci/artifacts.py": "b5f6ab4421d8d412d2fd6fa614e940ccf9c2b0a5211c485830eb9c66650893c6",
+      "tools/ci/audit-exceptions.json": "584e697cce0eb005ea6f0037f5757f418c6cad912bcca8f486ed97c7cdfa7fe1",
+      "tools/ci/audit.py": "cdd3ec85df756957db35a2324263dba0eeaa3bae87b6aa1be1792a6ea1380bfe",
+      "tools/ci/matrix.py": "02fde9e87145c62b89652e30eca40cb235ae669c4411e07dfd37310e817f30bf",
+      "tools/ci/qualify.py": "39c89abaf0531df31624ee7ad98e39a43339b3bef76c74edcdb0df41eeb988f8",
+      "tools/ci/registry.py": "7b46a6626f2ed6391d50f98acb3f08b828cc2b755a1df1bb3c2e4cb556e17ea6"
+    },
+    "implementation_snapshot_sha256": "42c9783d15ad42c8738b227ea3d19e4ed38bb951573dc118e578f0e76f5fc65a",
+    "not_rerun": [
+      "Python 3.13-3.15 suites",
+      "dependency advisory scan (lock unchanged)",
+      "downstream typing and separate clean installations (SDK/wheel unchanged)",
+      "dedicated operator recovery and live qualification",
+      "hosted CI, documentation and publishing rehearsal"
+    ],
+    "external_changes": "none; environment/publisher setup and uploads still require separate authorization"
+  }
+}
