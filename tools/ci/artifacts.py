@@ -4,7 +4,7 @@
 :Synopsis:          Verify release payloads, source identity and transferred checksums
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     13 Nov 2026
+:Modified Date:     14 Nov 2026
 """
 
 from __future__ import annotations
@@ -143,7 +143,9 @@ def verify(root: Path, directory: Path) -> dict:
             require(files[f'{info}/licenses/LICENSE'] == (root / 'LICENSE').read_bytes(), 'Wheel license mismatch.')
             metadata(files[f'{info}/METADATA'], project)
         else:
-            required = {PROJECT_TOML_FILE, 'poetry.lock', 'LICENSE', 'README.md', 'PKG-INFO'} | {f'src/{item}' for item in sources}
+            required = {PROJECT_TOML_FILE, 'poetry.lock', 'LICENSE', 'README.md', 'PKG-INFO'} | {
+                f'src/{item}' for item in sources
+            }
             require(required <= files.keys(), 'sdist lacks required source, lock, license or metadata.')
             metadata(files['PKG-INFO'], project)
             for source, data in files.items():

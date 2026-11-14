@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-changed)=
 ### Changed
 
+- Ruff no longer fails lint checks for line length (`E501`); the formatter still targets 130 characters.
 - PAT recovery instructions show conditional reconciliation through public store
   operations and fresh-store verification before jobs resume, including backup retirement.
 
