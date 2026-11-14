@@ -90,7 +90,8 @@ extend-exclude = ["dev"]
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 # Preserve the UTF-8 declaration in module headers
-ignore = ["UP009"]
+# Let the formatter guide the line wrapping without enforcing E501
+ignore = ["UP009", "E501"]
 
 [tool.ruff.format]
 quote-style = "single"
