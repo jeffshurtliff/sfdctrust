@@ -1,0 +1,240 @@
+name: Release validation and publishing
+
+# No push/tag/release/PR trigger uploads anything. Dispatch defaults to validation.
+on:
+  workflow_dispatch:
+    inputs:
+      destination:
+        description: Validation only, TestPyPI rehearsal, or separately authorized production
+        type: choice
+        options: [validate, testpypi, pypi]
+        default: validate
+      source_sha:
+        description: Approved full 40-character commit SHA of the selected workflow ref
+        type: string
+        required: true
+      version:
+        description: Approved version already committed in pyproject.toml
+        type: string
+        required: true
+      upload:
+        description: Separately authorized upload (requires protected environment approval)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.destination }}-${{ inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  validation:
+    name: Full offline, audit and documentation gates
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
+  build:
+    name: Build and verify approved source
+    needs: validation
+    if: github.repository == 'jeffshurtliff/sfdctrust'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      artifact_id: ${{ steps.transfer.outputs.artifact-id }}
+    env:
+      APPROVED_SHA: ${{ inputs.source_sha }}
+      APPROVED_VERSION: ${{ inputs.version }}
+      DESTINATION: ${{ inputs.destination }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - name: Install locked build and verification tools
+        run: |
+          echo "BUNDLE=$RUNNER_TEMP/release-bundle" >> "$GITHUB_ENV"
+          python -m pip install 'poetry==2.5.1'
+          poetry check --lock --strict
+          poetry install --no-interaction
+      - name: Validate clean immutable source and destination/version/ref relationship
+        run: |
+          test "$GITHUB_SHA" = "$APPROVED_SHA"
+          poetry run python tools/ci/artifacts.py source \
+            --destination "$DESTINATION" --sha "$APPROVED_SHA" \
+            --version "$APPROVED_VERSION" --ref "$GITHUB_REF"
+      - name: Build once and validate metadata, license, source contents and SHA-256
+        run: |
+          mkdir -p "$BUNDLE/evidence"
+          poetry build --output "$BUNDLE/dist"
+          poetry run twine check --strict "$BUNDLE"/dist/*
+          poetry run python tools/ci/artifacts.py inspect --dist "$BUNDLE/dist" \
+            --manifest "$BUNDLE/evidence/release-manifest.json"
+      - name: Retrieve locked clean-install dependencies (network allowed)
+        run: >-
+          poetry run python tools/ci/qualify.py prepare --dist "$BUNDLE/dist"
+          --wheelhouse "$RUNNER_TEMP/release-wheels" --work "$BUNDLE/evidence/installs"
+      - name: Qualify wheel and sdist separately without outbound behavior networking
+        run: >-
+          poetry run python tools/ci/qualify.py qualify --dist "$BUNDLE/dist"
+          --wheelhouse "$RUNNER_TEMP/release-wheels" --work "$BUNDLE/evidence/installs"
+      - name: Confirm source and artifacts remain unchanged after qualification
+        run: |
+          poetry run python tools/ci/artifacts.py source \
+            --destination "$DESTINATION" --sha "$APPROVED_SHA" \
+            --version "$APPROVED_VERSION" --ref "$GITHUB_REF"
+          poetry run python tools/ci/artifacts.py transfer --dist "$BUNDLE/dist" \
+            --manifest "$BUNDLE/evidence/release-manifest.json"
+      - name: Transfer the verified bytes and evidence
+        id: transfer
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: approved-release
+          path: ${{ runner.temp }}/release-bundle/
+          if-no-files-found: error
+          retention-days: 30
+
+  # Each protected job has a fixed registry and a distinct publisher binding.
+  # No checkout, dependency installation, package build, or project code runs here.
+  publish-testpypi:
+    name: Approved TestPyPI upload
+    needs: build
+    if: >-
+      inputs.upload && inputs.destination == 'testpypi' &&
+      github.repository == 'jeffshurtliff/sfdctrust' &&
+      github.ref == 'refs/heads/release/testpypi'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/sfdctrust
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact_id }}
+          merge-multiple: true
+          path: bundle
+      - name: Verify transferred bytes and approved identity
+        env:
+          APPROVED_SHA: ${{ inputs.source_sha }}
+          APPROVED_VERSION: ${{ inputs.version }}
+        run: |
+          python -I - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          manifest = json.loads(Path('bundle/evidence/release-manifest.json').read_text())
+          assert manifest['source_commit'] == os.environ['APPROVED_SHA'] == os.environ['GITHUB_SHA']
+          assert manifest['version'] == os.environ['APPROVED_VERSION']
+          assert manifest['source_status'] == ''
+          release = manifest['version']
+          names = {f'sfdctrust-{release}-py3-none-any.whl', f'sfdctrust-{release}.tar.gz'}
+          assert set(manifest['files']) == names == {p.name for p in Path('bundle/dist').iterdir()}
+          for name, record in manifest['files'].items():
+              data = Path('bundle/dist', name).read_bytes()
+              assert len(data) == record['size'] and hashlib.sha256(data).hexdigest() == record['sha256']
+          PY
+      - name: Publish exact checked files with per-file PyPI attestations
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: bundle/dist/
+          attestations: true
+          skip-existing: false
+
+  publish-pypi:
+    name: Approved production PyPI upload
+    needs: build
+    if: >-
+      inputs.upload && inputs.destination == 'pypi' &&
+      github.repository == 'jeffshurtliff/sfdctrust' &&
+      startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: pypi
+      url: https://pypi.org/p/sfdctrust
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact_id }}
+          merge-multiple: true
+          path: bundle
+      - name: Verify transferred bytes and approved identity
+        env:
+          APPROVED_SHA: ${{ inputs.source_sha }}
+          APPROVED_VERSION: ${{ inputs.version }}
+        run: |
+          python -I - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          manifest = json.loads(Path('bundle/evidence/release-manifest.json').read_text())
+          assert manifest['source_commit'] == os.environ['APPROVED_SHA'] == os.environ['GITHUB_SHA']
+          assert manifest['version'] == os.environ['APPROVED_VERSION']
+          assert os.environ['GITHUB_REF'] == 'refs/tags/' + manifest['version']
+          assert manifest['source_status'] == ''
+          release = manifest['version']
+          names = {f'sfdctrust-{release}-py3-none-any.whl', f'sfdctrust-{release}.tar.gz'}
+          assert set(manifest['files']) == names == {p.name for p in Path('bundle/dist').iterdir()}
+          for name, record in manifest['files'].items():
+              data = Path('bundle/dist', name).read_bytes()
+              assert len(data) == record['size'] and hashlib.sha256(data).hexdigest() == record['sha256']
+          PY
+      - name: Publish exact checked files with per-file PyPI attestations
+        uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # release/v1
+        with:
+          packages-dir: bundle/dist/
+          attestations: true
+          skip-existing: false
+
+  verify-registry:
+    name: Verify hosted digests, publisher attestations and installed wheel
+    needs: [build, publish-testpypi, publish-pypi]
+    if: >-
+      always() && needs.build.result == 'success' &&
+      (needs.publish-testpypi.result == 'success' || needs.publish-pypi.result == 'success')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          artifact-ids: ${{ needs.build.outputs.artifact_id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/hosted-release
+      - name: Install locked verification tooling
+        run: |
+          python -m pip install 'poetry==2.5.1'
+          poetry install --no-interaction
+      - name: Verify hosted files and cryptographic provenance (registry networking allowed)
+        env:
+          DESTINATION: ${{ inputs.destination }}
+          EXPECTED_REF: ${{ github.ref }}
+        run: >-
+          poetry run python tools/ci/registry.py --destination "$DESTINATION"
+          --bundle "$RUNNER_TEMP/hosted-release" --ref "$EXPECTED_REF" --run-id "$GITHUB_RUN_ID"
+      - name: Retain hosted registry verification evidence
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: registry-verification
+          path: ${{ runner.temp }}/hosted-release/evidence/registry/
+          if-no-files-found: error
+          retention-days: 90

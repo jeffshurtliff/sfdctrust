@@ -9,7 +9,7 @@ build:
   jobs:
     install:
       # Install from poetry.lock with the same Poetry version used locally.
-      - python -m pip install "poetry==2.4.2"
+      - python -m pip install "poetry==2.5.1"
       - poetry check --lock --strict
       # Install the package and its runtime dependencies so autodoc can import it.
       - VIRTUAL_ENV="$READTHEDOCS_VIRTUALENV_PATH" poetry install --only main,docs --no-interaction

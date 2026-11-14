@@ -56,15 +56,16 @@ in examples, and never include real PATs, tenant IDs or incident data.
 
 The root `.readthedocs.yaml` uses
 [configuration v2](https://docs.readthedocs.com/platform/stable/config-file/v2.html). It
-selects Ubuntu 24.04 and Python 3.12, installs Poetry 2.4.2, checks that the lockfile
+selects Ubuntu 24.04 and Python 3.12, installs Poetry 2.5.1, checks that the lockfile
 matches `pyproject.toml`, and installs the runtime and `docs` groups from `poetry.lock`
 into the Read the Docs environment through `READTHEDOCS_VIRTUALENV_PATH`. This follows the
 [Poetry build customization](https://docs.readthedocs.com/platform/stable/build-customization.html#install-dependencies-with-poetry)
 guidance. The package is installed because autodoc imports it. Builds fail on warnings.
 
-The configuration file only prepares the repository. Creating the Read the Docs project,
-connecting the repository and adding a `Documentation` URL to `pyproject.toml` are separate
-maintainer steps.
+The public project and documentation URL already exist. A configuration edit prepares
+future builds; verify a hosted build at the exact reviewed source SHA before claiming
+that edit is qualified. Project, version-build and integration settings are separate
+maintainer actions. See {doc}`ci-and-publishing` for CI and rehearsal evidence requirements.
 
 ## Branding, logos and favicons
 

@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
+- Locked runtime dependency advisory audits, metadata-derived Python CI coverage,
+  strict documentation checks for every PR, and gated Trusted Publishing preparation
+  with separate wheel/sdist qualification and verified artifact transfer.
+- Contributor guidance and maintainer CI/publishing runbooks.
 - Public 1.x compatibility inventory and versioning/SQLite upgrade policy, with
   an offline published-wheel comparison and an installed-package downstream mypy CI gate.
 - Repeatable offline installed-wheel SQLite PAT recovery rehearsal for pending
