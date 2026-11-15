@@ -1,0 +1,454 @@
+{
+  "date": "2026-11-14",
+  "issue": "https://github.com/jeffshurtliff/sfdctrust/issues/11",
+  "status": "TestPyPI rehearsal passed; production release not authorized or performed",
+  "source": {
+    "branch": "release/testpypi",
+    "commit": "b004853c90ddb72cebd1f1d01eaea4508e255037",
+    "version": "1.0.0rc2026111401",
+    "change_from_reviewed_main": "only project.version in pyproject.toml",
+    "reviewed_main_commit": "6b9b89f7ce94199a4c83c67734ff97555053c0ae",
+    "main_version": "1.0.0.dev0"
+  },
+  "authorizations": {
+    "preparation": "Explicit maintainer approval for version-only branch creation/commit/push, TestPyPI environment and publisher binding",
+    "self_approval": "Explicit maintainer decision allowing jeffshurtliff to approve their own dispatched TestPyPI runs",
+    "docs": "Explicit maintainer approval to activate release-testpypi and build its documentation",
+    "upload": "Explicit maintainer approval for exact source, version and both SHA-256 values, including environment approval after independent comparison",
+    "production": "Not authorized"
+  },
+  "workflow": {
+    "run_id": 43632216296,
+    "attempt": 1,
+    "event": "workflow_dispatch",
+    "destination": "testpypi",
+    "upload": true,
+    "url": "https://github.com/jeffshurtliff/sfdctrust/actions/runs/43632216296",
+    "result": "success",
+    "jobs_passed": 13,
+    "production_job": "skipped",
+    "jobs": [
+      {
+        "id": 132561139194,
+        "name": "Full offline, audit and documentation gates / Locked runtime dependency audit",
+        "conclusion": "success"
+      },
+      {
+        "id": 132561139492,
+        "name": "Full offline, audit and documentation gates / Lint, packaging, and documentation",
+        "conclusion": "success"
+      },
+      {
+        "id": 132561139493,
+        "name": "Full offline, audit and documentation gates / Public compatibility and downstream typing",
+        "conclusion": "success"
+      },
+      {
+        "id": 132561139533,
+        "name": "Full offline, audit and documentation gates / Supported Python policy",
+        "conclusion": "success"
+      },
+      {
+        "id": 132561171990,
+        "name": "Full offline, audit and documentation gates / Tests (macos-latest, Python 3.12)",
+        "conclusion": "success"
+      },
+      {
+        "id": 132561171997,
+        "name": "Full offline, audit and documentation gates / Tests (ubuntu-latest, Python 3.14)",
+        "conclusion": "success"
+      },
+      {
+        "id": 132561172002,
+        "name": "Full offline, audit and documentation gates / Tests (windows-latest, Python 3.12)",
+        "conclusion": "success"
+      },
+      {
+        "id": 132561172006,
+        "name": "Full offline, audit and documentation gates / Tests (ubuntu-latest, Python 3.15)",
+        "conclusion": "success"
+      },
+      {
+        "id": 132561172008,
+        "name": "Full offline, audit and documentation gates / Tests (ubuntu-latest, Python 3.13)",
+        "conclusion": "success"
+      },
+      {
+        "id": 132561172047,
+        "name": "Full offline, audit and documentation gates / Tests (ubuntu-latest, Python 3.12)",
+        "conclusion": "success"
+      },
+      {
+        "id": 132561565266,
+        "name": "Build and verify approved source",
+        "conclusion": "success"
+      },
+      {
+        "id": 132561887807,
+        "name": "Approved TestPyPI upload",
+        "conclusion": "success"
+      },
+      {
+        "id": 132561889730,
+        "name": "Approved production PyPI upload",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 132562600692,
+        "name": "Verify hosted digests, publisher attestations and installed wheel",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "previous_validation_runs": [
+    "https://github.com/jeffshurtliff/sfdctrust/actions/runs/43626437821",
+    "https://github.com/jeffshurtliff/sfdctrust/actions/runs/43627159694"
+  ],
+  "documentation": {
+    "build_id": 35895397,
+    "url": "https://app.readthedocs.org/projects/sfdctrust/builds/35895397/",
+    "result": "success",
+    "source_commit": "b004853c90ddb72cebd1f1d01eaea4508e255037",
+    "version_slug": "release-testpypi",
+    "served_url": "https://sfdctrust.readthedocs.io/en/release-testpypi/",
+    "rendered_version_verified": "1.0.0rc2026111401"
+  },
+  "environment": {
+    "name": "testpypi",
+    "required_reviewer": "jeffshurtliff",
+    "prevent_self_review": false,
+    "can_admins_bypass": false,
+    "branch_policy": {
+      "type": "branch",
+      "name": "release/testpypi"
+    }
+  },
+  "publisher": {
+    "registry": "TestPyPI",
+    "kind": "GitHub",
+    "repository": "jeffshurtliff/sfdctrust",
+    "workflow": "release.yml",
+    "environment": "testpypi",
+    "authentication": "OIDC Trusted Publishing; no long-lived upload token"
+  },
+  "artifact_archives": {
+    "approved-release": {
+      "id": 14128337940,
+      "sha256": "8c5118ec240c0e2b594ec20c36651272e6e020fe687a204a839b9c429e149787"
+    },
+    "registry-verification": {
+      "id": 14127939366,
+      "sha256": "91f9b06640b3e782adf36ff3b4b7da922c728d7ca335542d7dd268d39ae6f216"
+    }
+  },
+  "files": {
+    "sfdctrust-1.0.0rc2026111401-py3-none-any.whl": {
+      "sha256": "dd6cf52e1553793c94824ba80b7321dbcf8e1c154d7e7668d2a85f167c229245",
+      "size": 55824,
+      "hosted_url": "https://test-files.pythonhosted.org/packages/cb/db/5c98937f121616e566ed16e5b5d854a1cc395b27a3d6bf45aaebb90401ab/sfdctrust-1.0.0rc2026111401-py3-none-any.whl",
+      "hosted_sha256": "dd6cf52e1553793c94824ba80b7321dbcf8e1c154d7e7668d2a85f167c229245",
+      "yanked": false,
+      "provenance_url": "https://test.pypi.org/integrity/sfdctrust/1.0.0rc2026111401/sfdctrust-1.0.0rc2026111401-py3-none-any.whl/provenance"
+    },
+    "sfdctrust-1.0.0rc2026111401.tar.gz": {
+      "sha256": "bd23438f6844e9dba080479ece2766810fa2cb2d37a414f3028730a1ce288b5e",
+      "size": 201130,
+      "hosted_url": "https://test-files.pythonhosted.org/packages/37/b9/0ec4e5cfe27e9aa9e0cb629013987523c47323fbec798fa06063ab770a0c/sfdctrust-1.0.0rc2026111401.tar.gz",
+      "hosted_sha256": "bd23438f6844e9dba080479ece2766810fa2cb2d37a414f3028730a1ce288b5e",
+      "yanked": false,
+      "provenance_url": "https://test.pypi.org/integrity/sfdctrust/1.0.0rc2026111401/sfdctrust-1.0.0rc2026111401.tar.gz/provenance"
+    }
+  },
+  "hosted_registry_verification": {
+    "destination": "testpypi",
+    "source_commit": "b004853c90ddb72cebd1f1d01eaea4508e255037",
+    "version": "1.0.0rc2026111401",
+    "run_id": "43632216296",
+    "files": {
+      "sfdctrust-1.0.0rc2026111401-py3-none-any.whl": {
+        "sha256": "dd6cf52e1553793c94824ba80b7321dbcf8e1c154d7e7668d2a85f167c229245",
+        "verified_attestations": [
+          {
+            "predicate": "https://docs.pypi.org/attestations/publish/v1",
+            "certificate_claims": {
+              "1.3.6.1.4.1.57264.1.8": "https://token.actions.githubusercontent.com",
+              "1.3.6.1.4.1.57264.1.9": "https://github.com/jeffshurtliff/sfdctrust/.github/workflows/release.yml@refs/heads/release/testpypi",
+              "1.3.6.1.4.1.57264.1.10": "b004853c90ddb72cebd1f1d01eaea4508e255037",
+              "1.3.6.1.4.1.57264.1.11": "github-hosted",
+              "1.3.6.1.4.1.57264.1.12": "https://github.com/jeffshurtliff/sfdctrust",
+              "1.3.6.1.4.1.57264.1.13": "b004853c90ddb72cebd1f1d01eaea4508e255037",
+              "1.3.6.1.4.1.57264.1.14": "refs/heads/release/testpypi",
+              "1.3.6.1.4.1.57264.1.15": "1438550970",
+              "1.3.6.1.4.1.57264.1.16": "https://github.com/jeffshurtliff",
+              "1.3.6.1.4.1.57264.1.17": "26095651",
+              "1.3.6.1.4.1.57264.1.18": "https://github.com/jeffshurtliff/sfdctrust/.github/workflows/release.yml@refs/heads/release/testpypi",
+              "1.3.6.1.4.1.57264.1.19": "b004853c90ddb72cebd1f1d01eaea4508e255037",
+              "1.3.6.1.4.1.57264.1.20": "workflow_dispatch",
+              "1.3.6.1.4.1.57264.1.21": "https://github.com/jeffshurtliff/sfdctrust/actions/runs/43632216296/attempts/1",
+              "1.3.6.1.4.1.57264.1.22": "public"
+            }
+          }
+        ]
+      },
+      "sfdctrust-1.0.0rc2026111401.tar.gz": {
+        "sha256": "bd23438f6844e9dba080479ece2766810fa2cb2d37a414f3028730a1ce288b5e",
+        "verified_attestations": [
+          {
+            "predicate": "https://docs.pypi.org/attestations/publish/v1",
+            "certificate_claims": {
+              "1.3.6.1.4.1.57264.1.8": "https://token.actions.githubusercontent.com",
+              "1.3.6.1.4.1.57264.1.9": "https://github.com/jeffshurtliff/sfdctrust/.github/workflows/release.yml@refs/heads/release/testpypi",
+              "1.3.6.1.4.1.57264.1.10": "b004853c90ddb72cebd1f1d01eaea4508e255037",
+              "1.3.6.1.4.1.57264.1.11": "github-hosted",
+              "1.3.6.1.4.1.57264.1.12": "https://github.com/jeffshurtliff/sfdctrust",
+              "1.3.6.1.4.1.57264.1.13": "b004853c90ddb72cebd1f1d01eaea4508e255037",
+              "1.3.6.1.4.1.57264.1.14": "refs/heads/release/testpypi",
+              "1.3.6.1.4.1.57264.1.15": "1438550970",
+              "1.3.6.1.4.1.57264.1.16": "https://github.com/jeffshurtliff",
+              "1.3.6.1.4.1.57264.1.17": "26095651",
+              "1.3.6.1.4.1.57264.1.18": "https://github.com/jeffshurtliff/sfdctrust/.github/workflows/release.yml@refs/heads/release/testpypi",
+              "1.3.6.1.4.1.57264.1.19": "b004853c90ddb72cebd1f1d01eaea4508e255037",
+              "1.3.6.1.4.1.57264.1.20": "workflow_dispatch",
+              "1.3.6.1.4.1.57264.1.21": "https://github.com/jeffshurtliff/sfdctrust/actions/runs/43632216296/attempts/1",
+              "1.3.6.1.4.1.57264.1.22": "public"
+            }
+          }
+        ]
+      }
+    },
+    "clean_installations": "wheel and sdist passed offline smoke, compatibility and strict typing"
+  },
+  "installed_artifact_checks": {
+    "wheel": {
+      "date_utc": "2026-11-14T19:33:44.958855+00:00",
+      "version": "1.0.0rc2026111401",
+      "wheel": "sfdctrust-1.0.0rc2026111401-py3-none-any.whl",
+      "sha256": "dd6cf52e1553793c94824ba80b7321dbcf8e1c154d7e7668d2a85f167c229245",
+      "installed_from": "/home/runner/work/_temp/hosted-release/evidence/registry/installs/wheel/lib/python3.12/site-packages/sfdctrust/__init__.py",
+      "python": "3.12.16 (main, Oct 26 2026, 02:48:44) [GCC 15.2.0]",
+      "runtime_dependencies": {
+        "httpx": "0.28.1",
+        "pydantic": "2.14.3",
+        "pydantic-core": "2.50.4"
+      },
+      "harness_sha256": "4fbbd37a8aad8418adf1c625a6e02e9bbfdc84c3b53069e6dcf03c72f11cec8f",
+      "snapshot_sha256": "8a0e39d4b17ac833f47b7bd69eb1b5c2c13da26bb64c43e0e754b25bb016ec27",
+      "platform": "linux 7.0.0-1019-azure 64-bit",
+      "mode": "qualify",
+      "checks_passed": [
+        "installed-wheel-identity",
+        "py.typed",
+        "public-inventory",
+        "serialization",
+        "sync-five-reads-and-pagination-errors",
+        "async-five-reads-and-lazy-iteration",
+        "timeouts-ownership-and-bounded-retries",
+        "async-cancellation",
+        "installed-initialization-cli"
+      ],
+      "network_guard_self_checks": 2,
+      "unexpected_network_attempts": 0
+    },
+    "sdist": {
+      "date_utc": "2026-11-14T19:33:54.525201+00:00",
+      "version": "1.0.0rc2026111401",
+      "wheel": "sfdctrust-1.0.0rc2026111401-py3-none-any.whl",
+      "sha256": "dd6cf52e1553793c94824ba80b7321dbcf8e1c154d7e7668d2a85f167c229245",
+      "installed_from": "/home/runner/work/_temp/hosted-release/evidence/registry/installs/sdist/lib/python3.12/site-packages/sfdctrust/__init__.py",
+      "python": "3.12.16 (main, Oct 26 2026, 02:48:44) [GCC 15.2.0]",
+      "runtime_dependencies": {
+        "httpx": "0.28.1",
+        "pydantic": "2.14.3",
+        "pydantic-core": "2.50.4"
+      },
+      "harness_sha256": "4fbbd37a8aad8418adf1c625a6e02e9bbfdc84c3b53069e6dcf03c72f11cec8f",
+      "snapshot_sha256": "8a0e39d4b17ac833f47b7bd69eb1b5c2c13da26bb64c43e0e754b25bb016ec27",
+      "platform": "linux 7.0.0-1019-azure 64-bit",
+      "mode": "qualify",
+      "checks_passed": [
+        "installed-wheel-identity",
+        "py.typed",
+        "public-inventory",
+        "serialization",
+        "sync-five-reads-and-pagination-errors",
+        "async-five-reads-and-lazy-iteration",
+        "timeouts-ownership-and-bounded-retries",
+        "async-cancellation",
+        "installed-initialization-cli"
+      ],
+      "network_guard_self_checks": 2,
+      "unexpected_network_attempts": 0
+    }
+  },
+  "locked_verification_tools": {
+    "mypy": "1.20.2",
+    "pip-audit": "2.10.1",
+    "poetry-core": "2.5.0",
+    "pypi-attestations": "0.0.31",
+    "sigstore": "4.5.1",
+    "sphinx": "9.1.1"
+  },
+  "runtime_audit": {
+    "date_utc": "2026-11-14T19:28:09.743948+00:00",
+    "status": "passed",
+    "lock_sha256": "d43a2b347dcc69d055177ac639c50b4a07485153b91ec78fe373c2ed0c40b793",
+    "pip_audit_version": "2.10.1",
+    "scope": "union of all locked main-group variants; no marker exclusions",
+    "packages": [
+      {
+        "name": "annotated-types",
+        "version": "0.8.0",
+        "python_versions": ">=3.10",
+        "markers": {
+          "dev": "python_version == \"3.12\""
+        }
+      },
+      {
+        "name": "anyio",
+        "version": "4.16.0",
+        "python_versions": ">=3.10",
+        "markers": "*"
+      },
+      {
+        "name": "certifi",
+        "version": "2026.10.23",
+        "python_versions": ">=3.7",
+        "markers": "*"
+      },
+      {
+        "name": "h11",
+        "version": "0.16.0",
+        "python_versions": ">=3.8",
+        "markers": "*"
+      },
+      {
+        "name": "httpcore",
+        "version": "1.0.9",
+        "python_versions": ">=3.8",
+        "markers": "*"
+      },
+      {
+        "name": "httpx",
+        "version": "0.28.1",
+        "python_versions": ">=3.8",
+        "markers": "*"
+      },
+      {
+        "name": "idna",
+        "version": "3.20",
+        "python_versions": ">=3.9",
+        "markers": "*"
+      },
+      {
+        "name": "pydantic",
+        "version": "2.14.3",
+        "python_versions": ">=3.10",
+        "markers": {
+          "dev": "python_version == \"3.12\""
+        }
+      },
+      {
+        "name": "pydantic-core",
+        "version": "2.50.4",
+        "python_versions": ">=3.10",
+        "markers": {
+          "dev": "python_version == \"3.12\""
+        }
+      },
+      {
+        "name": "typing-extensions",
+        "version": "4.16.0",
+        "python_versions": ">=3.9",
+        "markers": "*"
+      },
+      {
+        "name": "typing-inspection",
+        "version": "0.4.4",
+        "python_versions": ">=3.10",
+        "markers": {
+          "dev": "python_version == \"3.12\""
+        }
+      }
+    ],
+    "findings": [],
+    "exceptions": [],
+    "report": {
+      "dependencies": [
+        {
+          "name": "annotated-types",
+          "version": "0.8.0",
+          "vulns": []
+        },
+        {
+          "name": "anyio",
+          "version": "4.16.0",
+          "vulns": []
+        },
+        {
+          "name": "certifi",
+          "version": "2026.10.23",
+          "vulns": []
+        },
+        {
+          "name": "h11",
+          "version": "0.16.0",
+          "vulns": []
+        },
+        {
+          "name": "httpcore",
+          "version": "1.0.9",
+          "vulns": []
+        },
+        {
+          "name": "httpx",
+          "version": "0.28.1",
+          "vulns": []
+        },
+        {
+          "name": "idna",
+          "version": "3.20",
+          "vulns": []
+        },
+        {
+          "name": "pydantic",
+          "version": "2.14.3",
+          "vulns": []
+        },
+        {
+          "name": "pydantic-core",
+          "version": "2.50.4",
+          "vulns": []
+        },
+        {
+          "name": "typing-extensions",
+          "version": "4.16.0",
+          "vulns": []
+        },
+        {
+          "name": "typing-inspection",
+          "version": "0.4.4",
+          "vulns": []
+        }
+      ]
+    }
+  },
+  "boundaries": [
+    "No Salesforce credentials read or live Salesforce calls performed",
+    "Issue 8 exact-release live-service qualification remains outstanding",
+    "Accepted issue 9 and 10 evidence reused; no independent operator-recovery gate initiated",
+    "No production publisher binding, production environment, stable version, tag or production upload created",
+    "No main branch changes or merge performed"
+  ],
+  "reproduction": {
+    "download_command": "gh run download 43632216296 --repo jeffshurtliff/sfdctrust --name approved-release --dir /tmp/sfdctrust-rehearsal-final",
+    "verify_command": "poetry run python tools/ci/registry.py --destination testpypi --bundle /tmp/sfdctrust-rehearsal-final --ref refs/heads/release/testpypi --run-id 43632216296"
+  },
+  "evidence_worktree_note": "This supplemental evidence was written after qualification and is not part of the published rehearsal source; left uncommitted for maintainer review.",
+  "supplemental_local_checks": {
+    "strict_sphinx": "passed with -W --keep-going -E -a and nitpicky references",
+    "ruff_lint": "passed",
+    "ruff_format": "passed",
+    "poetry_lock_check": "passed",
+    "git_diff_check": "passed"
+  }
+}
