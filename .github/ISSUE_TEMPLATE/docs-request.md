@@ -2,9 +2,9 @@
 name: Docs Request
 about: Request documentation improvements or clarifications for sfdctrust
 title: "[DOCS] <short, descriptive summary>"
+type: Feature
 labels: documentation
-assignees: ''
-
+assignees: []
 ---
 
 ## Documentation Summary

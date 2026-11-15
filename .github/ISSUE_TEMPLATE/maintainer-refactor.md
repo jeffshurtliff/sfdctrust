@@ -2,6 +2,7 @@
 name: Maintainer Refactor
 about: Internal refactor tracking for sfdctrust maintainers
 title: "[REFACTOR] <brief description>"
+type: Task
 labels: maintainer, refactor
 assignees: []
 ---
