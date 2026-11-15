@@ -14,8 +14,10 @@ uploads or production release execution.
 
 ## Boundaries and existing qualification
 
-Keep the development version `1.0.0.dev0` and Python `>=3.12` until the maintainer
-approves a version change. Classifiers currently advertise 3.12–3.15.
+Stable `1.0.0` preparation is authorized under
+[#12](https://github.com/jeffshurtliff/sfdctrust/issues/12); see
+{doc}`stable-release` for the remaining exact-artifact and production gates.
+Preserve Python `>=3.12`; classifiers currently advertise 3.12–3.15.
 `tools/ci/matrix.py` derives Linux tests for each advertised minor plus macOS and
 Windows on the minimum minor. Native SQLite permission and spawned-process tests,
 installed-wheel checks, Bandit, compatibility inventories, and downstream typing

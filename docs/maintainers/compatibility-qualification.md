@@ -48,7 +48,7 @@ poetry run python -m venv /private/tmp/sfdctrust-compat/candidate
   /private/tmp/sfdctrust-compat/wheels/sfdctrust-0.2.0-py3-none-any.whl 'mypy==1.20.2'
 /private/tmp/sfdctrust-compat/candidate/bin/python -I -m pip install --no-index \
   --find-links /private/tmp/sfdctrust-compat/wheels \
-  dist/sfdctrust-1.0.0.dev0-py3-none-any.whl 'mypy==1.20.2'
+  dist/sfdctrust-1.0.0-py3-none-any.whl 'mypy==1.20.2'
 /private/tmp/sfdctrust-compat/baseline/bin/python -I -m pip check
 /private/tmp/sfdctrust-compat/candidate/bin/python -I -m pip check
 /private/tmp/sfdctrust-compat/baseline/bin/python -I -m pip freeze
@@ -92,8 +92,8 @@ variable; it does not discover credentials.
   --expected-version 0.2.0 --snapshot tests/compatibility/public-api.json \
   --evidence /private/tmp/sfdctrust-compat/baseline.json
 /private/tmp/sfdctrust-compat/candidate/bin/python -I tests/compatibility/check_wheel.py \
-  --wheel dist/sfdctrust-1.0.0.dev0-py3-none-any.whl \
-  --expected-version 1.0.0.dev0 --snapshot tests/compatibility/public-api.json \
+  --wheel dist/sfdctrust-1.0.0-py3-none-any.whl \
+  --expected-version 1.0.0 --snapshot tests/compatibility/public-api.json \
   --evidence /private/tmp/sfdctrust-compat/candidate.json
 /private/tmp/sfdctrust-compat/baseline/bin/python -I tests/compatibility/check_wheel.py \
   --wheel /private/tmp/sfdctrust-compat/wheels/sfdctrust-0.2.0-py3-none-any.whl \
@@ -101,8 +101,8 @@ variable; it does not discover credentials.
   --mode seed --store-directory /private/tmp/sfdctrust-compat/stores-final \
   --evidence /private/tmp/sfdctrust-compat/seed.json
 /private/tmp/sfdctrust-compat/candidate/bin/python -I tests/compatibility/check_wheel.py \
-  --wheel dist/sfdctrust-1.0.0.dev0-py3-none-any.whl \
-  --expected-version 1.0.0.dev0 --snapshot tests/compatibility/public-api.json \
+  --wheel dist/sfdctrust-1.0.0-py3-none-any.whl \
+  --expected-version 1.0.0 --snapshot tests/compatibility/public-api.json \
   --mode upgrade --store-directory /private/tmp/sfdctrust-compat/stores-final \
   --evidence /private/tmp/sfdctrust-compat/upgrade.json
 ```
@@ -138,7 +138,7 @@ poetry run ruff format --check .
 poetry run bandit -r src -q
 poetry check --lock --strict
 poetry build
-poetry run twine check --strict dist/sfdctrust-1.0.0.dev0*
+poetry run twine check --strict dist/sfdctrust-1.0.0*
 poetry run sphinx-build -W --keep-going -E -a -b html docs docs/_build/html
 ```
 

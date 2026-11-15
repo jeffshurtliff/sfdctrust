@@ -4,7 +4,7 @@
 :Synopsis:          Verify release payloads, source identity and transferred checksums
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     14 Nov 2026
+:Modified Date:     15 Nov 2026
 """
 
 from __future__ import annotations
@@ -70,7 +70,21 @@ def safe_name(name: str) -> None:
         lower = part.lower()
         require(
             lower
-            not in {'local', 'dev', '.git', '.aws', '.ssh', '.venv', '__pycache__', '.pypirc', 'credentials', 'secrets.toml'}
+            not in {
+                'local',
+                'dev',
+                '.git',
+                '.aws',
+                '.ssh',
+                '.venv',
+                '__pycache__',
+                '.pytest_cache',
+                '.mypy_cache',
+                '.ruff_cache',
+                '.pypirc',
+                'credentials',
+                'secrets.toml',
+            }
             and not lower.startswith(('.env', '._'))
             and not lower.endswith(('.key', '.pem', '.p12', '.pfx', '.sqlite3', '.sqlite3-wal', '.sqlite3-shm', '.pyc')),
             f'Forbidden local/credential file: {name}',

@@ -20,6 +20,7 @@ history, see the :doc:`../CHANGELOG`.
 
    documentation
    ci-and-publishing
+   stable-release
    ci-publishing-evidence
    testpypi-rehearsal-evidence
    compatibility-qualification

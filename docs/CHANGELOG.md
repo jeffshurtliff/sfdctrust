@@ -13,6 +13,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
+- None yet.
+
+(unreleased-changed)=
+### Changed
+
+- None yet.
+
+(unreleased-fixed)=
+### Fixed
+
+- None yet.
+
+(unreleased-security)=
+### Security
+
+- None yet.
+
+(relnotes-1-0-0)=
+## [1.0.0] - 2026-11-15
+
+This release establishes the accepted public compatibility contract for the 1.x
+series. It requires Python 3.12 or later and preserves the synchronous and
+asynchronous API and supported versioned SQLite stores from 0.2.0.
+
+(release-1-0-0-added)=
+### Added
+
 - Locked runtime dependency advisory audits, metadata-derived Python CI coverage,
   strict documentation checks for every PR, and gated Trusted Publishing preparation
   with separate wheel/sdist qualification and verified artifact transfer.
@@ -22,22 +49,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Repeatable offline installed-wheel SQLite PAT recovery rehearsal for pending
   attempts, retained replacements, and replacement loss across process exit.
 
-(unreleased-changed)=
+(release-1-0-0-changed)=
 ### Changed
 
+- Runtime Pydantic is pinned to `2.14.3`; HTTPX remains `>=0.28.1,<1.0.0`.
 - Ruff no longer fails lint checks for line length (`E501`); the formatter still targets 130 characters.
 - PAT recovery instructions show conditional reconciliation through public store
   operations and fresh-store verification before jobs resume, including backup retirement.
 
-(unreleased-fixed)=
+(release-1-0-0-fixed)=
 ### Fixed
 
 - Sync and async tenant collectors now expose `list[Tenant]` correctly to
   downstream type checkers despite the resource method named `list`.
 - Windows recovery rehearsal evidence reporting no longer requests the local
   hostname through Python's platform helpers while the socket guard is active.
+- Source distributions exclude nested pytest, mypy, and Ruff caches; artifact
+  inspection rejects those generated directories.
 
-(unreleased-security)=
+(release-1-0-0-security)=
 ### Security
 
 - None yet.
@@ -114,6 +144,7 @@ Center API. Requires Python 3.12 or later.
   metadata or from `pyproject.toml` in a source checkout.
 - The direct runtime dependencies are HTTPX and Pydantic v2.
 
-[Unreleased]: https://github.com/jeffshurtliff/sfdctrust/compare/0.2.0...main
+[Unreleased]: https://github.com/jeffshurtliff/sfdctrust/compare/1.0.0...main
+[1.0.0]: https://github.com/jeffshurtliff/sfdctrust/compare/0.2.0...1.0.0
 [0.2.0]: https://github.com/jeffshurtliff/sfdctrust/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/jeffshurtliff/sfdctrust/tree/0.1.0
