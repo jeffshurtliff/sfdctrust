@@ -2,6 +2,7 @@
 name: Maintainer Test
 about: Internal test coverage or test-suite improvements for sfdctrust
 title: "[TEST] <brief description>"
+type: Task
 labels: maintainer, testing
 assignees: []
 ---

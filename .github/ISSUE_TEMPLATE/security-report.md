@@ -2,16 +2,16 @@
 name: Security Report
 about: Report a potential security concern in sfdctrust (public fallback; sanitize details)
 title: "[SECURITY] <short, sanitized summary>"
+type: Bug
 labels: security
-assignees: ''
-
+assignees: []
 ---
 
 ## Important: Public Issue Warning
 
 This issue template creates a **public GitHub Issue**.
 
-If you are reporting a real or suspected vulnerability, the preferred path is **GitHub Private Vulnerability Reporting** (Security tab -> **Report a vulnerability**) so details can be handled privately.
+If you are reporting a real or suspected vulnerability, the preferred path is **GitHub Private Vulnerability Reporting** (Security tab → **Report a vulnerability**) so details can be handled privately.
 
 Use this public template only if:
 - Private reporting is unavailable, or
