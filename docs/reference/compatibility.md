@@ -1,10 +1,11 @@
 # Public compatibility for the 1.x series
 
-This is the proposed 1.0 public baseline, verified locally against published
-`0.2.0` and the `1.0.0.dev0` candidate. It becomes the compatibility promise
-with the stable 1.0 release. The package remains at its development version;
-this document does not announce a release. Maintainer review of the inventory
-and policy remains a release gate. See the
+This is the accepted public compatibility baseline for stable 1.0 and the 1.x
+series. The maintainer accepted the inventory and policy in
+[#10's completion record](https://github.com/jeffshurtliff/sfdctrust/issues/10#issuecomment-6856289949),
+following comparison of published `0.2.0` with the development candidate and
+exact-source hosted CI. Exact stable-artifact and live-service qualification
+remain separate release gates. See the
 {doc}`qualification procedure and evidence <../maintainers/compatibility-qualification>`.
 
 ## Supported imports
@@ -411,5 +412,5 @@ repairs the annotation of sync/async `tenants.list_all()` so a downstream checke
 can resolve `list[Tenant]` despite the resource's `list()` method. This is a typing
 correction with no calling or runtime return change; no application migration is
 required. Published 0.2.0 fails those two strict type assertions; the candidate
-must pass all assertions. General inventory/policy approval and hosted CI
-verification remain separate from the already approved timeout decision.
+must pass all assertions. The accepted inventory/policy and hosted baseline
+evidence do not replace qualification of the exact stable release artifacts.

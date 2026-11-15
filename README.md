@@ -171,7 +171,7 @@ The built-in SQLite store currently supports the synchronous client.
 
 The [1.x public compatibility baseline and versioning policy](https://sfdctrust.readthedocs.io/en/latest/reference/compatibility.html)
 identify supported imports, calls, serialization, errors, pagination, HTTP client
-ownership, and PAT-store upgrades. The 1.0 candidate retains fixed per-attempt
+ownership, and PAT-store upgrades. The 1.0 release retains fixed per-attempt
 phase timeouts, including with injected HTTPX clients.
 
 ## Development

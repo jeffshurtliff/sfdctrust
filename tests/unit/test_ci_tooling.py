@@ -4,7 +4,7 @@
 :Synopsis:          Audit failure, release identity, archive and workflow regressions
 :Created By:        Jeff Shurtliff
 :Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     13 Nov 2026
+:Modified Date:     15 Nov 2026
 """
 
 from __future__ import annotations
@@ -197,11 +197,54 @@ def test_supported_matrix_uses_metadata_and_retains_minimum_native_platforms():
 
 
 @pytest.mark.parametrize(
-    'name', ['../escape', '/absolute', 'local/pat.txt', '.env', 'src/.env.prod', 'tests/private.key', '.aws/config']
+    'name',
+    [
+        '../escape',
+        '/absolute',
+        'local/pat.txt',
+        '.env',
+        'src/.env.prod',
+        'tests/private.key',
+        '.aws/config',
+        'tests/unit/.pytest_cache/v/cache/nodeids',
+        'tests/.mypy_cache/data.json',
+        'tests/.ruff_cache/data',
+    ],
 )
 def test_artifact_paths_exclude_local_and_credential_files(name):
     with pytest.raises(ValueError):
         artifacts.safe_name(name)
+
+
+def test_sdist_build_excludes_nested_tool_caches_but_retains_tests(tmp_path):
+    from poetry.core.factory import Factory
+    from poetry.core.masonry.builders.sdist import SdistBuilder
+
+    (tmp_path / 'pyproject.toml').write_bytes((ROOT / 'pyproject.toml').read_bytes())
+    for name in ('README.md', 'LICENSE', 'CONTRIBUTING.md'):
+        (tmp_path / name).write_text(f'Synthetic {name}')
+    package = tmp_path / 'src/sfdctrust'
+    package.mkdir(parents=True)
+    (package / '__init__.py').write_text('')
+    (package / 'py.typed').write_text('')
+    tests = tmp_path / 'tests/unit'
+    tests.mkdir(parents=True)
+    (tests / 'test_example.py').write_text('def test_example():\n    assert True\n')
+    compatibility = tmp_path / 'tests/compatibility'
+    compatibility.mkdir()
+    for name in ('public-api.json', 'mypy.ini'):
+        (compatibility / name).write_text('synthetic compatibility input')
+    for cache in ('.pytest_cache', '.mypy_cache', '.ruff_cache'):
+        directory = tests / cache / 'nested'
+        directory.mkdir(parents=True)
+        (directory / 'cache-data').write_text('synthetic generated cache')
+    archive = SdistBuilder(Factory().create_poetry(tmp_path)).build(tmp_path / 'dist')
+    with tarfile.open(archive, 'r:gz') as stream:
+        names = [Path(member.name).parts for member in stream.getmembers()]
+    assert any(parts[-3:] == ('tests', 'unit', 'test_example.py') for parts in names)
+    for name in ('public-api.json', 'mypy.ini'):
+        assert any(parts[-3:] == ('tests', 'compatibility', name) for parts in names)
+    assert all(not {'.pytest_cache', '.mypy_cache', '.ruff_cache'}.intersection(parts) for parts in names)
 
 
 def test_sdist_rejects_links(tmp_path):
