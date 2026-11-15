@@ -7,7 +7,10 @@ approved TestPyPI rehearsal, hosted CI, and hosted documentation evidence remain
 necessary. Production release execution requires separate authorization.
 
 See {doc}`ci-publishing-evidence` for the recorded local source, results, artifact
-hashes, reproduction commands and outstanding hosted/rehearsal evidence.
+hashes and reproduction commands. The separately authorized hosted rehearsal
+passed on 2026-11-14; see {doc}`testpypi-rehearsal-evidence` for its exact source,
+upload, attestations and clean-install evidence. This does not authorize future
+uploads or production release execution.
 
 ## Boundaries and existing qualification
 
@@ -231,7 +234,13 @@ from the dedicated rehearsal branch. A rehearsal cannot select a production URL.
 
 ## Concrete TestPyPI rehearsal proposal (not authorized)
 
-This proposal is for issue #11's initial qualification. Future rehearsals use the
+The original proposal below is retained as preparation history. The maintainer
+subsequently approved and completed the distinct `1.0.0rc2026111401` rehearsal at
+`b004853c90ddb72cebd1f1d01eaea4508e255037`; see
+{doc}`testpypi-rehearsal-evidence`. The TestPyPI environment's self-approval exception
+was explicitly approved for that setup; it does not establish a production policy.
+
+This original proposal was for issue #11's initial qualification. Future rehearsals use the
 same `release/testpypi` branch with their own newly approved source, version and
 artifact manifest; the example version and commit below are not reusable defaults.
 

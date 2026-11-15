@@ -1,8 +1,11 @@
 # Issue #11 local validation evidence
 
-Validation date: **2026-11-13**. **Issue #11 remains incomplete.** The changed
-source has not been committed or pushed, its hosted CI/Read the Docs runs do not
-exist, and no TestPyPI rehearsal has been authorized or performed.
+Original validation date: **2026-11-13**. This page preserves that historical
+local-only snapshot and its branch-policy follow-up. Hosted CI, Read the Docs and
+the separately authorized TestPyPI rehearsal subsequently passed on **2026-11-14**;
+see {doc}`testpypi-rehearsal-evidence` for the final acceptance evidence. Statements
+below about uncommitted work, missing settings or pending rehearsal results apply
+to the original snapshot, not the completed rehearsal.
 
 The [machine-readable evidence](evidence/ci-publishing-2026-11-13.json) contains the
 audit report, artifact/payload hashes, installed compatibility reports, original

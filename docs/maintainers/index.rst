@@ -21,6 +21,7 @@ history, see the :doc:`../CHANGELOG`.
    documentation
    ci-and-publishing
    ci-publishing-evidence
+   testpypi-rehearsal-evidence
    compatibility-qualification
    sqlite-pat-store
    sqlite-pat-recovery-evidence
