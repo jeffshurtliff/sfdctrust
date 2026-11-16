@@ -3,10 +3,11 @@
 :Module:            docs.conf
 :Synopsis:          Configures the Sphinx documentation build for sfdctrust
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via Claude Opus 5.5)
-:Modified Date:     02 Nov 2026
+:Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
+:Modified Date:     16 Nov 2026
 """
 
+import os
 import tomllib
 from pathlib import Path
 
@@ -33,19 +34,21 @@ extensions = [
     'sphinx.ext.viewcode',
     'myst_parser',
     'sphinx_favicon',
+    'sphinxext.opengraph',
 ]
 source_suffix = {'.rst': 'restructuredtext', '.md': 'markdown'}
 root_doc = 'index'
 language = 'en'
 templates_path = ['_templates']
-# Source artwork and the GitHub social preview are kept in _static/ but not published with the site
+# Publish only the documentation preview JPEG; keep source artwork and GitHub variants out of the site
 exclude_patterns = [
     '_build',
     '**/.DS_Store',
     '**/Thumbs.db',
     '**/desktop.ini',
     '**/*-master.png',
-    '**/social-previews',
+    '**/social-previews/*.png',
+    '**/social-previews/*-github.jpg',
 ]
 nitpicky = True
 
@@ -105,6 +108,14 @@ html_theme_options = {
     'footer_start': ['custom_copyright'],
     'footer_end': ['sphinx-version', 'theme-version'],
 }
+
+# -- Open Graph social preview ----------------------------------------------
+
+# Use the hosted version's URL on Read the Docs and a public fallback for local builds
+ogp_site_url = os.environ.get('READTHEDOCS_CANONICAL_URL') or 'https://sfdctrust.readthedocs.io/en/latest/'
+ogp_image = '_static/social-previews/sfdctrust-social-preview.jpg'
+ogp_image_alt = 'sfdctrust cloud logo — Python SDK for Salesforce My Trust Center API'
+ogp_social_cards = {'enable': False}
 
 # -- Options for sphinx-favicon ----------------------------------------------
 

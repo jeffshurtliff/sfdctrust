@@ -134,4 +134,5 @@ docs = [
     "myst-parser (>=4,<6)",
     "pydata-sphinx-theme (>=0.16,<0.23)",
     "sphinx-favicon (>=1.1,<2)",
+    "sphinxext-opengraph (>=0.13,<0.14)",
 ]
