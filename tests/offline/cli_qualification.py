@@ -12,6 +12,7 @@ import os
 import sqlite3
 import subprocess
 import sys
+from contextlib import closing
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from uuid import uuid4
@@ -91,8 +92,9 @@ def check(closed_pipe):
                     expected_attempt=None,
                     replacement=PATStoreRecord(record.revision, record.get_pat(), uuid4()),
                 )
-        with sqlite3.connect(unseeded) as db:
+        with closing(sqlite3.connect(unseeded)) as db:
             db.execute('DELETE FROM credential')
+            db.commit()
         before = {path: path.read_bytes() for path in (ready, alias, pending, unseeded)}
         scenarios = []
         example_indices = []
