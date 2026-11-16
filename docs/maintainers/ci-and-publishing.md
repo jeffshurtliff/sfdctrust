@@ -65,6 +65,24 @@ Record build URL/ID, SHA, installed lockfile/tool versions, strict command and
 result, plus the rendered version and maintainer page. A reachable older
 `latest` site alone is not validation of these changes.
 
+## Integrated CLI qualification for 1.1
+
+The development CLI qualification retains the existing required job names and
+metadata-derived native/Python matrix. Every test row runs real installed wheel
+console/module launchers; the quality job qualifies separate clean non-editable
+wheel and sdist installations. The compatibility job now runs independent
+`0.2.0` and `1.0.0` campaigns, using locked active dependencies, separate
+baseline/candidate environments, ready/pending seed stores and retained evidence.
+Dependency retrieval precedes the outbound-blocked behavior phase. See
+{doc}`compatibility-qualification` for commands and the candidate-only CLI scope.
+
+Local evidence identifies HEAD plus the reviewed working diff and fresh artifact
+hashes. It does not qualify an immutable implementation commit, other native
+platforms, or a future stable artifact. After separately authorized delivery,
+verify all supported matrix rows and strict hosted docs against that exact
+commit, review skips/failures, and retain run/artifact identities before claiming
+#17/#7 readiness. Stable 1.1.0 preparation/publishing requires a separate tracker.
+
 ## Dependency vulnerability auditing
 
 `pip-audit` is locked development tooling, restricted to Python 3.12 tooling jobs;
@@ -159,7 +177,10 @@ poetry run python tools/ci/artifacts.py transfer \
   --manifest /tmp/sfdctrust-issue11-build/evidence/release-manifest.json
 ```
 
-The inspector requires exactly one wheel and one sdist. It validates version,
+The inspector requires exactly one wheel and one sdist. It checks console-script
+metadata against `[project.scripts]`, rejecting missing, changed, or additional
+entry points and unexpected metadata files. Packages without declared scripts
+must not contain `entry_points.txt`. It validates version,
 Python policy/classifiers, runtime requirements, MIT license expression and file,
 `py.typed`, and package/source byte equality. Explicit payload allowlists exclude
 local files, credential filenames, caches and unexpected files; archives reject

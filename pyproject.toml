@@ -46,6 +46,9 @@ dependencies = [
     "pydantic (==2.14.3)",
 ]
 
+[project.scripts]
+sfdctrust = "sfdctrust._cli:main"
+
 [project.urls]
 Documentation = "https://sfdctrust.readthedocs.io/en/stable/"
 Changelog = "https://sfdctrust.readthedocs.io/en/latest/CHANGELOG.html"

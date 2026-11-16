@@ -3,13 +3,14 @@
 :Module:            tools.ci.artifacts
 :Synopsis:          Verify release payloads, source identity and transferred checksums
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     15 Nov 2026
+:Last Modified:     Jeff Shurtliff (via GPT-6)
+:Modified Date:     16 Nov 2026
 """
 
 from __future__ import annotations
 
 import argparse
+import configparser
 import hashlib
 import json
 import re
@@ -132,6 +133,21 @@ def metadata(data: bytes, project: dict) -> None:
     )
 
 
+def entry_points(data: bytes, scripts: dict[str, str]) -> None:
+    """Require exactly the console scripts declared by the source project."""
+    # An empty default-section name makes [DEFAULT] an ordinary, forbidden group,
+    # including when it contains no values. INI section names cannot be empty.
+    parser = configparser.ConfigParser(interpolation=None, delimiters=('=',), default_section='')
+    parser.optionxform = str
+    try:
+        parser.read_string(data.decode('utf-8'))
+    except configparser.Error as exc:
+        raise ValueError('Malformed wheel entry-point metadata.') from exc
+    require(not parser.defaults(), 'Entry-point defaults are not allowed.')
+    require(parser.sections() == ['console_scripts'], 'Unexpected entry-point groups.')
+    require(dict(parser.items('console_scripts')) == scripts, 'Console entry points differ from source.')
+
+
 def verify(root: Path, directory: Path) -> dict:
     project = tomllib.loads((root / PROJECT_TOML_FILE).read_text(encoding='utf-8'))['project']
     release = project['version']
@@ -151,7 +167,12 @@ def verify(root: Path, directory: Path) -> dict:
         if path.suffix == '.whl':
             info = f'sfdctrust-{release}.dist-info'
             allowed = set(sources) | {f'{info}/{item}' for item in ('METADATA', 'WHEEL', 'RECORD', 'licenses/LICENSE')}
+            scripts = project.get('scripts', {})
+            if scripts:
+                allowed.add(f'{info}/entry_points.txt')
             require(set(files) == allowed, 'Wheel payload differs from approved package files.')
+            if scripts:
+                entry_points(files[f'{info}/entry_points.txt'], scripts)
             for source, data in sources.items():
                 require(files[source] == data, f'Wheel source mismatch: {source}')
             require(files[f'{info}/licenses/LICENSE'] == (root / 'LICENSE').read_bytes(), 'Wheel license mismatch.')

@@ -3,8 +3,8 @@
 :Module:            tests.unit.test_ci_tooling
 :Synopsis:          Audit failure, release identity, archive and workflow regressions
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     15 Nov 2026
+:Last Modified:     Jeff Shurtliff (via GPT-6)
+:Modified Date:     16 Nov 2026
 """
 
 from __future__ import annotations
@@ -258,7 +258,7 @@ def test_sdist_rejects_links(tmp_path):
         artifacts.payload(archive)
 
 
-def artifact_fixture(tmp_path):
+def artifact_fixture(tmp_path, scripts=None):
     source = tmp_path / 'source'
     (source / 'src/sfdctrust').mkdir(parents=True)
     (source / 'src/sfdctrust/py.typed').write_bytes(b'')
@@ -273,6 +273,12 @@ def artifact_fixture(tmp_path):
     (source / 'pyproject.toml').write_text(
         '[project]\nversion="1.0.0rc1"\nrequires-python=">=3.12"\nlicense="MIT"\nclassifiers=[]\ndependencies=["httpx>=0.28.1,<1"]\n'
     )
+    if scripts:
+        project['scripts'] = scripts
+        with (source / 'pyproject.toml').open('a') as stream:
+            stream.write('\n[project.scripts]\n')
+            for command, target in scripts.items():
+                stream.write(f'{command} = "{target}"\n')
     for name in ('LICENSE', 'README.md', 'poetry.lock'):
         (source / name).write_text(f'Synthetic {name}')
     metadata = (
@@ -294,6 +300,11 @@ def artifact_fixture(tmp_path):
             ('licenses/LICENSE', (source / 'LICENSE').read_bytes()),
         ]:
             archive.writestr(f'{info}/{name}', data)
+        if scripts:
+            archive.writestr(
+                f'{info}/entry_points.txt',
+                '[console_scripts]\n' + ''.join(f'{command}={target}\n' for command, target in scripts.items()),
+            )
     with tarfile.open(dist / 'sfdctrust-1.0.0rc1.tar.gz', 'w:gz') as archive:
         for path in source.rglob('*'):
             if path.is_file():
@@ -316,6 +327,68 @@ def test_artifact_verification_and_transfer_reject_tampering(tmp_path, monkeypat
     wheel.write_bytes(b'X' * manifest['files'][wheel.name]['size'])
     with pytest.raises(ValueError, match='SHA-256 mismatch'):
         artifacts.transferred(dist, manifest)
+
+
+def test_artifact_inspection_accepts_declared_console_mapping(tmp_path, monkeypatch):
+    source, dist, _ = artifact_fixture(tmp_path, {'sfdctrust': 'sfdctrust._cli:main'})
+    monkeypatch.setattr(artifacts, 'git', lambda *args: '')
+    assert artifacts.verify(source, dist)['version'] == '1.0.0rc1'
+
+
+@pytest.mark.parametrize(
+    'entry_point_data',
+    [
+        None,
+        b'',
+        b'[console_scripts]\n',
+        b'[console_scripts]\nsfdctrust=sfdctrust._cli:wrong\n',
+        b'[console_scripts]\nsfdctrust=sfdctrust._cli:main\nextra=other:main\n',
+        b'[console_scripts]\nSfdctrust=sfdctrust._cli:main\n',
+        b'[gui_scripts]\nsfdctrust=sfdctrust._cli:main\n',
+        b'[console_scripts]\nsfdctrust=sfdctrust._cli:main\n[unexpected]\n',
+        b'[console_scripts]\nsfdctrust=sfdctrust._cli:main\n[gui_scripts]\nextra=other:main\n',
+        b'[DEFAULT]\nsfdctrust=sfdctrust._cli:main\n[console_scripts]\n',
+        b'[DEFAULT]\n[console_scripts]\nsfdctrust=sfdctrust._cli:main\n',
+        b'[console_scripts]\nsfdctrust=sfdctrust._cli:main\nsfdctrust=sfdctrust._cli:main\n',
+        b'[console_scripts]\nsfdctrust=sfdctrust._cli:main\n[console_scripts]\n',
+        b'not an ini file',
+        b'\xff',
+    ],
+)
+def test_artifact_inspection_rejects_missing_wrong_or_extra_entry_points(tmp_path, monkeypatch, entry_point_data):
+    source, dist, _ = artifact_fixture(tmp_path, {'sfdctrust': 'sfdctrust._cli:main'})
+    monkeypatch.setattr(artifacts, 'git', lambda *args: '')
+    wheel = next(dist.glob('*.whl'))
+    with ZipFile(wheel) as archive:
+        files = {name: archive.read(name) for name in archive.namelist() if not name.endswith('/entry_points.txt')}
+    if entry_point_data is not None:
+        files['sfdctrust-1.0.0rc1.dist-info/entry_points.txt'] = entry_point_data
+    with ZipFile(wheel, 'w') as archive:
+        for name, data in files.items():
+            archive.writestr(name, data)
+    with pytest.raises(ValueError):
+        artifacts.verify(source, dist)
+
+
+@pytest.mark.parametrize('scripts', [None, {'sfdctrust': 'sfdctrust._cli:main'}])
+@pytest.mark.parametrize('extra', ['unexpected.txt', 'entry_points.txt', 'other.dist-info/entry_points.txt'])
+def test_artifact_inspection_still_rejects_unexpected_wheel_metadata(tmp_path, monkeypatch, scripts, extra):
+    source, dist, _ = artifact_fixture(tmp_path, scripts)
+    monkeypatch.setattr(artifacts, 'git', lambda *args: '')
+    wheel = next(dist.glob('*.whl'))
+    with ZipFile(wheel, 'a') as archive:
+        archive.writestr(extra, b'[console_scripts]\nextra=other:main\n')
+    with pytest.raises(ValueError, match='Wheel payload'):
+        artifacts.verify(source, dist)
+
+
+def test_artifact_inspection_rejects_undeclared_console_scripts(tmp_path, monkeypatch):
+    source, dist, _ = artifact_fixture(tmp_path)
+    monkeypatch.setattr(artifacts, 'git', lambda *args: '')
+    with ZipFile(next(dist.glob('*.whl')), 'a') as archive:
+        archive.writestr('sfdctrust-1.0.0rc1.dist-info/entry_points.txt', b'[console_scripts]\nsfdctrust=sfdctrust._cli:main\n')
+    with pytest.raises(ValueError, match='Wheel payload'):
+        artifacts.verify(source, dist)
 
 
 def test_artifact_inspection_rejects_version_source_and_extra_payload(tmp_path, monkeypatch):

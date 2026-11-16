@@ -1,157 +1,166 @@
-# Qualify the public compatibility baseline
+# Qualify public compatibility and the installed CLI
 
 The {doc}`../reference/compatibility` policy defines the 1.x public surface.
-This gate compares the latest published pre-1.0 wheel (`0.2.0` at this handoff)
-with a locally built candidate, without editable installs, real credentials,
-or Salesforce requests. It complements the existing offline suite rather than
-reimplementing every behavior test.
+Run **both** published-baseline campaigns: historical `0.2.0` and stable `1.0.0`
+against the candidate. Retain `tests/compatibility/public-api.json` and the
+historical evidence below; neither is replaced to accept the additive read CLI.
+The current three versions share the same normalized Python inventory. Older
+wheels are not required to expose `sfdctrust` or `python -m sfdctrust`.
 
-Live-service qualification remains owned by
-[issue #8](https://github.com/jeffshurtliff/sfdctrust/issues/8).
-Operator recovery is complete under
-[issue #9's closing evidence](https://github.com/jeffshurtliff/sfdctrust/issues/9#issuecomment-6810823647),
-including successful macOS/Windows/Ubuntu hosted rehearsals at
-`3b7438ecf9f0ad8c9c922982c8afe1d101b55fbc`. Do not rerun those gates to satisfy
-issue #10. The upgrade check here only reopens baseline-created ready/pending
-stores and verifies public compare-and-swap protection; it performs no refresh
-or operator recovery rehearsal.
+All behavioral qualification uses synthetic credentials, disposable stores,
+HTTPX mocks, and outbound blocking. Live-service and final stable-artifact
+qualification are separately authorized release gates. A passing local dirty-tree
+campaign is not exact-commit hosted evidence or permission to publish.
 
 ## Preparation and isolated installations
 
-Run from the repository root with Python 3.12 (the inventory/checker interpreter) and the locked development tools.
-Choose a fresh work directory for each run. The commands below are the local
-POSIX commands used for this qualification. On Windows, use each venv's
-`Scripts/python.exe` instead of `bin/python`. The new compatibility job uses
-Ubuntu/Python 3.12; the existing matrix continues to validate native storage
-and the rest of the SDK on all configured runners.
+Use Python 3.12 and the locked development tools. Choose fresh directories and
+record HEAD, branch, dirty state, full source/diff hashes, dependency freezes,
+artifact digests, commands and results. A development candidate is HEAD plus its
+reviewed working diff; version `1.1.0.dev0` alone cannot identify its bytes.
+These POSIX examples run from the repository root. Windows environments use
+`Scripts/python.exe` instead of `bin/python`.
 
-Package retrieval is an explicit network-enabled preparation step. Record the
-release source, versions and hashes; the published wheel is not rebuilt from
-a tag. Keep dependency versions equivalent between the two environments for
-this comparison. Retain `pip freeze` outputs with evidence if the resolver
-selects different dependency versions on another date.
+Retrieve dependencies separately from behavioral qualification. The artifact
+preparer pins active locked runtime dependencies, the build backend and checker.
+Published baseline wheels are retrieved from PyPI, not rebuilt from tags. Two
+versions of one distribution require **separate pip download invocations**:
 
 ```sh
-git branch --show-current
-git rev-parse HEAD
-git status --short --branch
 poetry check --lock --strict
-poetry install --with docs
-poetry build
-mkdir -p /private/tmp/sfdctrust-compat/wheels
-poetry run python -m pip download --only-binary=:all: \
-  --dest /private/tmp/sfdctrust-compat/wheels 'sfdctrust==0.2.0' 'mypy==1.20.2'
-poetry run python -m venv /private/tmp/sfdctrust-compat/baseline
-poetry run python -m venv /private/tmp/sfdctrust-compat/candidate
-/private/tmp/sfdctrust-compat/baseline/bin/python -I -m pip install --no-index \
-  --find-links /private/tmp/sfdctrust-compat/wheels \
-  /private/tmp/sfdctrust-compat/wheels/sfdctrust-0.2.0-py3-none-any.whl 'mypy==1.20.2'
-/private/tmp/sfdctrust-compat/candidate/bin/python -I -m pip install --no-index \
-  --find-links /private/tmp/sfdctrust-compat/wheels \
-  dist/sfdctrust-1.0.0-py3-none-any.whl 'mypy==1.20.2'
-/private/tmp/sfdctrust-compat/baseline/bin/python -I -m pip check
-/private/tmp/sfdctrust-compat/candidate/bin/python -I -m pip check
-/private/tmp/sfdctrust-compat/baseline/bin/python -I -m pip freeze
-/private/tmp/sfdctrust-compat/candidate/bin/python -I -m pip freeze
+poetry build --output /tmp/sfdctrust-cli-dist
+poetry run python tools/ci/qualify.py prepare --dist /tmp/sfdctrust-cli-dist \
+  --wheelhouse /tmp/sfdctrust-cli-compat/wheels --work /tmp/sfdctrust-cli-compat/retrieval
+for baseline in 0.2.0 1.0.0; do
+  poetry run python -m pip download --only-binary=:all: --no-deps \
+    --dest /tmp/sfdctrust-cli-compat/wheels "sfdctrust==$baseline"
+done
 ```
 
-Mypy is the single checker and a development dependency only. CI obtains its
-version from the Poetry lock installation and installs that version in the
-candidate venv. It is not included in runtime metadata. The strict fixture
-imports only public paths, checks model/results, both clients, lazy async
-iteration, and structural conformance of custom sync/async PAT stores. It is
-checked, never executed. No `MYPYPATH`, missing-import suppression, SDK stubs,
-Pydantic plugin, editable installation, or skipped SDK imports are used. The
-checker discovers the installed PEP 561 package in its own interpreter, per
-[mypy's installed-package guidance](https://mypy.readthedocs.io/en/stable/installed_packages.html).
-Assertions of inferred types prevent an `Any` return from disguising a broken
-public annotation. This does not claim that all SDK internals pass strict mypy.
+The following phase installs exclusively from the prepared wheelhouse. Keep
+baseline and candidate environments, seed stores and evidence separate for each
+campaign. Do not use editable installs or add the checkout to module search paths.
+
+```sh
+compat_root=/tmp/sfdctrust-cli-compat
+candidate_wheel=/tmp/sfdctrust-cli-dist/sfdctrust-1.1.0.dev0-py3-none-any.whl
+checker_version="$(poetry run python -c 'from importlib.metadata import version; print(version("mypy"))')"
+for baseline in 0.2.0 1.0.0; do
+  campaign="$compat_root/$baseline"
+  mkdir -p "$campaign/evidence"
+  poetry run python -m venv "$campaign/baseline"
+  poetry run python -m venv "$campaign/candidate"
+  "$campaign/baseline/bin/python" -I -m pip install --no-index --find-links "$compat_root/wheels" \
+    --constraint "$compat_root/wheels/locked-active.txt" \
+    "$compat_root/wheels/sfdctrust-$baseline-py3-none-any.whl"
+  "$campaign/candidate/bin/python" -I -m pip install --no-index --find-links "$compat_root/wheels" \
+    --constraint "$compat_root/wheels/locked-active.txt" "$candidate_wheel" "mypy==$checker_version"
+  for role in baseline candidate; do
+    "$campaign/$role/bin/python" -I -m pip check
+    "$campaign/$role/bin/python" -I -m pip freeze > "$campaign/evidence/$role-freeze.txt"
+  done
+done
+```
 
 ## Behavioral comparison and store upgrade
 
-Each invocation below requires `-I`, rejects optimized execution and editable
-imports, verifies package bytes against its specified wheel, and confirms the
-shipped `py.typed` marker. A socket/DNS audit guard is installed before importing
-the SDK or executing behavior. The event loop is initialized first because
-Windows may need a socket pair for its internal wakeup mechanism. Qualification
-cannot open any sockets after that point. The two deliberate guard self-tests
-are counted separately; any other socket/DNS attempt fails qualification.
+`check_wheel.py` requires `-I`, rejects optimized/editable imports, verifies
+installed package bytes against the specified wheel, and checks `py.typed`.
+Its socket/DNS audit guard is installed before SDK imports. An event loop is
+created first for Windows wakeup IPC; no SDK behavior precedes the guard. Two
+deliberate guard probes are counted separately; other networking fails.
 
-The checked inventory contains supported exports, method parameter kinds,
-keyword-only defaults, return types, call/await invocation, model fields/aliases,
-exception inheritance and probe values. It normalizes the private environment
-omission sentinel and the equivalent `builtins.list` spelling. It does not
-freeze an incidental import or the version string. No module search path is
-added by the harness. Its CLI test executes the real installed module inside
-the same guarded interpreter with an explicitly named synthetic environment
-variable; it does not discover credentials.
+The reviewed inventory contains exports, signatures/defaults, call/await
+semantics, model fields/aliases, exception inheritance and probe values. It
+normalizes only the private omission sentinel and equivalent `builtins.list`
+spelling. Normal runs and CI never use `--record-inventory`; do not regenerate a
+snapshot to make failures pass. Approved future public additions require a
+separate reviewed candidate inventory while preserving the historical snapshot.
 
 ```sh
-/private/tmp/sfdctrust-compat/baseline/bin/python -I tests/compatibility/check_wheel.py \
-  --wheel /private/tmp/sfdctrust-compat/wheels/sfdctrust-0.2.0-py3-none-any.whl \
-  --expected-version 0.2.0 --snapshot tests/compatibility/public-api.json \
-  --evidence /private/tmp/sfdctrust-compat/baseline.json
-/private/tmp/sfdctrust-compat/candidate/bin/python -I tests/compatibility/check_wheel.py \
-  --wheel dist/sfdctrust-1.0.0-py3-none-any.whl \
-  --expected-version 1.0.0 --snapshot tests/compatibility/public-api.json \
-  --evidence /private/tmp/sfdctrust-compat/candidate.json
-/private/tmp/sfdctrust-compat/baseline/bin/python -I tests/compatibility/check_wheel.py \
-  --wheel /private/tmp/sfdctrust-compat/wheels/sfdctrust-0.2.0-py3-none-any.whl \
-  --expected-version 0.2.0 --snapshot tests/compatibility/public-api.json \
-  --mode seed --store-directory /private/tmp/sfdctrust-compat/stores-final \
-  --evidence /private/tmp/sfdctrust-compat/seed.json
-/private/tmp/sfdctrust-compat/candidate/bin/python -I tests/compatibility/check_wheel.py \
-  --wheel dist/sfdctrust-1.0.0-py3-none-any.whl \
-  --expected-version 1.0.0 --snapshot tests/compatibility/public-api.json \
-  --mode upgrade --store-directory /private/tmp/sfdctrust-compat/stores-final \
-  --evidence /private/tmp/sfdctrust-compat/upgrade.json
+candidate_version=1.1.0.dev0
+for baseline in 0.2.0 1.0.0; do
+  campaign="$compat_root/$baseline"
+  "$campaign/baseline/bin/python" -I tests/compatibility/check_wheel.py \
+    --wheel "$compat_root/wheels/sfdctrust-$baseline-py3-none-any.whl" --expected-version "$baseline" \
+    --snapshot tests/compatibility/public-api.json --evidence "$campaign/evidence/baseline.json"
+  "$campaign/candidate/bin/python" -I tests/compatibility/check_wheel.py \
+    --wheel "$candidate_wheel" --expected-version "$candidate_version" \
+    --snapshot tests/compatibility/public-api.json --evidence "$campaign/evidence/candidate.json"
+  "$campaign/baseline/bin/python" -I tests/compatibility/check_wheel.py \
+    --wheel "$compat_root/wheels/sfdctrust-$baseline-py3-none-any.whl" --expected-version "$baseline" \
+    --snapshot tests/compatibility/public-api.json --mode seed --store-directory "$campaign/stores" \
+    --evidence "$campaign/evidence/seed.json"
+  "$campaign/candidate/bin/python" -I tests/compatibility/check_wheel.py \
+    --wheel "$candidate_wheel" --expected-version "$candidate_version" \
+    --snapshot tests/compatibility/public-api.json --mode upgrade --store-directory "$campaign/stores" \
+    --evidence "$campaign/evidence/upgrade.json"
+  "$campaign/candidate/bin/python" -I tests/offline/run.py -m mypy \
+    --config-file tests/compatibility/mypy.ini --no-incremental tests/compatibility/downstream.py
+done
 ```
 
-The first baseline inventory was recorded with the explicit developer option
-`--record-inventory`, then reviewed. Normal qualification and CI never use that
-option. Do not regenerate the snapshot merely to make a break pass. When future
-approved additions cause the baseline and candidate surfaces to diverge, retain
-the historical baseline snapshot separately and review candidate changes under
-the versioning policy; do not demand that old wheels implement new additions.
-The current versions share the same normalized inventory.
+Each baseline and candidate exercises all five Python reads in sync/async form,
+serialization/aliases, omission/null, offsets, unknown values, scoped duplicates,
+lazy iteration, continuation/failure, HTTP errors, ownership, fixed timeouts,
+bounded retries, cancellation and the existing PAT-store initialization module.
+Seed mode uses the baseline's public initializer for ready and pending stores.
+Upgrade mode reopens those stores with the candidate, retains revisions/attempt
+markers, refuses stale compare-and-swap, blocks a pending client, and refuses
+initializer overwrite. It performs no refresh, migration, or recovery automation.
+The completed operator-recovery evidence remains in
+[issue #9](https://github.com/jeffshurtliff/sfdctrust/issues/9#issuecomment-6810823647).
 
-Both wheels exercise all five reads in sync/async form, serialization/aliases,
-omission/null rules, offsets, unknown values, status duplicates and scopes,
-lazy iteration, continuation and partial failure, HTTP errors versus pagination
-guards, connection ownership, timeout overrides, bounded retries, cancellation
-and installed CLI initialization. Detailed read/search/pagination, retries,
-exception sanitization, async refresh/cancellation and SQLite unsupported-format
-cases remain in the existing unit suite.
+Strict downstream mypy uses only public paths, inferred-type assertions and the
+installed PEP 561 package. It never executes the fixture and uses no SDK stubs,
+`MYPYPATH`, missing-import suppression or Pydantic plugin. CI obtains the checker
+version from locked tooling. Published `0.2.0` has two known `assert-type`
+diagnostics for `tenants.list_all()` because `list` shadows its annotation;
+`1.0.0` contains the correction. The installed candidate must pass. This does not
+claim that all SDK internals pass strict mypy.
 
-## Downstream typing and other checks
+## Candidate-only installed CLI and artifact checks
 
 ```sh
-/private/tmp/sfdctrust-compat/baseline/bin/python -I -m mypy --version
-/private/tmp/sfdctrust-compat/baseline/bin/python -I -m mypy \
-  --config-file tests/compatibility/mypy.ini --no-incremental tests/compatibility/downstream.py
-/private/tmp/sfdctrust-compat/candidate/bin/python -I -m mypy --version
-/private/tmp/sfdctrust-compat/candidate/bin/python -I -m mypy \
-  --config-file tests/compatibility/mypy.ini --no-incremental tests/compatibility/downstream.py
-poetry run pytest -q
-poetry run ruff check .
-poetry run ruff format --check .
-poetry run bandit -r src -q
-poetry check --lock --strict
-poetry build
-poetry run twine check --strict dist/sfdctrust-1.0.0*
-poetry run sphinx-build -W --keep-going -E -a -b html docs docs/_build/html
+poetry run python tools/ci/qualify.py qualify --dist /tmp/sfdctrust-cli-dist \
+  --wheelhouse /tmp/sfdctrust-cli-compat/wheels --work /tmp/sfdctrust-cli-installs
 ```
 
-The baseline mypy command intentionally exits **1** with exactly two
-`assert-type` diagnostics: sync and async `tenants.list_all()` resolve to
-`list?[Tenant]` because the method `list` shadows the built-in annotation name.
-Run it separately from shell sequences that stop on the first failure. The
-candidate qualifies `builtins.list[Tenant]` and must exit **0** with no errors.
-This is a typing correction, not a runtime incompatibility or migration.
-CI enforces the candidate's success; the published baseline's known typing
-failure is recorded here and in local evidence, not required to pass.
+The qualifier installs wheel and sdist separately, non-editably and offline,
+then runs package smoke, compatibility and strict downstream typing. Real console
+and module launchers run outside the checkout with a test-only bootstrap that
+blocks outbound traffic **before SDK imports**. Tests use synthetic environment
+PATs/disposable stores, and retain bytecode-cache protection when rewriting
+bootstraps. No production test switches are provided.
 
-## Local results and closure boundaries
+The installed checks cover all five documented read examples, help/version,
+preflight without credential/store access, all store selectors, no environment
+lookup or fallback for explicit stores, missing environment credentials despite
+a ready default store, pending/unseeded/missing failures, one-page cursors and
+stale errors, aliases/presence/extras/offsets, scopes/order/duplicates/history/
+timelines, safe streams/exit codes/redaction, bounded retries/interruption and
+cleanup. They exercise leading-dash argparse forms, real closed output pipes and
+closed stdout descriptors, including interpreter shutdown without tracebacks.
+Source-level regressions additionally cover unsafe and changing store revisions,
+render/write/close errors and complete validation boundaries.
+
+CI's metadata-derived matrix retains Python 3.12–3.15 on Linux and the minimum
+minor on macOS/Windows, including native SQLite permissions/spawned processes
+and real installed wheel launchers. The quality job separately qualifies both
+artifacts. The existing compatibility job runs both baseline campaigns on
+Linux/Python 3.12 and retains separate evidence/freeze files even on failures.
+Required job names, permissions and release protection remain unchanged.
+
+Run the full outbound-blocked suite, Ruff lint/format, Bandit, strict Poetry/lock,
+private CLI typing, fresh build/strict Twine, artifact/source/entry-point/digest
+inspection, actionlint and strict Sphinx; see {doc}`ci-and-publishing` for commands.
+Dependency/advisory/intersphinx networking is separate from behavioral tests.
+Record actual failures, retries, skips and host limits. Verify hosted matrix and
+docs against the exact implementation commit after authorized delivery; local
+macOS/Python 3.12 checks cannot establish those gates. Final stable 1.1.0 artifact
+qualification and publishing belong to a separate release tracker.
+
+## Historical 0.2.0 qualification — 2026-11-11
 
 Qualification date: **2026-11-11 America/Denver** (UTC timestamps fall on
 2026-11-12). Initial source: clean `main` at
