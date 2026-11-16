@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
-- None yet.
+- Static Open Graph social previews for documentation links using `sphinxext-opengraph`
+  and the existing sfdctrust preview image.
 
 (unreleased-changed)=
 ### Changed

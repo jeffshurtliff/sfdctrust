@@ -12,8 +12,8 @@ structure and practices as the maintainer's other projects.
 - `docs/conf.py` reads the release version from `pyproject.toml`.
 
 The dependencies live in the optional Poetry `docs` group (Sphinx 9.1+, MyST-Parser,
-PyData Sphinx Theme and sphinx-favicon). `poetry.lock` pins their exact versions; no
-`docs/requirements.txt` is used.
+PyData Sphinx Theme, sphinx-favicon and sphinxext-opengraph). `poetry.lock` pins their
+exact versions; no `docs/requirements.txt` is used.
 
 ## Build locally
 
@@ -78,15 +78,16 @@ reader's choice. The branding images live in `docs/_static/`:
 | `logos-dark/` | Stacked logo with a white wordmark, same sizes | Landing page in dark mode |
 | `icons/` | Cloud mark without the wordmark, 32-1024 px wide, plus the master | Navbar logo (128 px file), next to the project name as text |
 | `favicons/` | Square favicons, 16-256 px, a multi-size `favicon.ico`, and an opaque 180 px Apple touch icon | Browser tab and home-screen icons through `sphinx-favicon` |
-| `social-previews/` | 1280 × 640 PNG and JPEG | GitHub repository social preview (set in the repository settings) |
+| `social-previews/` | 1280 × 640 PNG and JPEG | Static documentation Open Graph preview (`sfdctrust-social-preview.jpg`); `*-github.*` variants for the GitHub repository settings |
 
 The stacked logo is too small to read at navbar height, so the navbar pairs the cloud icon
 with the project name. The landing page swaps between the light and dark logos with
 PyData's `only-light` and `only-dark` image classes.
 
-`*-master.png` files and `social-previews/` are excluded from the build in
-`exclude_patterns`, so the source artwork is kept in the repository but not published with
-the site. Keep file names stable; `docs/conf.py` and `docs/index.rst` reference them directly.
+`*-master.png` files, social-preview PNGs and GitHub preview JPEGs are excluded from the
+build in `exclude_patterns`. The documentation preview JPEG is published under
+`_static/social-previews/`. Keep file names stable; `docs/conf.py` and `docs/index.rst`
+reference them directly.
 
 `docs/_static/custom.css` derives its accents from the logo's bright blue (`#0a84ff`) and
 navy (`#002a66`), adjusted so all text meets at least WCAG AA contrast (4.5:1) in both
@@ -97,8 +98,20 @@ lighter pulse line would make that glow unnecessary.
 The Apple touch icon (`favicons/sfdctrust-apple-touch-icon-180.png`) has a white background
 on purpose. iOS fills transparent touch icons with black, so keep any replacement opaque.
 
-The social preview is not used as an Open Graph image for the docs. Doing that would need
-an absolute site URL and, ideally, the `sphinxext-opengraph` extension.
+The [sphinxext-opengraph extension](https://sphinxext-opengraph.readthedocs.io/en/latest/)
+adds Open Graph metadata to documentation pages using the static JPEG configured in
+`ogp_image`, with descriptive text in `ogp_image_alt`. `ogp_site_url` uses
+`READTHEDOCS_CANONICAL_URL` when available, with
+`https://sfdctrust.readthedocs.io/en/latest/` as the local-build fallback. Image URLs
+are resolved against that site URL, including on nested pages. Automatic social-card
+generation is disabled through `ogp_social_cards`; the `social-cards` extra is not installed.
+
+After changing the preview configuration, perform a fresh HTML build and inspect
+`og:image`, `og:image:alt` and `og:url` in both `index.html` and a nested page such as
+`getting-started/quickstart.html`. Check that the referenced image exists in the output.
+For a local simulation of a hosted version, set `READTHEDOCS_CANONICAL_URL` to its
+full public base URL (including the trailing slash) before building. A local build
+does not verify a hosted Read the Docs deployment or a social platform's cached preview.
 
 After changing images or colors, rebuild and check the landing page and navbar in both
 color modes and at a narrow width.
