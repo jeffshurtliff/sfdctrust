@@ -177,7 +177,6 @@ follow-up GitHub issues after reviewing the completed feature:
 - Built-in asynchronous SQLite adapter and cancellation qualification.
 - Optional credential encryption/keychain integration in addition to ACLs
   and encrypted-volume requirements.
-- An explicit, validated migration command for old example databases.
 - Multi-host storage/coordination and automatic refresh scheduling, each
   with its own credential-lifecycle design.
 - Broader filesystem/provider checks, complex corporate ACL support,
