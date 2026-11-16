@@ -13,18 +13,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
+- CLI foundation with installed `sfdctrust` and `python -m sfdctrust` launchers,
+  credential-free root/group/action help and root version output, plus secret-safe usage errors.
+  The existing PAT-store module CLI is unchanged.
+- `tenants list` and `tenants get TENANT_ID` commands using the public synchronous
+  SDK, with locale, one-page continuation (including empty cursors), JSON/text
+  output, and explicit existing-store selection by default location, path, or alias.
+  Inputs are validated before credential access; store-backed reads retain pending
+  rotation/revision protections and never fall back to ambient credentials.
+  Diagnostics use fixed messages, documented exit codes, and stderr; clients close
+  on success and failure.
+- `status snapshot`, `events search`, and `events get EVENT_ID` complete the five
+  read-only CLI operations through the public synchronous SDK. Search validates
+  1–50 tenant scopes, full aware ordered time bounds, optional distinct event
+  categories, and one-page continuation before credential access. Text includes
+  all status buckets, separate scoped events with affected tenant IDs, and
+  labeled event metadata/timelines; JSON retains complete SDK data and presence.
 - Static Open Graph social previews for documentation links using `sphinxext-opengraph`
   and the existing sfdctrust preview image.
 
 (unreleased-changed)=
 ### Changed
 
-- None yet.
+- Artifact inspection validates the exact declared console-script mapping and rejects
+  missing, changed, or additional entry points. Installed-package checks exercise
+  both CLI launchers outside the checkout with credential/store/prompt/network guards
+  for help/invalid inputs and synthetic HTTP/disposable stores for all five reads,
+  including status/event error, retry, cleanup, interruption, and closed-pipe checks.
+
+- Compatibility CI retains the historical 0.2.0 campaign and adds isolated stable
+  1.0.0-to-candidate public inventory/behavior, ready/pending SQLite reopen and
+  downstream typing checks, with separate evidence and locked dependency retrieval.
+- Integrated installed CLI qualification covers all five command examples,
+  explicit-store credential isolation/no fallback, missing environment credentials,
+  leading-dash arguments, and closed output descriptors in both launchers.
 
 (unreleased-fixed)=
 ### Fixed
 
-- None yet.
+- CLI output cleanup retains a repaired stdout descriptor when opening the null
+  device reuses it, preserving exit 1 without an interpreter-shutdown traceback.
 
 (unreleased-security)=
 ### Security

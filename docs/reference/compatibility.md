@@ -360,7 +360,8 @@ wheel in the application environment, reopen the same store and verify reads
 before resuming. Never restore stale backups as an active lineage or run mixed
 uncoordinated versions/copies. Protect/retire backups as credentials. The SDK
 checks file protection but cannot verify encryption or every sync provider.
-No migration or live rotation is needed for the verified 0.2.0-to-candidate reopen.
+The qualification campaigns reopen both 0.2.0-created and 1.0.0-created stores
+with the candidate without migration or live rotation.
 
 ### Initialization CLI
 
@@ -377,6 +378,44 @@ no overwrite option or PAT argument. Default input is a hidden terminal prompt;
 variable. `-h`/`--help` is supported. Exit status is 0 for success/help, 2 for
 invalid command arguments and 1 for input/storage failure or cancellation.
 Diagnostics and success text can change; credentials must not be echoed.
+
+## Read CLI (unreleased 1.1 development version)
+
+A 1.1 development installation adds `sfdctrust` and equivalent
+`python -m sfdctrust`, supporting `tenants list`, `tenants get TENANT_ID`,
+`status snapshot`, `events search`, and `events get EVENT_ID`, root `--version`,
+and root/group/action help. Search requires 1–50 tenant scopes, full aware
+start/end timestamps with start before end, and optional distinct request
+categories; omission of event filters includes all types. Tenant listing and
+event search fetch one page only, preserving opaque and empty cursors.
+The 1.0.0 distribution has no general read CLI. The existing PAT-store
+initialization module CLI and all supported Python SDK interfaces are unchanged;
+no migration is required for supported versioned SQLite stores.
+
+The command names, documented option placement/credential precedence, single-page
+behavior, JSON response structure, stdout/stderr separation, and exit-code meanings
+are the CLI contract. JSON is the SDK response serialized with wire aliases and
+`exclude_unset=True`, followed by one newline. It preserves unknown fields, nulls,
+omission, array order, scopes, duplicates, and UTC offsets. JSON whitespace, key
+order, original timestamp spelling, text layout, help wording, and diagnostic
+wording are not stable interfaces. Use `--json` for automation; never parse text
+rows or error messages. Exit codes distinguish invalid arguments, credential/store
+failures, and API/network failures, including malformed responses. Output failures
+can leave partial stdout and must be detected by exit status.
+
+Text includes all status buckets, each scoped event's affected tenants, and
+labeled supplied history/timeline details, distinguishing omitted and empty
+timelines. It escapes terminal controls but remains a partial human view;
+JSON is the complete-data interface. Inputs, including JSON/URL encoding,
+validate before credentials are selected. No additional SDK public methods,
+endpoint behavior, dependencies, store format, or Python support changes are required.
+See {doc}`../getting-started/cli` for the implemented syntax and complete contracts.
+The {doc}`../maintainers/compatibility-qualification` procedure runs both the
+historical 0.2.0 and stable 1.0.0 baselines against the candidate while preserving
+the historical snapshot/evidence. New CLI checks apply only to the candidate.
+Exact-commit supported-platform hosted verification and final stable-artifact
+qualification remain separate gates; this development documentation does not
+establish release readiness.
 
 ## Versioning, deprecation, and upgrade guidance
 

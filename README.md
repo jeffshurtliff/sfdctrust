@@ -46,6 +46,44 @@ If you supplied `page_size` or `locale` on the first call, repeat those values.
 See the [quickstart](https://sfdctrust.readthedocs.io/en/stable/getting-started/quickstart.html) and
 [tenant reference](https://sfdctrust.readthedocs.io/en/stable/reference/tenants.html) for details.
 
+## Read CLI (unreleased 1.1 development version)
+
+A 1.1 development installation provides `sfdctrust` and equivalent
+`python -m sfdctrust` commands:
+
+```sh
+sfdctrust --help
+sfdctrust --version
+sfdctrust tenants list --page-size 25 --json
+sfdctrust tenants get synthetic-tenant --locale en-US
+sfdctrust status snapshot --locale en-US --json
+sfdctrust events search --tenant-id synthetic-tenant --start-time 2026-11-01T00:00:00Z --end-time 2026-11-02T00:00:00Z --event-type incident --json
+sfdctrust events get synthetic-event --store-alias monitoring
+sfdctrust tenants list --store-alias monitoring --page-token="" --json
+```
+
+Reads use `SFDCTRUST_PAT` by default. Explicit `--store`, `--store-path PATH`,
+or `--store-alias ALIAS` selects an existing seeded SQLite store, ignores the
+ambient PAT, and never falls back or initializes a file. Tenant listing and
+event search retrieve one page. Keep every query input unchanged when continuing,
+including tenant scopes, aware time bounds, and filters for search. Search requires
+1–50 tenant IDs and full timezone-aware start/end timestamps, with start before
+end. Optional repeatable event filters are `patch`, `incident`, `maintenance`,
+and `informationalMessage`; omission includes all types. JSON preserves the
+complete SDK response, including history/timeline, status groups, repeated scoped events, extras, and field
+presence. Empty results describe the authorized scope and do not establish
+Salesforce-wide health.
+
+Root, group, and action help and root `--version` need no credentials or network. Invalid
+arguments exit 2 before credential access, with empty stdout and a safe stderr
+diagnostic. Long options must be written in full and read options follow the
+action. See the [CLI guide](https://sfdctrust.readthedocs.io/en/latest/getting-started/cli.html)
+for output, paging, credential selection, and exit codes.
+
+All five read operations are available in this development version. The existing
+`python -m sfdctrust.pat_store init` command is unchanged. The published 1.0
+release does not include this CLI.
+
 ## Use the asynchronous client
 
 ```python

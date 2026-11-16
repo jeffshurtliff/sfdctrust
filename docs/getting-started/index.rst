@@ -8,6 +8,8 @@ and make your first API requests.
 2. Follow :doc:`installation` to install the package from a checkout or a wheel.
 3. Follow :doc:`setup` to get a personal access token and choose how to store it.
 4. Follow :doc:`quickstart` to list tenants, retrieve events, and test PAT refresh.
+5. Use :doc:`cli` for tenant listing/detail, status snapshots, and event search/detail
+   from the shell in the unreleased 1.1 development version.
 
 .. toctree::
    :maxdepth: 1
@@ -17,3 +19,4 @@ and make your first API requests.
    installation
    setup
    quickstart
+   cli

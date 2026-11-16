@@ -124,51 +124,78 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.12'
-      - name: Prepare wheels and isolated non-editable installations
+      - name: Retrieve locked candidate and published baseline wheels (network allowed)
         run: |
           python -m pip install 'poetry==2.5.1'
           poetry check --lock --strict
           poetry install --no-interaction
           poetry build
           compat_root="$RUNNER_TEMP/compatibility"
-          mkdir -p "$compat_root/wheels" "$compat_root/evidence"
+          poetry run python tools/ci/qualify.py prepare \
+            --wheelhouse "$compat_root/wheels" --work "$compat_root/retrieval"
+          # Separate requests: pip cannot resolve two versions of one distribution together.
+          for baseline in 0.2.0 1.0.0; do
+            python -m pip download --only-binary=:all: --no-deps --dest "$compat_root/wheels" \
+              "sfdctrust==$baseline"
+          done
+      - name: Install isolated baseline and candidate environments (offline)
+        run: |
+          compat_root="$RUNNER_TEMP/compatibility"
           checker_version="$(poetry run python -c 'from importlib.metadata import version; print(version("mypy"))')"
-          python -m pip download --only-binary=:all: --dest "$compat_root/wheels" \
-            'sfdctrust==0.2.0' "mypy==$checker_version"
-          python -m venv "$compat_root/baseline"
-          python -m venv "$compat_root/candidate"
-          "$compat_root/baseline/bin/python" -I -m pip install --no-index --find-links "$compat_root/wheels" \
-            "$compat_root/wheels/sfdctrust-0.2.0-py3-none-any.whl"
-          "$compat_root/candidate/bin/python" -I -m pip install --no-index --find-links "$compat_root/wheels" \
-            dist/sfdctrust-*.whl "mypy==$checker_version"
-          "$compat_root/baseline/bin/python" -I -m pip check
-          "$compat_root/candidate/bin/python" -I -m pip check
-      - name: Compare public inventories and offline behavior, then reopen baseline stores
+          for baseline in 0.2.0 1.0.0; do
+            campaign="$compat_root/$baseline"
+            mkdir -p "$campaign/evidence"
+            python -m venv "$campaign/baseline"
+            python -m venv "$campaign/candidate"
+            "$campaign/baseline/bin/python" -I -m pip install --no-index --find-links "$compat_root/wheels" \
+              --constraint "$compat_root/wheels/locked-active.txt" \
+              "$compat_root/wheels/sfdctrust-$baseline-py3-none-any.whl"
+            "$campaign/candidate/bin/python" -I -m pip install --no-index --find-links "$compat_root/wheels" \
+              --constraint "$compat_root/wheels/locked-active.txt" dist/sfdctrust-*.whl "mypy==$checker_version"
+            for role in baseline candidate; do
+              "$campaign/$role/bin/python" -I -m pip check
+              "$campaign/$role/bin/python" -I -m pip freeze > "$campaign/evidence/$role-freeze.txt"
+            done
+          done
+      - name: Compare both public baselines and reopen their separate ready and pending stores (offline)
         run: |
           compat_root="$RUNNER_TEMP/compatibility"
           candidate_version="$(poetry run python -c 'from importlib.metadata import version; print(version("sfdctrust"))')"
-          "$compat_root/baseline/bin/python" -I tests/compatibility/check_wheel.py \
-            --wheel "$compat_root/wheels/sfdctrust-0.2.0-py3-none-any.whl" --expected-version 0.2.0 \
-            --snapshot tests/compatibility/public-api.json --evidence "$compat_root/evidence/baseline.json"
-          "$compat_root/candidate/bin/python" -I tests/compatibility/check_wheel.py \
-            --wheel dist/sfdctrust-*.whl --expected-version "$candidate_version" \
-            --snapshot tests/compatibility/public-api.json --evidence "$compat_root/evidence/candidate.json"
-          "$compat_root/baseline/bin/python" -I tests/compatibility/check_wheel.py \
-            --wheel "$compat_root/wheels/sfdctrust-0.2.0-py3-none-any.whl" --expected-version 0.2.0 \
-            --snapshot tests/compatibility/public-api.json --mode seed --store-directory "$compat_root/stores" \
-            --evidence "$compat_root/evidence/seed.json"
-          "$compat_root/candidate/bin/python" -I tests/compatibility/check_wheel.py \
-            --wheel dist/sfdctrust-*.whl --expected-version "$candidate_version" \
-            --snapshot tests/compatibility/public-api.json --mode upgrade --store-directory "$compat_root/stores" \
-            --evidence "$compat_root/evidence/upgrade.json"
+          for baseline in 0.2.0 1.0.0; do
+            campaign="$compat_root/$baseline"
+            "$campaign/baseline/bin/python" -I tests/compatibility/check_wheel.py \
+              --wheel "$compat_root/wheels/sfdctrust-$baseline-py3-none-any.whl" --expected-version "$baseline" \
+              --snapshot tests/compatibility/public-api.json --evidence "$campaign/evidence/baseline.json"
+            "$campaign/candidate/bin/python" -I tests/compatibility/check_wheel.py \
+              --wheel dist/sfdctrust-*.whl --expected-version "$candidate_version" \
+              --snapshot tests/compatibility/public-api.json --evidence "$campaign/evidence/candidate.json"
+            "$campaign/baseline/bin/python" -I tests/compatibility/check_wheel.py \
+              --wheel "$compat_root/wheels/sfdctrust-$baseline-py3-none-any.whl" --expected-version "$baseline" \
+              --snapshot tests/compatibility/public-api.json --mode seed --store-directory "$campaign/stores" \
+              --evidence "$campaign/evidence/seed.json"
+            "$campaign/candidate/bin/python" -I tests/compatibility/check_wheel.py \
+              --wheel dist/sfdctrust-*.whl --expected-version "$candidate_version" \
+              --snapshot tests/compatibility/public-api.json --mode upgrade --store-directory "$campaign/stores" \
+              --evidence "$campaign/evidence/upgrade.json"
+          done
           git rev-parse HEAD
           git status --short --branch
-      - name: Type-check the downstream fixture against the installed candidate
+      - name: Type-check each installed candidate (offline)
         run: |
           compat_root="$RUNNER_TEMP/compatibility"
-          "$compat_root/candidate/bin/python" -I -m mypy --version
-          "$compat_root/candidate/bin/python" -I -m mypy --config-file tests/compatibility/mypy.ini \
-            --no-incremental tests/compatibility/downstream.py
+          for baseline in 0.2.0 1.0.0; do
+            "$compat_root/$baseline/candidate/bin/python" -I tests/offline/run.py -m mypy --version
+            "$compat_root/$baseline/candidate/bin/python" -I tests/offline/run.py -m mypy \
+              --config-file tests/compatibility/mypy.ini --no-incremental tests/compatibility/downstream.py
+          done
+      - name: Retain compatibility campaigns, including failures
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: public-compatibility
+          path: ${{ runner.temp }}/compatibility/*/evidence/
+          if-no-files-found: error
+          retention-days: 30
 
   audit:
     name: Locked runtime dependency audit
