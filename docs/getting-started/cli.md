@@ -1,4 +1,4 @@
-# Read My Trust Center from the command line
+# Using sfdctrust from the command line
 
 This guide describes the **unreleased 1.1 development version**. Install a
 reviewed development wheel or checkout as described in {doc}`installation`.
