@@ -1,10 +1,8 @@
 # Validate CI and prepare publishing
 
-This runbook implements the repository preparation for
-[issue #11](https://github.com/jeffshurtliff/sfdctrust/issues/11).
-Implementation and local checks do not complete its acceptance gate: an explicitly
-approved TestPyPI rehearsal, hosted CI, and hosted documentation evidence remain
-necessary. Production release execution requires separate authorization.
+[Issue #11](https://github.com/jeffshurtliff/sfdctrust/issues/11) established
+the CI and publishing controls. Production release execution requires separate
+authorization. Follow {doc}`stable-release` for the current release gates.
 
 See {doc}`ci-publishing-evidence` for the recorded local source, results, artifact
 hashes and reproduction commands. The separately authorized hosted rehearsal
@@ -14,9 +12,8 @@ uploads or production release execution.
 
 ## Boundaries and existing qualification
 
-Stable `1.0.0` preparation is authorized under
-[#12](https://github.com/jeffshurtliff/sfdctrust/issues/12); see
-{doc}`stable-release` for the remaining exact-artifact and production gates.
+Stable `1.1.0` preparation is tracked in
+[#19](https://github.com/jeffshurtliff/sfdctrust/issues/19).
 Preserve Python `>=3.12`; classifiers currently advertise 3.12–3.15.
 `tools/ci/matrix.py` derives Linux tests for each advertised minor plus macOS and
 Windows on the minimum minor. Native SQLite permission and spawned-process tests,
@@ -25,9 +22,9 @@ remain in CI. Platform skips remain explicit.
 
 Reuse [#10's accepted compatibility and exact-source hosted evidence](https://github.com/jeffshurtliff/sfdctrust/issues/10#issuecomment-6856289949)
 and [#9's completed operator recovery evidence](https://github.com/jeffshurtliff/sfdctrust/issues/9#issuecomment-6810823647).
-Existing regression tests and recurring CI checks remain; this task does not
-independently rerun the dedicated recovery gate. Exact-release live-service
-qualification remains with [#8](https://github.com/jeffshurtliff/sfdctrust/issues/8).
+Existing regression tests and recurring CI checks remain. The release tracker
+records the current live-service gate; [#8](https://github.com/jeffshurtliff/sfdctrust/issues/8)
+records the historical 1.0.0 qualification.
 No Salesforce requests or real credentials belong in ordinary CI or release validation.
 
 ## CI, required checks, and hosted documentation
@@ -67,7 +64,7 @@ result, plus the rendered version and maintainer page. A reachable older
 
 ## Integrated CLI qualification for 1.1
 
-The development CLI qualification retains the existing required job names and
+The CLI qualification retains the existing required job names and
 metadata-derived native/Python matrix. Every test row runs real installed wheel
 console/module launchers; the quality job qualifies separate clean non-editable
 wheel and sdist installations. The compatibility job now runs independent
@@ -77,11 +74,9 @@ Dependency retrieval precedes the outbound-blocked behavior phase. See
 {doc}`compatibility-qualification` for commands and the candidate-only CLI scope.
 
 Local evidence identifies HEAD plus the reviewed working diff and fresh artifact
-hashes. It does not qualify an immutable implementation commit, other native
-platforms, or a future stable artifact. After separately authorized delivery,
-verify all supported matrix rows and strict hosted docs against that exact
-commit, review skips/failures, and retain run/artifact identities before claiming
-#17/#7 readiness. Stable 1.1.0 preparation/publishing requires a separate tracker.
+hashes. After separately authorized delivery, verify all supported matrix rows
+and strict hosted docs against the exact release commit. Record skips, failures,
+and run and artifact identities in the release tracker.
 
 ## Dependency vulnerability auditing
 
@@ -228,9 +223,10 @@ cannot enforce those protections, stop and obtain an approved alternative.
 The YAML environment name alone is not an approval barrier: GitHub can create an
 unprotected environment on first use.
 
-Before a production approval, review #8's live qualification for the exact candidate
-wheel, the accepted #9/#10 evidence, and #11's approved rehearsal evidence. The
-offline workflow does not perform or certify that separate live-service gate.
+Before a production approval, review the current release tracker's exact-wheel
+live qualification evidence or explicit maintainer dispositions, the accepted
+#9/#10 evidence, and #11's approved rehearsal evidence. Live-service
+qualification is separate from the offline workflow.
 
 Register a GitHub Trusted Publisher separately on each registry for owner
 `jeffshurtliff`, repository `sfdctrust`, workflow filename `release.yml`, and that

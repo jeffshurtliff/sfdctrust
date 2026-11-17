@@ -98,7 +98,8 @@ the published baseline and candidate in isolated, non-editable installations.
   and DNS in Python children while permitting loopback/OS IPC.
 - Never discover real credentials in `.env` or secret files, contact Salesforce,
   or rotate a real PAT as part of ordinary testing. Live qualification requires
-  separate explicit authorization and remains owned by issue #8.
+  separate explicit authorization for each phase. See the
+  [stable release runbook](docs/maintainers/stable-release.md) for gate ownership.
 - Preserve tenant-scoped visibility, status-event scopes and duplicates, bounded
   retries/timeouts, and caller-owned HTTP client lifecycle. Never blindly retry
   ambiguous PAT refreshes or disclose PATs in errors, logs, examples, or artifacts.

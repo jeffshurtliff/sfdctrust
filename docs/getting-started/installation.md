@@ -53,9 +53,9 @@ If you see a version number, continue to {doc}`setup`. If Python reports
 `ModuleNotFoundError`, check that you ran the install and import commands
 using the same virtual environment.
 
-## Read CLI in the unreleased 1.1 development version
+## Read-only CLI
 
-Installing a 1.1 development wheel or this checkout installs the `sfdctrust`
+Installing sfdctrust 1.1.0 or later adds the `sfdctrust`
 command into the environment's scripts directory. Activate that environment
 before using it. The equivalent module launcher uses the selected Python:
 
@@ -75,8 +75,7 @@ status snapshot, and event search/detail, including required aware search time
 bounds, tenant scopes, credential selection, paging, output, and exit codes.
 
 The existing initialization workflow remains available through
-`python -m sfdctrust.pat_store init`; see {doc}`setup`. The published 1.0
-release does not include the new CLI.
+`python -m sfdctrust.pat_store init`; see {doc}`setup`.
 
 ## For contributors
 

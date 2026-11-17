@@ -1,8 +1,8 @@
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jeffshurtliff/sfdctrust/main/docs/_static/logos-dark/sfdctrust-logo-dark-320.png">
-    <img src="https://raw.githubusercontent.com/jeffshurtliff/sfdctrust/main/docs/_static/logos/sfdctrust-logo-320.png" alt="sfdctrust logo" width="200">
-  </picture>
+    <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/jeffshurtliff/sfdctrust/main/docs/_static/logos-dark/sfdctrust-logo-dark-320.png">
+        <img src="https://raw.githubusercontent.com/jeffshurtliff/sfdctrust/main/docs/_static/logos/sfdctrust-logo-320.png" alt="sfdctrust logo" width="200">
+    </picture>
 </p>
 
 # sfdctrust
@@ -46,10 +46,10 @@ If you supplied `page_size` or `locale` on the first call, repeat those values.
 See the [quickstart](https://sfdctrust.readthedocs.io/en/stable/getting-started/quickstart.html) and
 [tenant reference](https://sfdctrust.readthedocs.io/en/stable/reference/tenants.html) for details.
 
-## Read CLI (unreleased 1.1 development version)
+## Read-only CLI
 
-A 1.1 development installation provides `sfdctrust` and equivalent
-`python -m sfdctrust` commands:
+Starting in 1.1.0, install `sfdctrust` from PyPI to use the `sfdctrust` command
+or the equivalent `python -m sfdctrust` launcher.
 
 ```sh
 sfdctrust --help
@@ -77,12 +77,10 @@ Salesforce-wide health.
 Root, group, and action help and root `--version` need no credentials or network. Invalid
 arguments exit 2 before credential access, with empty stdout and a safe stderr
 diagnostic. Long options must be written in full and read options follow the
-action. See the [CLI guide](https://sfdctrust.readthedocs.io/en/latest/getting-started/cli.html)
+action. See the [CLI guide](https://sfdctrust.readthedocs.io/en/stable/getting-started/cli.html)
 for output, paging, credential selection, and exit codes.
 
-All five read operations are available in this development version. The existing
-`python -m sfdctrust.pat_store init` command is unchanged. The published 1.0
-release does not include this CLI.
+The `python -m sfdctrust.pat_store init` command still initializes SQLite PAT stores.
 
 ## Use the asynchronous client
 

@@ -3,7 +3,7 @@
 The {doc}`../reference/compatibility` policy defines the 1.x public surface.
 Run **both** published-baseline campaigns: historical `0.2.0` and stable `1.0.0`
 against the candidate. Retain `tests/compatibility/public-api.json` and the
-historical evidence below; neither is replaced to accept the additive read CLI.
+historical evidence below; neither is replaced to accept the additive read-only CLI.
 The current three versions share the same normalized Python inventory. Older
 wheels are not required to expose `sfdctrust` or `python -m sfdctrust`.
 
@@ -16,8 +16,8 @@ campaign is not exact-commit hosted evidence or permission to publish.
 
 Use Python 3.12 and the locked development tools. Choose fresh directories and
 record HEAD, branch, dirty state, full source/diff hashes, dependency freezes,
-artifact digests, commands and results. A development candidate is HEAD plus its
-reviewed working diff; version `1.1.0.dev0` alone cannot identify its bytes.
+artifact digests, commands and results. An uncommitted candidate is HEAD plus its
+reviewed working diff. Use the artifact digests to identify the exact bytes.
 These POSIX examples run from the repository root. Windows environments use
 `Scripts/python.exe` instead of `bin/python`.
 
@@ -43,7 +43,8 @@ campaign. Do not use editable installs or add the checkout to module search path
 
 ```sh
 compat_root=/tmp/sfdctrust-cli-compat
-candidate_wheel=/tmp/sfdctrust-cli-dist/sfdctrust-1.1.0.dev0-py3-none-any.whl
+candidate_version="$(poetry version --short)"
+candidate_wheel="/tmp/sfdctrust-cli-dist/sfdctrust-$candidate_version-py3-none-any.whl"
 checker_version="$(poetry run python -c 'from importlib.metadata import version; print(version("mypy"))')"
 for baseline in 0.2.0 1.0.0; do
   campaign="$compat_root/$baseline"
@@ -78,7 +79,6 @@ snapshot to make failures pass. Approved future public additions require a
 separate reviewed candidate inventory while preserving the historical snapshot.
 
 ```sh
-candidate_version=1.1.0.dev0
 for baseline in 0.2.0 1.0.0; do
   campaign="$compat_root/$baseline"
   "$campaign/baseline/bin/python" -I tests/compatibility/check_wheel.py \
@@ -156,9 +156,8 @@ private CLI typing, fresh build/strict Twine, artifact/source/entry-point/digest
 inspection, actionlint and strict Sphinx; see {doc}`ci-and-publishing` for commands.
 Dependency/advisory/intersphinx networking is separate from behavioral tests.
 Record actual failures, retries, skips and host limits. Verify hosted matrix and
-docs against the exact implementation commit after authorized delivery; local
-macOS/Python 3.12 checks cannot establish those gates. Final stable 1.1.0 artifact
-qualification and publishing belong to a separate release tracker.
+docs against the exact release commit after authorized delivery. Follow
+{doc}`stable-release` for final artifact qualification and publishing.
 
 ## Historical 0.2.0 qualification — 2026-11-11
 
