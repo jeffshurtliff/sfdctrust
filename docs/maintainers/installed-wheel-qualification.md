@@ -1,7 +1,7 @@
 # Qualify an installed wheel against My Trust Center
 
-This is the read-only phase of the
-[v1.0.0 qualification gate](https://github.com/jeffshurtliff/sfdctrust/issues/8).
+This is the read-only phase of installed-wheel live qualification. Confirm
+release-specific ownership and read-only authorization using {doc}`stable-release`.
 Use a maintainer-authorized test account and record each result against the
 specific wheel tested. Follow {doc}`pat-rotation-qualification` separately
 when authorized to rotate a dedicated test PAT.
@@ -50,7 +50,7 @@ print('Local run date', date.today().isoformat())
 print('PASS installed wheel import')
 PY
 )
-(cd "$qual_dir" && "$qual_py" -I "$qual_repo/tests/package_smoke.py")
+(cd "$qual_dir" && "$qual_py" -I "$qual_repo/tests/offline/run.py" "$qual_repo/tests/package_smoke.py")
 ```
 
 The last command reuses the offline installed-wheel check with synthetic PATs

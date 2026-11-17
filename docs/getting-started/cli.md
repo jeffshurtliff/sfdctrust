@@ -1,8 +1,7 @@
 # Using sfdctrust from the command line
 
-This guide describes the **unreleased 1.1 development version**. Install a
-reviewed development wheel or checkout as described in {doc}`installation`.
-The published 1.0.0 release does not provide the general read CLI.
+The read-only CLI is available in sfdctrust 1.1.0 and later. Follow
+{doc}`installation` to install it in your Python environment.
 
 ## Available commands
 

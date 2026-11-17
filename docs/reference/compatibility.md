@@ -379,18 +379,17 @@ variable. `-h`/`--help` is supported. Exit status is 0 for success/help, 2 for
 invalid command arguments and 1 for input/storage failure or cancellation.
 Diagnostics and success text can change; credentials must not be echoed.
 
-## Read CLI (unreleased 1.1 development version)
+## Read-only CLI
 
-A 1.1 development installation adds `sfdctrust` and equivalent
+Version 1.1.0 introduced `sfdctrust` and the equivalent
 `python -m sfdctrust`, supporting `tenants list`, `tenants get TENANT_ID`,
 `status snapshot`, `events search`, and `events get EVENT_ID`, root `--version`,
 and root/group/action help. Search requires 1–50 tenant scopes, full aware
 start/end timestamps with start before end, and optional distinct request
 categories; omission of event filters includes all types. Tenant listing and
 event search fetch one page only, preserving opaque and empty cursors.
-The 1.0.0 distribution has no general read CLI. The existing PAT-store
-initialization module CLI and all supported Python SDK interfaces are unchanged;
-no migration is required for supported versioned SQLite stores.
+The `python -m sfdctrust.pat_store init` command and supported Python SDK
+interfaces continue to work. Supported versioned SQLite stores need no migration.
 
 The command names, documented option placement/credential precedence, single-page
 behavior, JSON response structure, stdout/stderr separation, and exit-code meanings
@@ -412,10 +411,8 @@ endpoint behavior, dependencies, store format, or Python support changes are req
 See {doc}`../getting-started/cli` for the implemented syntax and complete contracts.
 The {doc}`../maintainers/compatibility-qualification` procedure runs both the
 historical 0.2.0 and stable 1.0.0 baselines against the candidate while preserving
-the historical snapshot/evidence. New CLI checks apply only to the candidate.
-Exact-commit supported-platform hosted verification and final stable-artifact
-qualification remain separate gates; this development documentation does not
-establish release readiness.
+the historical snapshot and evidence. Installed read-only CLI checks apply to 1.1.0
+and later.
 
 ## Versioning, deprecation, and upgrade guidance
 

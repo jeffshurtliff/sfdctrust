@@ -1,7 +1,7 @@
 # Qualify one deliberate PAT rotation
 
-This is the credential-changing phase of
-[issue #8](https://github.com/jeffshurtliff/sfdctrust/issues/8). Run it in a
+This is the credential-changing phase of installed-wheel live qualification.
+Confirm release-specific ownership using {doc}`stable-release`. Run it in a
 separate session with explicit authorization for a dedicated non-production
 PAT lineage. Quiesce other jobs using that lineage and make sure you can
 recover through My Trust Center. A successful refresh immediately revokes
@@ -23,7 +23,7 @@ PAT only at the hidden prompt. After confirming the baseline passes, type
 until you know whether the replacement was persisted.
 
 ```sh
-qual_store="$HOME/.sfdctrust/issue-8-qualification.sqlite3"
+qual_store="$HOME/.sfdctrust/qualification-new-store.sqlite3"
 "$qual_py" -I -i -c '
 import logging
 import sys

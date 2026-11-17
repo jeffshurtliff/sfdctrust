@@ -13,51 +13,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
-- CLI foundation with installed `sfdctrust` and `python -m sfdctrust` launchers,
-  credential-free root/group/action help and root version output, plus secret-safe usage errors.
-  The existing PAT-store module CLI is unchanged.
-- `tenants list` and `tenants get TENANT_ID` commands using the public synchronous
-  SDK, with locale, one-page continuation (including empty cursors), JSON/text
-  output, and explicit existing-store selection by default location, path, or alias.
-  Inputs are validated before credential access; store-backed reads retain pending
-  rotation/revision protections and never fall back to ambient credentials.
-  Diagnostics use fixed messages, documented exit codes, and stderr; clients close
-  on success and failure.
-- `status snapshot`, `events search`, and `events get EVENT_ID` complete the five
-  read-only CLI operations through the public synchronous SDK. Search validates
-  1–50 tenant scopes, full aware ordered time bounds, optional distinct event
-  categories, and one-page continuation before credential access. Text includes
-  all status buckets, separate scoped events with affected tenant IDs, and
-  labeled event metadata/timelines; JSON retains complete SDK data and presence.
-- Static Open Graph social previews for documentation links using `sphinxext-opengraph`
-  and the existing sfdctrust preview image.
+- None yet.
 
 (unreleased-changed)=
 ### Changed
 
-- Artifact inspection validates the exact declared console-script mapping and rejects
-  missing, changed, or additional entry points. Installed-package checks exercise
-  both CLI launchers outside the checkout with credential/store/prompt/network guards
-  for help/invalid inputs and synthetic HTTP/disposable stores for all five reads,
-  including status/event error, retry, cleanup, interruption, and closed-pipe checks.
-
-- Compatibility CI retains the historical 0.2.0 campaign and adds isolated stable
-  1.0.0-to-candidate public inventory/behavior, ready/pending SQLite reopen and
-  downstream typing checks, with separate evidence and locked dependency retrieval.
-- Integrated installed CLI qualification covers all five command examples,
-  explicit-store credential isolation/no fallback, missing environment credentials,
-  leading-dash arguments, and closed output descriptors in both launchers.
+- None yet.
 
 (unreleased-fixed)=
 ### Fixed
 
-- CLI output cleanup retains a repaired stdout descriptor when opening the null
-  device reuses it, preserving exit 1 without an interpreter-shutdown traceback.
+- None yet.
 
 (unreleased-security)=
 ### Security
 
 - None yet.
+
+(relnotes-1-1-0)=
+## [1.1.0] - 2026-11-17
+
+This release adds a read-only command-line interface for Salesforce My Trust
+Center. It requires Python 3.12 or later and preserves the supported Python SDK
+interfaces and versioned SQLite PAT stores from 1.0.0.
+
+(release-1-1-0-added)=
+### Added
+
+- Installed `sfdctrust` and `python -m sfdctrust` launchers with five read commands:
+  `tenants list`, `tenants get`, `status snapshot`, `events search`, and `events get`.
+  Root, group, and command help and root `--version` work without credentials or
+  network access.
+- Reads use `SFDCTRUST_PAT` by default or an explicitly selected existing SQLite
+  store. Store selection supports the default path, an explicit path, or an alias.
+  The CLI validates arguments before accessing credentials and reports errors
+  with sanitized diagnostics and documented exit codes.
+- Tenant listing and event search return one page, including the continuation
+  token when supplied by Salesforce. Search accepts 1–50 tenant IDs, an aware
+  start and end time, and optional event-type filters. Text output summarizes
+  results, and `--json` preserves the full SDK response, including field presence,
+  affected scopes, and repeated scoped events.
+- Static Open Graph previews for documentation links (#13).
+
+(release-1-1-0-changed)=
+### Changed
+
+- Artifact validation checks the declared console entry point and exercises both
+  installed launchers. Compatibility checks compare against published 0.2.0 and
+  1.0.0 wheels and verify ready and pending SQLite stores and downstream typing.
+
+(release-1-1-0-fixed)=
+### Fixed
+
+- A closed CLI output stream reports exit 1 without a Python shutdown traceback,
+  including when opening the null device reuses the stdout descriptor.
 
 (relnotes-1-0-0)=
 ## [1.0.0] - 2026-11-15
@@ -173,7 +182,8 @@ Center API. Requires Python 3.12 or later.
   metadata or from `pyproject.toml` in a source checkout.
 - The direct runtime dependencies are HTTPX and Pydantic v2.
 
-[Unreleased]: https://github.com/jeffshurtliff/sfdctrust/compare/1.0.0...main
+[Unreleased]: https://github.com/jeffshurtliff/sfdctrust/compare/1.1.0...main
+[1.1.0]: https://github.com/jeffshurtliff/sfdctrust/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/jeffshurtliff/sfdctrust/compare/0.2.0...1.0.0
 [0.2.0]: https://github.com/jeffshurtliff/sfdctrust/compare/0.1.0...0.2.0
 [0.1.0]: https://github.com/jeffshurtliff/sfdctrust/tree/0.1.0
