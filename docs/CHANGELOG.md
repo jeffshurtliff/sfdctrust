@@ -13,7 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
-- None yet.
+- Added the optional `sfdctrust[mcp]` local stdio server. Five read-only tools
+  return PAT-scoped tenant lists and history, status snapshots, event search
+  pages, and event timelines with a UTC observation time and bounded output.
+  See the [setup and tool reference](getting-started/mcp.md).
+- Added `include_history: false` to the MCP `get_tenant` tool so callers can
+  retrieve tenant detail when the embedded history exceeds the output limit.
 
 (unreleased-changed)=
 ### Changed
@@ -23,7 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-fixed)=
 ### Fixed
 
-- None yet.
+- MCP `output_limit` errors report the serialized result size and suggest a
+  smaller read when tenant history is included.
 
 (unreleased-security)=
 ### Security

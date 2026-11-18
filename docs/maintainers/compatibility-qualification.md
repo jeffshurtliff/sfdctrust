@@ -1,11 +1,10 @@
-# Qualify public compatibility and the installed CLI
+# Qualify public compatibility, CLI and MCP installations
 
 The {doc}`../reference/compatibility` policy defines the 1.x public surface.
-Run **both** published-baseline campaigns: historical `0.2.0` and stable `1.0.0`
-against the candidate. Retain `tests/compatibility/public-api.json` and the
-historical evidence below; neither is replaced to accept the additive read-only CLI.
-The current three versions share the same normalized Python inventory. Older
-wheels are not required to expose `sfdctrust` or `python -m sfdctrust`.
+Compare the candidate with the published `1.1.0` SDK and CLI. Continue the
+historical SDK and SQLite compatibility campaigns against `0.2.0` and `1.0.0`.
+Use the reviewed Python inventory in `tests/compatibility/public-api.json`
+for all three baselines. The general-purpose CLI first shipped in `1.1.0`.
 
 All behavioral qualification uses synthetic credentials, disposable stores,
 HTTPX mocks, and outbound blocking. Live-service and final stable-artifact
@@ -23,15 +22,16 @@ These POSIX examples run from the repository root. Windows environments use
 
 Retrieve dependencies separately from behavioral qualification. The artifact
 preparer pins active locked runtime dependencies, the build backend and checker.
-Published baseline wheels are retrieved from PyPI, not rebuilt from tags. Two
+Published baseline wheels are retrieved from PyPI, not rebuilt from tags. Multiple
 versions of one distribution require **separate pip download invocations**:
 
 ```sh
 poetry check --lock --strict
+poetry install --extras mcp --no-interaction
 poetry build --output /tmp/sfdctrust-cli-dist
 poetry run python tools/ci/qualify.py prepare --dist /tmp/sfdctrust-cli-dist \
   --wheelhouse /tmp/sfdctrust-cli-compat/wheels --work /tmp/sfdctrust-cli-compat/retrieval
-for baseline in 0.2.0 1.0.0; do
+for baseline in 0.2.0 1.0.0 1.1.0; do
   poetry run python -m pip download --only-binary=:all: --no-deps \
     --dest /tmp/sfdctrust-cli-compat/wheels "sfdctrust==$baseline"
 done
@@ -46,7 +46,7 @@ compat_root=/tmp/sfdctrust-cli-compat
 candidate_version="$(poetry version --short)"
 candidate_wheel="/tmp/sfdctrust-cli-dist/sfdctrust-$candidate_version-py3-none-any.whl"
 checker_version="$(poetry run python -c 'from importlib.metadata import version; print(version("mypy"))')"
-for baseline in 0.2.0 1.0.0; do
+for baseline in 0.2.0 1.0.0 1.1.0; do
   campaign="$compat_root/$baseline"
   mkdir -p "$campaign/evidence"
   poetry run python -m venv "$campaign/baseline"
@@ -79,8 +79,11 @@ snapshot to make failures pass. Approved future public additions require a
 separate reviewed candidate inventory while preserving the historical snapshot.
 
 ```sh
-for baseline in 0.2.0 1.0.0; do
+for baseline in 0.2.0 1.0.0 1.1.0; do
   campaign="$compat_root/$baseline"
+  if [ "$baseline" = "1.1.0" ]; then
+    "$campaign/baseline/bin/python" -I tests/offline/run.py tests/package_smoke.py
+  fi
   "$campaign/baseline/bin/python" -I tests/compatibility/check_wheel.py \
     --wheel "$compat_root/wheels/sfdctrust-$baseline-py3-none-any.whl" --expected-version "$baseline" \
     --snapshot tests/compatibility/public-api.json --evidence "$campaign/evidence/baseline.json"
@@ -119,7 +122,7 @@ diagnostics for `tenants.list_all()` because `list` shadows its annotation;
 `1.0.0` contains the correction. The installed candidate must pass. This does not
 claim that all SDK internals pass strict mypy.
 
-## Candidate-only installed CLI and artifact checks
+## Candidate CLI and MCP artifact checks
 
 ```sh
 poetry run python tools/ci/qualify.py qualify --dist /tmp/sfdctrust-cli-dist \
@@ -127,7 +130,9 @@ poetry run python tools/ci/qualify.py qualify --dist /tmp/sfdctrust-cli-dist \
 ```
 
 The qualifier installs wheel and sdist separately, non-editably and offline,
-then runs package smoke, compatibility and strict downstream typing. Real console
+then verifies MCP is absent and runs package smoke, compatibility and strict downstream typing.
+Each installation then adds the same artifact with its `mcp` extra and runs the
+real client/server protocol checks with a mocked Salesforce transport. Real console
 and module launchers run outside the checkout with a test-only bootstrap that
 blocks outbound traffic **before SDK imports**. Tests use synthetic environment
 PATs/disposable stores, and retain bytecode-cache protection when rewriting

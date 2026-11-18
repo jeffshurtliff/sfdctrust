@@ -50,7 +50,7 @@ Use Python 3.12 for the complete audit and attestation tooling environment.
 python3.12 -m pip install 'poetry==2.5.1'
 poetry env use python3.12
 poetry check --lock --strict
-poetry install --with docs --no-interaction
+poetry install --with docs --extras mcp --no-interaction
 ```
 
 `pyproject.toml` declares dependencies and `poetry.lock` locks all groups.
