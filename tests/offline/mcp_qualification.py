@@ -3,7 +3,7 @@
 :Module:            tests.offline.mcp_qualification
 :Synopsis:          Qualify the installed MCP stdio command using the official client
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6.2 Astra)
+:Last Modified:     Jeff Shurtliff (via GPT-6.2 Sol)
 :Modified Date:     18 Nov 2026
 """
 
@@ -87,8 +87,13 @@ async def exercise(client, work):
     assert len(listing.tools) == 5 and {tool.name for tool in listing.tools} == TOOLS
 
     assert all(tool.annotations and tool.annotations.read_only_hint for tool in listing.tools)
+    tenant_tool = next(tool for tool in listing.tools if tool.name == 'get_tenant')
+    include_history = tenant_tool.input_schema['properties']['include_history']
+    assert include_history['type'] == 'boolean' and include_history['default'] is True
 
-    async def call(name, args, payload=None, *, status=200, error=False, retries=0, min_bytes=0):
+    async def call(
+        name, args, payload=None, *, status=200, error=False, retries=0, min_bytes=0, expected_data=None, error_contains=()
+    ):
         before = trace(work)
         (work / 'reply.json').write_text(json.dumps({'status': status, 'payload': payload}), encoding='utf-8')
         observed = datetime.now(UTC)
@@ -102,11 +107,12 @@ async def exercise(client, work):
         if error:
             assert body and set(body) == {'error'} and set(body['error']) == {'code', 'message'}, (name, result.content)
             assert all(isinstance(value, str) and value for value in body['error'].values())
+            assert all(part in body['error']['message'] for part in error_contains)
             return body['error']['code']
         assert set(body) == {'retrieved_at', 'data'}
         stamp = datetime.fromisoformat(body['retrieved_at'])
         assert stamp.utcoffset() == timedelta(0) and observed <= stamp <= datetime.now(UTC)
-        assert body['data'] == payload, (name, body)
+        assert body['data'] == (payload if expected_data is None else expected_data), (name, body)
         return entries[0]
 
     for name, items, key, base in [('list_tenants', [TENANT], 'tenants', {}), ('search_events', HISTORY, 'events', SEARCH)]:
@@ -142,6 +148,7 @@ async def exercise(client, work):
 
     invalid = [
         ('get_tenant', {'tenant_id': ''}),
+        ('get_tenant', {'tenant_id': TENANT['id'], 'include_history': 'false'}),
         ('get_event', {'event_id': '..'}),
         ('get_status', {'locale': 123}),
         ('get_status', {'locale': 'en_US'}),
@@ -173,6 +180,27 @@ async def exercise(client, work):
     for name, args, payload, _ in oversized:
         # 26k characters are 78k UTF-8 bytes even before JSON escaping.
         assert await call(name, args, {**payload, 'extension': '雪' * 26_000}, error=True) == 'output_limit'
+
+    # A plausible-sized history can exceed the budget after the result includes
+    # both the structured data and the escaped text representation.
+    metadata = {**TENANT, 'myDomain': 'synthetic', 'region': 'synthetic-region', 'future': {'optional': None}}
+    history = [
+        {**HISTORY[0], 'eventId': f'event-{index}', 'description': 'Synthetic maintenance update. ' * 16} for index in range(60)
+    ]
+    tenant = {**metadata, 'events': history}
+    assert len(json.dumps(tenant, separators=(',', ':')).encode('utf-8')) < 65_536
+    tenant_args = {'tenant_id': TENANT['id'], 'locale': 'en-US'}
+    error = await call(
+        'get_tenant', tenant_args, tenant, error=True, error_contains=('65,536-byte', 'include_history=false', 'search_events')
+    )
+    assert error == 'output_limit'
+    request = await call('get_tenant', {**tenant_args, 'include_history': False}, tenant, expected_data=metadata)
+    assert request == {'method': 'GET', 'path': f'/tenants/{TENANT["id"]}', 'body': None, 'query': {'locale': 'en-US'}}
+    assert (
+        await call('get_tenant', {**tenant_args, 'include_history': False}, {**tenant, 'future': SECRET}, error=True)
+        == 'unsafe_output'
+    )
+
     # Each multibyte value appears in both structuredContent and its text fallback.
     near = {'tenants': [], 'extra': '雪' * 10_850}
     await call('list_tenants', {}, near, min_bytes=65_000)

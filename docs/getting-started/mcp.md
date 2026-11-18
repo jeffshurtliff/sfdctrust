@@ -82,7 +82,7 @@ segment. Use IDs from the corresponding tenant or event data.
 | Tool | Additional arguments | Contents of a successful read |
 | --- | --- | --- |
 | `list_tenants` | Optional `page_size`, `page_token` | One page of authorized tenants, with a continuation when supplied. |
-| `get_tenant` | Required `tenant_id` | Tenant detail and the embedded `events` history. |
+| `get_tenant` | Required `tenant_id`. Optional `include_history` (default `true`). | Tenant detail with embedded `events` by default. With `include_history: false`, the result omits `events`. |
 | `get_status` | None | `ongoing` and `upcoming` groups, each with `patch`, `incident`, `maintenance`, and `informationalMessage` buckets. |
 | `search_events` | Required `tenant_ids`, `start_time`, `end_time`. Optional `event_types`, `page_size`, `page_token`. | One page of matching events with affected tenant scopes. |
 | `get_event` | Required `event_id` | Event detail and its timeline when supplied. |
@@ -139,10 +139,17 @@ The public SDK first retrieves and validates the complete Salesforce response.
 The adapter then limits the serialized UTF-8 MCP `CallToolResult` sent to the
 host to 65,536 bytes (64 KiB), including its text representation and structured
 content, before JSON-RPC framing. The upstream response can therefore exceed
-64 KiB in transit and in server memory. An oversized page, snapshot, history, or timeline returns
-a structured error in place of the entire result. For a paginated read,
-retry with a smaller page size, restarting the query if its inputs change.
-Detail and snapshot tools provide no paging controls.
+64 KiB in transit and in server memory. An oversized result returns an
+`output_limit` error with the serialized size in bytes. For a paginated
+read, retry with a smaller page size, restarting the query if its inputs change.
+
+Salesforce tenant detail embeds events whose lifecycle overlaps the 365 days
+before or after the request. Informational messages cover the preceding 365
+days. For tenant detail without those events, pass
+`{"tenant_id": "synthetic-tenant", "include_history": false}`. This controls
+the MCP result. The SDK still retrieves and validates the complete Salesforce
+response. Use `search_events` to page through events for a tenant and time
+window, or `get_status` for ongoing and upcoming events.
 
 A tool error sets `isError`. Its structured content contains an `error`
 object with a stable `code` and a human-readable `message`. A consumer

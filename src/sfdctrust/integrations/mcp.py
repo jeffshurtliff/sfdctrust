@@ -3,7 +3,7 @@
 :Module:            sfdctrust.integrations.mcp
 :Synopsis:          Local stdio tools for authorized My Trust Center reads
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6.2 Astra)
+:Last Modified:     Jeff Shurtliff (via GPT-6.2 Sol)
 :Modified Date:     18 Nov 2026
 """
 
@@ -95,9 +95,10 @@ class _Tenants(_Page):
 
 
 class _Tenant(_Arguments):
-    """Read an authorized tenant and its embedded event history."""
+    """Read an authorized tenant with optional embedded history. Use get_status for ongoing and upcoming events."""
 
     tenant_id: _Id
+    include_history: bool = Field(default=True, description='Set to false to return tenant detail without the events field.')
 
     async def read(self, client: AsyncTrustCenterClient) -> BaseModel:
         return await client.tenants.get(self.tenant_id, locale=self.locale)
@@ -150,7 +151,6 @@ _ERRORS = {
     'network': 'The read could not reach My Trust Center.',
     'upstream': 'My Trust Center rejected the request.',
     'malformed_response': 'My Trust Center returned an invalid response.',
-    'output_limit': 'The complete result exceeds the serialized output limit.',
     'unsafe_output': 'The response contained credential material.',
     'internal_error': 'The server could not complete the read.',
 }
@@ -180,8 +180,8 @@ def _result(payload: dict, *, error: bool = False) -> types.CallToolResult:
     )
 
 
-def _error(code: str) -> types.CallToolResult:
-    return _result({'error': {'code': code, 'message': _ERRORS[code]}}, error=True)
+def _error(code: str, *, message: str | None = None) -> types.CallToolResult:
+    return _result({'error': {'code': code, 'message': _ERRORS[code] if message is None else message}}, error=True)
 
 
 def _unsafe(value: object, pat: str) -> bool:
@@ -229,11 +229,20 @@ class _Server(MCPServer):
         except Exception as exc:
             return _error(next((code for cls, code in _SDK_ERRORS if isinstance(exc, cls)), 'internal_error'))
         try:
-            data = response.model_dump(mode='json', by_alias=True, exclude_unset=True)
+            omit_history = isinstance(request, _Tenant) and not request.include_history
+            data = response.model_dump(
+                mode='json', by_alias=True, exclude_unset=True, exclude={'events'} if omit_history else None
+            )
             payload = {'retrieved_at': datetime.now(UTC).isoformat(), 'data': data}
             result = _result(payload)
-            if len(result.model_dump_json(by_alias=True).encode('utf-8')) > _LIMIT:
-                return _error('output_limit')
+            serialized_bytes = len(result.model_dump_json(by_alias=True).encode('utf-8'))
+            if serialized_bytes > _LIMIT:
+                message = f'The complete result is {serialized_bytes:,} bytes and exceeds the {_LIMIT:,}-byte output limit.'
+                if isinstance(request, _Tenant) and request.include_history:
+                    message += (
+                        ' Retry get_tenant with include_history=false for tenant detail, or use search_events for paged events.'
+                    )
+                return _error('output_limit', message=message)
             if _unsafe(data, self.pat.get_secret_value()):
                 return _error('unsafe_output')
             return result
