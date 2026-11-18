@@ -3,8 +3,8 @@
 :Module:            tools.ci.artifacts
 :Synopsis:          Verify release payloads, source identity and transferred checksums
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6)
-:Modified Date:     16 Nov 2026
+:Last Modified:     Jeff Shurtliff (via GPT-6.2 Astra)
+:Modified Date:     18 Nov 2026
 """
 
 from __future__ import annotations
@@ -21,6 +21,7 @@ from email.parser import BytesParser
 from pathlib import Path, PurePosixPath
 from zipfile import ZipFile
 
+from packaging.markers import Marker
 from packaging.requirements import Requirement
 from packaging.version import Version
 
@@ -126,9 +127,19 @@ def metadata(data: bytes, project: dict) -> None:
         require(message[key] == expected, f'Incorrect {key} metadata: {message[key]}')
     require('LICENSE' in message.get_all('License-File', []), 'Missing license metadata.')
     require(set(message.get_all('Classifier', [])) == set(project['classifiers']), 'Classifier policy changed.')
+    extras = project.get('optional-dependencies', {})
+    require(set(message.get_all('Provides-Extra', [])) == set(extras), 'Optional extras differ from source.')
+    expected_requirements = {Requirement(value) for value in project['dependencies']}
+    for extra, values in extras.items():
+        for value in values:
+            requirement = Requirement(value)
+            marker = f'extra == "{extra}"'
+            if requirement.marker is not None:
+                marker = f'({requirement.marker}) and {marker}'
+            requirement.marker = Marker(marker)
+            expected_requirements.add(requirement)
     require(
-        {str(Requirement(value)) for value in message.get_all('Requires-Dist', [])}
-        == {str(Requirement(value)) for value in project['dependencies']},
+        {Requirement(value) for value in message.get_all('Requires-Dist', [])} == expected_requirements,
         'Runtime requirements differ from source.',
     )
 

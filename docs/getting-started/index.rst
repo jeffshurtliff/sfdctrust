@@ -10,6 +10,7 @@ and make your first API requests.
 4. Follow :doc:`quickstart` to list tenants, retrieve events, and test PAT refresh.
 5. Follow :doc:`cli` for tenant listing/detail, status snapshots, and event search/detail
    from the shell with sfdctrust 1.1.0 or later.
+6. Follow :doc:`mcp` to connect a local MCP host to the five read-only tools.
 
 .. toctree::
    :maxdepth: 1
@@ -20,3 +21,4 @@ and make your first API requests.
    setup
    quickstart
    Using sfdctrust from the command line <cli>
+   Local MCP server <mcp>

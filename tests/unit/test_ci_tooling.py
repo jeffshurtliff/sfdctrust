@@ -3,8 +3,8 @@
 :Module:            tests.unit.test_ci_tooling
 :Synopsis:          Audit failure, release identity, archive and workflow regressions
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6)
-:Modified Date:     16 Nov 2026
+:Last Modified:     Jeff Shurtliff (via GPT-6.2 Astra)
+:Modified Date:     18 Nov 2026
 """
 
 from __future__ import annotations
@@ -69,6 +69,19 @@ def test_lock_audit_includes_all_platform_python_and_transitive_variants():
     assert found[0]['markers'] == 'sys_platform == "win32"'
     with pytest.raises(ValueError, match='Non-PyPI'):
         audit.locked_runtime({'package': [{**packages[0], 'source': {'type': 'git'}}]})
+
+
+def test_mcp_and_conditional_dependencies_are_in_the_runtime_audit():
+    lock = tomllib.loads((ROOT / 'poetry.lock').read_text(encoding='utf-8'))
+    audited = {item['name'] for item in audit.locked_runtime(lock)}
+    mcp = next(package for package in lock['package'] if package['name'] == 'mcp')
+    assert 'mcp' in audited
+    for name, requirements in mcp['dependencies'].items():
+        variants = requirements if isinstance(requirements, list) else [requirements]
+        if any(not isinstance(entry, dict) or not entry.get('optional', False) for entry in variants):
+            assert name in audited
+    # Transitive requirements include backend and platform-specific packages.
+    assert {'httpcore2', 'httpx2-jsfetch', 'cryptography', 'pywin32'} <= audited
 
 
 def vulnerable_report():
@@ -389,6 +402,20 @@ def test_artifact_inspection_rejects_undeclared_console_scripts(tmp_path, monkey
         archive.writestr('sfdctrust-1.0.0rc1.dist-info/entry_points.txt', b'[console_scripts]\nsfdctrust=sfdctrust._cli:main\n')
     with pytest.raises(ValueError, match='Wheel payload'):
         artifacts.verify(source, dist)
+
+
+def test_artifact_metadata_rejects_missing_extra_or_unconditional_mcp(tmp_path):
+    source, dist, _ = artifact_fixture(tmp_path)
+    project = tomllib.loads((source / 'pyproject.toml').read_text())['project']
+    project['optional-dependencies'] = {'mcp': ['mcp==2.3.0']}
+    with ZipFile(next(dist.glob('*.whl'))) as archive:
+        metadata = archive.read('sfdctrust-1.0.0rc1.dist-info/METADATA').rstrip() + b'\n'
+    with pytest.raises(ValueError, match='Optional extras'):
+        artifacts.metadata(metadata, project)
+    declared = metadata + b'Provides-Extra: mcp\n'
+    with pytest.raises(ValueError, match='Runtime requirements'):
+        artifacts.metadata(declared + b'Requires-Dist: mcp==2.3.0\n', project)
+    artifacts.metadata(declared + b'Requires-Dist: mcp==2.3.0; extra == "mcp"\n', project)
 
 
 def test_artifact_inspection_rejects_version_source_and_extra_payload(tmp_path, monkeypatch):

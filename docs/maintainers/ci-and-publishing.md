@@ -62,16 +62,15 @@ Record build URL/ID, SHA, installed lockfile/tool versions, strict command and
 result, plus the rendered version and maintainer page. A reachable older
 `latest` site alone is not validation of these changes.
 
-## Integrated CLI qualification for 1.1
+## Installed CLI and optional MCP qualification
 
-The CLI qualification retains the existing required job names and
-metadata-derived native/Python matrix. Every test row runs real installed wheel
-console/module launchers; the quality job qualifies separate clean non-editable
-wheel and sdist installations. The compatibility job now runs independent
-`0.2.0` and `1.0.0` campaigns, using locked active dependencies, separate
-baseline/candidate environments, ready/pending seed stores and retained evidence.
-Dependency retrieval precedes the outbound-blocked behavior phase. See
-{doc}`compatibility-qualification` for commands and the candidate-only CLI scope.
+Every supported Python and platform test row runs the installed CLI and the
+local stdio protocol suite. The quality job installs each artifact into its
+own environment, checks base operation without MCP, adds the extra and
+exercises the installed server from outside the checkout. The compatibility
+job runs independent `0.2.0`, `1.0.0`, and `1.1.0` SDK and SQLite campaigns.
+The `1.1.0` baseline also exercises both published CLI launchers.
+See {doc}`compatibility-qualification` for commands.
 
 Local evidence identifies HEAD plus the reviewed working diff and fresh artifact
 hashes. After separately authorized delivery, verify all supported matrix rows
@@ -88,7 +87,7 @@ poetry run python tools/ci/audit.py --output /tmp/sfdctrust-audit.json
 ```
 
 The scan takes the **union of every Poetry `main`-group package and version**,
-including transitive dependencies. It retains Python requirements and markers in
+including the `mcp` extra and its transitive dependencies. It retains Python requirements and markers in
 evidence but deliberately removes marker exclusions from advisory requests. This
 conservative superset covers all supported Python/platform/architecture variants,
 even variants inactive on the audit runner. Separate batches handle alternative
@@ -148,6 +147,7 @@ git branch --show-current
 git rev-parse HEAD
 git status --short --branch
 poetry check --lock --strict
+poetry install --extras mcp --with docs --no-interaction
 poetry run python tests/offline/run.py -m pytest -q
 poetry run ruff check .
 poetry run ruff format --check .

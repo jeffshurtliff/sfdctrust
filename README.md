@@ -82,6 +82,17 @@ for output, paging, credential selection, and exit codes.
 
 The `python -m sfdctrust.pat_store init` command still initializes SQLite PAT stores.
 
+## Local MCP server
+
+The 1.2.0 development version adds an optional Model Context Protocol (MCP)
+server. Install the extra from this checkout with `python -m pip install '.[mcp]'`.
+Configure your local MCP host to launch `python -m sfdctrust.integrations.mcp`
+using that environment's Python and supply `SFDCTRUST_PAT` in the server
+process environment. The host can read authorized tenant details, status,
+event search results, and timelines through five read-only tools.
+See the [MCP setup and tool reference](https://sfdctrust.readthedocs.io/en/latest/getting-started/mcp.html)
+for a host configuration, paging examples, output limits, and data visibility.
+
 ## Use the asynchronous client
 
 ```python

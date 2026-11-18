@@ -3,8 +3,8 @@
 :Module:            tools.ci.qualify
 :Synopsis:          Separate retrieval from clean offline wheel and sdist qualification
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6.1 Sol)
-:Modified Date:     13 Nov 2026
+:Last Modified:     Jeff Shurtliff (via GPT-6.2 Astra)
+:Modified Date:     18 Nov 2026
 """
 
 from __future__ import annotations
@@ -44,6 +44,8 @@ def prepare(root: Path, dist: Path, wheelhouse: Path) -> None:
     # Pin all active runtime dependencies, the build backend and the type checker.
     # Additional checker dependencies are tooling, never shipped runtime packages.
     pins.update(f'{name}=={version(name)}' for name in ('poetry-core', 'mypy'))
+    if not any(pin.startswith('mcp==') for pin in pins):
+        raise ValueError('Install the locked mcp extra before preparing the artifact wheelhouse.')
     constraints = wheelhouse / 'locked-active.txt'
     constraints.write_text('\n'.join(sorted(pins)) + '\n', encoding='utf-8')
     run(
@@ -57,7 +59,7 @@ def prepare(root: Path, dist: Path, wheelhouse: Path) -> None:
             str(wheelhouse),
             '--constraint',
             str(constraints),
-            str(next(dist.glob('*.whl'))),
+            f'{next(dist.glob("*.whl"))}[mcp]',
             *sorted(pins),
         ]
     )
@@ -77,6 +79,7 @@ def qualify(root: Path, dist: Path, wheelhouse: Path, work: Path) -> None:
         run([*install, '--constraint', str(constraints), f'poetry-core=={version("poetry-core")}', f'mypy=={version("mypy")}'])
         run([*install, '--constraint', str(constraints), '--no-build-isolation', str(artifact)])
         run([str(python), '-I', '-m', 'pip', 'check'])
+        run([str(python), '-I', '-c', 'from importlib.util import find_spec; assert find_spec("mcp") is None'], cwd=work)
         frozen = subprocess.check_output([str(python), '-I', '-m', 'pip', 'freeze'], text=True)
         (work / f'{label}-freeze.txt').write_text(frozen, encoding='utf-8')
         run([str(python), '-I', str(root / 'tests/offline/run.py'), str(root / 'tests/package_smoke.py')], cwd=work)
@@ -110,6 +113,10 @@ def qualify(root: Path, dist: Path, wheelhouse: Path, work: Path) -> None:
             ],
             cwd=work,
         )
+        # Install the same artifact with its extra only after the base-only checks.
+        run([*install, '--constraint', str(constraints), '--no-build-isolation', f'{artifact}[mcp]'])
+        run([str(python), '-I', '-m', 'pip', 'check'])
+        run([str(python), '-I', str(root / 'tests/offline/run.py'), str(root / 'tests/offline/mcp_qualification.py')], cwd=work)
     (work / 'result.json').write_text(
         json.dumps({'version': release, 'wheel': 'passed', 'sdist': 'passed'}) + '\n', encoding='utf-8'
     )

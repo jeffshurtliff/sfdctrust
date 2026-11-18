@@ -62,7 +62,7 @@ jobs:
           echo "BUNDLE=$RUNNER_TEMP/release-bundle" >> "$GITHUB_ENV"
           python -m pip install 'poetry==2.5.1'
           poetry check --lock --strict
-          poetry install --no-interaction
+          poetry install --extras mcp --no-interaction
       - name: Validate clean immutable source and destination/version/ref relationship
         run: |
           test "$GITHUB_SHA" = "$APPROVED_SHA"
