@@ -2,8 +2,8 @@
  * sfdctrust Documentation
  * Description: Stylesheet for main layout and components
  * Author: Jeff Shurtliff
- * Last Modified: Jeff Shurtliff (via Claude Opus 5.5)
- * Modified Date: 02 Nov 2026
+ * Last Modified: Jeff Shurtliff (via GPT-6.2 Sol)
+ * Modified Date: 18 Nov 2026
  */
 
 /* Accents derived from the logo's bright blue (#0a84ff) and navy (#002a66), adjusted so all
@@ -103,6 +103,19 @@ a:focus-visible, button:focus-visible, input:focus-visible {
 .bd-article h1 {
   border-bottom: 1px solid var(--pst-color-primary);
   padding-bottom: 0.5rem;
+}
+
+/* Match the screenshot modal to PyData's active color palette. */
+#codex-desktop-screenshot {
+  --bs-modal-bg: var(--pst-color-background);
+  --bs-modal-color: var(--pst-color-text-base);
+  --bs-modal-border-color: var(--pst-color-border);
+  --bs-modal-header-border-color: var(--pst-color-border);
+  --bs-modal-footer-border-color: var(--pst-color-border);
+}
+
+html[data-theme="dark"] #codex-desktop-screenshot .btn-close {
+  filter: var(--bs-btn-close-white-filter);
 }
 
 @media print {
