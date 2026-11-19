@@ -77,11 +77,23 @@ bounds, tenant scopes, credential selection, paging, output, and exit codes.
 The existing initialization workflow remains available through
 `python -m sfdctrust.pat_store init`; see {doc}`setup`.
 
+## Optional local MCP server
+
+Starting in sfdctrust 1.2.0, install the MCP extra from PyPI to connect a local
+MCP host to the five read-only My Trust Center tools.
+
+```sh
+python -m pip install 'sfdctrust[mcp]'
+```
+
+Follow {doc}`mcp` to configure your host and launch the server.
+
 ## For contributors
 
 To get a source checkout, run `git clone https://github.com/jeffshurtliff/sfdctrust.git`
 and then `cd sfdctrust`. To install the package directly from this checkout,
 run `python -m pip install .`.
+To include the MCP extra in a checkout install, run `python -m pip install '.[mcp]'`.
 
 To install development and test tools from the source checkout, use
 [Poetry](https://python-poetry.org/docs/) 2.2 or later, below 3.

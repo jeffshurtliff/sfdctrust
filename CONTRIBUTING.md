@@ -53,6 +53,11 @@ poetry check --lock --strict
 poetry install --with docs --extras mcp --no-interaction
 ```
 
+For the optional local MCP server, end users on sfdctrust 1.2.0 or later can
+install from PyPI with `python -m pip install 'sfdctrust[mcp]'`. Use the Poetry
+command above to develop and test the server in a checkout.
+[Local MCP server guide](https://sfdctrust.readthedocs.io/en/stable/getting-started/mcp.html)
+
 `pyproject.toml` declares dependencies and `poetry.lock` locks all groups.
 Regenerate the lockfile with Poetry when changing dependencies; never edit it by
 hand. Audit and attestation tools belong to development tooling, not runtime

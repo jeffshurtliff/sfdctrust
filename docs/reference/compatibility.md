@@ -360,8 +360,8 @@ wheel in the application environment, reopen the same store and verify reads
 before resuming. Never restore stale backups as an active lineage or run mixed
 uncoordinated versions/copies. Protect/retire backups as credentials. The SDK
 checks file protection but cannot verify encryption or every sync provider.
-The qualification campaigns reopen both 0.2.0-created and 1.0.0-created stores
-with the candidate without migration or live rotation.
+The qualification campaigns reopen stores created with published 0.2.0, 1.0.0
+and 1.1.0 builds without migration or live rotation.
 
 ### Initialization CLI
 
@@ -409,10 +409,18 @@ JSON is the complete-data interface. Inputs, including JSON/URL encoding,
 validate before credentials are selected. No additional SDK public methods,
 endpoint behavior, dependencies, store format, or Python support changes are required.
 See {doc}`../getting-started/cli` for the implemented syntax and complete contracts.
-The {doc}`../maintainers/compatibility-qualification` procedure runs both the
-historical 0.2.0 and stable 1.0.0 baselines against the candidate while preserving
-the historical snapshot and evidence. Installed read-only CLI checks apply to 1.1.0
-and later.
+The {doc}`../maintainers/compatibility-qualification` procedure compares the
+published 1.1.0 CLI with the candidate and checks the SDK against all three
+published baselines. It preserves the historical snapshot and evidence.
+
+## Optional local MCP server
+
+Version 1.2.0 introduced the `sfdctrust[mcp]` extra and the
+`python -m sfdctrust.integrations.mcp` stdio launcher. The base SDK and CLI
+install independently of the extra. The public MCP interface includes the five
+read-only tool names, documented inputs and paging behavior, structured
+responses and error codes, and the 64 KiB serialized result limit. See
+{doc}`../getting-started/mcp` for the protocol contract and examples.
 
 ## Versioning, deprecation, and upgrade guidance
 

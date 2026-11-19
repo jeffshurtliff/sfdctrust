@@ -84,13 +84,13 @@ The `python -m sfdctrust.pat_store init` command still initializes SQLite PAT st
 
 ## Local MCP server
 
-The 1.2.0 development version adds an optional Model Context Protocol (MCP)
-server. Install the extra from this checkout with `python -m pip install '.[mcp]'`.
+Starting in 1.2.0, sfdctrust includes an optional local Model Context Protocol
+(MCP) server. Install it from PyPI with `python -m pip install 'sfdctrust[mcp]'`.
 Configure your local MCP host to launch `python -m sfdctrust.integrations.mcp`
 using that environment's Python and supply `SFDCTRUST_PAT` in the server
 process environment. The host can read authorized tenant details, status,
 event search results, and timelines through five read-only tools.
-See the [MCP setup and tool reference](https://sfdctrust.readthedocs.io/en/latest/getting-started/mcp.html)
+See the [MCP setup and tool reference](https://sfdctrust.readthedocs.io/en/stable/getting-started/mcp.html)
 for a host configuration, paging examples, output limits, and data visibility.
 
 ## Use the asynchronous client
@@ -216,10 +216,10 @@ The built-in SQLite store currently supports the synchronous client.
 
 ## Compatibility
 
-The [1.x public compatibility baseline and versioning policy](https://sfdctrust.readthedocs.io/en/latest/reference/compatibility.html)
-identify supported imports, calls, serialization, errors, pagination, HTTP client
-ownership, and PAT-store upgrades. The 1.0 release retains fixed per-attempt
-phase timeouts, including with injected HTTPX clients.
+The 1.x compatibility policy covers supported SDK imports and behavior, CLI
+and MCP interfaces, and PAT-store upgrades. Per-attempt phase timeouts remain
+fixed, including with injected HTTPX clients.
+[Public compatibility and versioning policy](https://sfdctrust.readthedocs.io/en/stable/reference/compatibility.html)
 
 ## Development
 

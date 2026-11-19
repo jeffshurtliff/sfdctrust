@@ -2,7 +2,8 @@
 
 [Issue #11](https://github.com/jeffshurtliff/sfdctrust/issues/11) established
 the CI and publishing controls. Production release execution requires separate
-authorization. Follow {doc}`stable-release` for the current release gates.
+authorization. Use {doc}`stable-release` as a process reference and confirm
+the current release gates in the release tracker.
 
 See {doc}`ci-publishing-evidence` for the recorded local source, results, artifact
 hashes and reproduction commands. The separately authorized hosted rehearsal
@@ -12,8 +13,8 @@ uploads or production release execution.
 
 ## Boundaries and existing qualification
 
-Stable `1.1.0` preparation is tracked in
-[#19](https://github.com/jeffshurtliff/sfdctrust/issues/19).
+Stable `1.2.0` preparation is tracked in
+[#22](https://github.com/jeffshurtliff/sfdctrust/issues/22).
 Preserve Python `>=3.12`; classifiers currently advertise 3.12–3.15.
 `tools/ci/matrix.py` derives Linux tests for each advertised minor plus macOS and
 Windows on the minimum minor. Native SQLite permission and spawned-process tests,

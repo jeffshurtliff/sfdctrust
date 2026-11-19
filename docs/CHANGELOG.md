@@ -13,12 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-added)=
 ### Added
 
-- Added the optional `sfdctrust[mcp]` local stdio server. Five read-only tools
-  return PAT-scoped tenant lists and history, status snapshots, event search
-  pages, and event timelines with a UTC observation time and bounded output.
-  See the [setup and tool reference](getting-started/mcp.md).
-- Added `include_history: false` to the MCP `get_tenant` tool so callers can
-  retrieve tenant detail when the embedded history exceeds the output limit.
+- None yet.
 
 (unreleased-changed)=
 ### Changed
@@ -28,13 +23,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-fixed)=
 ### Fixed
 
-- MCP `output_limit` errors report the serialized result size and suggest a
-  smaller read when tenant history is included.
+- None yet.
 
 (unreleased-security)=
 ### Security
 
 - None yet.
+
+(relnotes-1-2-0)=
+## [1.2.0] - 2026-11-18
+
+This release adds an optional read-only MCP server for Salesforce My Trust
+Center. The base SDK and CLI install without MCP. Python 3.12 or later is
+required.
+
+(release-1-2-0-added)=
+### Added
+
+- Added the optional `sfdctrust[mcp]` local stdio server. Five read-only tools
+  return PAT-scoped tenant lists and history, status snapshots, event search
+  pages, and event timelines with a UTC observation time and bounded output.
+  See the [setup and tool reference](getting-started/mcp.md).
+- Added `include_history: false` to the MCP `get_tenant` tool so callers can
+  retrieve tenant detail when the embedded history exceeds the output limit.
+
+(release-1-2-0-changed)=
+### Changed
+
+- Installed wheel and source distribution checks exercise the base package
+  and the MCP extra. Compatibility checks include the published 1.1.0 CLI
+  and SQLite stores, and the locked runtime audit includes MCP dependencies.
+
+(release-1-2-0-fixed)=
+### Fixed
+
+- MCP `output_limit` errors report the serialized result size and suggest a
+  smaller read when tenant history is included.
 
 (relnotes-1-1-0)=
 ## [1.1.0] - 2026-11-17
@@ -188,7 +212,8 @@ Center API. Requires Python 3.12 or later.
   metadata or from `pyproject.toml` in a source checkout.
 - The direct runtime dependencies are HTTPX and Pydantic v2.
 
-[Unreleased]: https://github.com/jeffshurtliff/sfdctrust/compare/1.1.0...main
+[Unreleased]: https://github.com/jeffshurtliff/sfdctrust/compare/1.2.0...main
+[1.2.0]: https://github.com/jeffshurtliff/sfdctrust/compare/1.1.0...1.2.0
 [1.1.0]: https://github.com/jeffshurtliff/sfdctrust/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/jeffshurtliff/sfdctrust/compare/0.2.0...1.0.0
 [0.2.0]: https://github.com/jeffshurtliff/sfdctrust/compare/0.1.0...0.2.0

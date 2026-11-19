@@ -10,18 +10,17 @@ CLI can be installed independently of MCP.
 
 ## Install and launch
 
-Use Python 3.12 or later. In a virtual environment, install the 1.2.0
-development checkout with its optional MCP dependencies:
+The local server is available in sfdctrust 1.2.0 or later. Use Python 3.12 or
+later and install the MCP extra from PyPI in a virtual environment.
 
 ```sh
-python -m pip install '.[mcp]'
+python -m pip install 'sfdctrust[mcp]'
 ```
 
-The distribution extra is named `sfdctrust[mcp]`. For example, to install a
-built development wheel, substitute its path in the command below:
+To install from a release wheel, substitute its path in the command below.
 
 ```sh
-python -m pip install '/absolute/path/to/sfdctrust-1.2.0.dev0-py3-none-any.whl[mcp]'
+python -m pip install '/absolute/path/to/sfdctrust-1.2.0-py3-none-any.whl[mcp]'
 ```
 
 Supply `SFDCTRUST_PAT` to the server process through your trusted credential

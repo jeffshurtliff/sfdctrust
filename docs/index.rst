@@ -19,6 +19,8 @@ Salesforce.
 
 The synchronous and asynchronous clients provide tenant listing, status
 snapshots, event search, and detail reads for events and tenants.
+These reads are also available through the :doc:`CLI <getting-started/cli>`
+and the optional :doc:`local MCP server <getting-started/mcp>`.
 
 The API exposes only the tenants authorized by the caller's personal access
 token (PAT). An empty or partial result does not establish Salesforce-wide health.
