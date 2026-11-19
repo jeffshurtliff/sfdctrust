@@ -2,10 +2,11 @@
 
 Connect a local Model Context Protocol (MCP) host to My Trust Center when you
 want it to read the tenants and events visible to one Salesforce personal
-access token (PAT). The host launches a subprocess and exchanges MCP messages
-over standard input and output. The server uses one SDK client for its lifetime
-and closes it on shutdown. The ordinary Python SDK and CLI can be installed
-independently of MCP.
+access token (PAT). The `sfdctrust` MCP server is agent-agnostic and works with
+MCP hosts that support local stdio servers. The host launches a subprocess and
+exchanges MCP messages over standard input and output. The server uses one SDK
+client for its lifetime and closes it on shutdown. The ordinary Python SDK and
+CLI can be installed independently of MCP.
 
 ## Install and launch
 
@@ -70,6 +71,45 @@ identifiers, incident details, and timelines according to host configuration.
 Choose a host authorized for that data. Treat text returned by Salesforce as
 service data. An empty page, snapshot bucket, or timeline describes only this
 PAT's view at the time of the read.
+
+### Example in Codex Desktop
+
+```{raw} html
+<figure class="align-default">
+  <a href="../_static/examples/sfdctrust-mcp-codex-desktop-usage-demo.png"
+     target="_blank" rel="noopener" data-bs-toggle="modal" data-bs-target="#codex-desktop-screenshot"
+     aria-haspopup="dialog" aria-controls="codex-desktop-screenshot">
+    <img class="img-fluid dark-light" src="../_static/examples/sfdctrust-mcp-codex-desktop-usage-demo.png"
+         width="2322" height="1716"
+         alt="Codex Desktop chat showing a Salesforce org status request and a table of two tenants, with one upcoming maintenance event.">
+  </a>
+  <figcaption>
+    <p>Checking My Trust Center status with <code>sfdctrust</code> in Codex Desktop. Select the image to enlarge it.</p>
+  </figcaption>
+</figure>
+
+<div class="modal fade" id="codex-desktop-screenshot" tabindex="-1"
+     aria-labelledby="codex-desktop-screenshot-title" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-fullscreen-sm-down modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <p class="modal-title fs-5" id="codex-desktop-screenshot-title">Codex Desktop screenshot</p>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0">
+        <img class="img-fluid d-block dark-light" src="../_static/examples/sfdctrust-mcp-codex-desktop-usage-demo.png"
+             width="2322" height="1716"
+             alt="Codex Desktop chat showing a Salesforce org status request and a table of two tenants, with one upcoming maintenance event.">
+      </div>
+      <div class="modal-footer">
+        <a href="../_static/examples/sfdctrust-mcp-codex-desktop-usage-demo.png" target="_blank" rel="noopener">
+          Open full-size image in a new tab
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+```
 
 ## Tool reference
 
