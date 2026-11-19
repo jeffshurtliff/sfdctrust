@@ -222,7 +222,7 @@ jobs:
       - name: Install locked verification tooling
         run: |
           python -m pip install 'poetry==2.5.1'
-          poetry install --no-interaction
+          poetry install --extras mcp --no-interaction
       - name: Verify hosted files and cryptographic provenance (registry networking allowed)
         env:
           DESTINATION: ${{ inputs.destination }}

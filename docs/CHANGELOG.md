@@ -23,7 +23,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 (unreleased-fixed)=
 ### Fixed
 
-- None yet.
+- Installed the locked MCP extra in the post-upload registry job so it can
+  qualify the wheel and source distribution (#24).
 
 (unreleased-security)=
 ### Security
