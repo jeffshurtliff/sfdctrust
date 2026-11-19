@@ -152,7 +152,7 @@ render/write/close errors and complete validation boundaries.
 CI's metadata-derived matrix retains Python 3.12–3.15 on Linux and the minimum
 minor on macOS/Windows, including native SQLite permissions/spawned processes
 and real installed wheel launchers. The quality job separately qualifies both
-artifacts. The existing compatibility job runs both baseline campaigns on
+artifacts. The compatibility job runs all three baseline campaigns on
 Linux/Python 3.12 and retains separate evidence/freeze files even on failures.
 Required job names, permissions and release protection remain unchanged.
 
