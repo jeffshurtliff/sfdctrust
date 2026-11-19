@@ -3,7 +3,7 @@
 :Module:            tests.unit.test_ci_tooling
 :Synopsis:          Audit failure, release identity, archive and workflow regressions
 :Created By:        Jeff Shurtliff
-:Last Modified:     Jeff Shurtliff (via GPT-6.2 Astra)
+:Last Modified:     Jeff Shurtliff (via GPT-6.2 Sol)
 :Modified Date:     18 Nov 2026
 """
 
@@ -475,6 +475,14 @@ def test_workflow_event_and_permission_boundaries():
     quality = '\n'.join(step.get('run', '') for step in ci['jobs']['quality']['steps'])
     assert 'bandit' in quality and 'sphinx-build -W --keep-going -E -a' in quality
     assert 'qualify.py qualify' in quality
+
+
+def test_registry_job_installs_locked_mcp_extra_before_verification():
+    steps = workflow('release')['jobs']['verify-registry']['steps']
+    verification = next(index for index, step in enumerate(steps) if 'tools/ci/registry.py' in step.get('run', ''))
+    assert any(
+        'poetry install --extras mcp --no-interaction' in step.get('run', '').splitlines() for step in steps[:verification]
+    )
 
 
 @pytest.mark.parametrize('job', ['publish-testpypi', 'publish-pypi'])
